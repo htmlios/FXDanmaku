@@ -22,8 +22,13 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(addCarrier) userInfo:nil repeats:YES];
+//    self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(addCarrier) userInfo:nil repeats:YES];
     [_trackView start];
+    [_trackView addUserWords:@"just one words"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [_timer invalidate];
+        [_trackView stop];
+    });
 }
 
 - (void)addCarrier {
@@ -33,7 +38,7 @@
         [_trackView addUserWords:time];
     }
     else {
-        [_trackView addAnchorWords:time];
+        [_trackView addUserWords:time];
     }
 }
 

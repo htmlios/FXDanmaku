@@ -10,6 +10,8 @@
 
 @interface FXTrackView : UIView
 
+@property (assign, readonly, nonatomic) CGFloat trackHeight;
+
 - (instancetype)initWithFrame:(CGRect)frame;
 
 - (void)addUserWords:(NSString *)subtitleStr;

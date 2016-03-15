@@ -14,13 +14,14 @@
 #define PrintBarrageTestLog 0
 #endif
 
-@interface FXTrackView ()
+@interface FXTrackView () {
+    __block BOOL _shouldCancel;
+}
 
 @property (assign, nonatomic) BOOL gotExactFrame;
 @property (assign, nonatomic) unsigned int numOfTracks;
 @property (assign, nonatomic) CGFloat trackHeight;
 
-@property (strong, nonatomic) NSTimer *timer;
 @property (strong, nonatomic) NSMutableArray *anchorWordsArr;
 @property (strong, nonatomic) NSMutableArray *usersWordsArr;
 
@@ -155,55 +156,41 @@
 
 - (void)start {
     
+    _shouldCancel = NO;
     if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
         dispatch_async(self.consumerQueue, ^{
             [self consumeCarrier];
         });
     }
-    
-//    dispatch_async(self.consumerQueue, ^{
-//        
-////        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(consumeCarrier) userInfo:nil repeats:YES];
-//        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.0 target:self selector:@selector(consumeCarrier) userInfo:nil repeats:NO];
-//        [[NSRunLoop currentRunLoop] run];
-//    });
 }
 
 - (void)pause {
     
-    if (self.timer) {
-        
-        [self.timer invalidate];
-        self.timer = nil;
-        dispatch_async(self.producerQueue, ^{
-
-            [_anchorWordsArr removeAllObjects];
-            [_usersWordsArr removeAllObjects];
-            _carrierSemaphore = nil;
-            _trackSemaphore = nil;
-        });
-        [self clearScreen];
-        self.hidden = YES;
-    }
+    [self cancelConsume];
+    self.hidden = YES;
 }
 
 - (void)resume {
     
-    if (!self.timer) {
-        
-        [self start];
-        self.hidden = NO;
-    }
+    [self start];
+    self.hidden = NO;
 }
 
 - (void)stop {
     
-    if (self.timer) {
+    [self cancelConsume];
+//    [self removeFromSuperview];
+}
+
+- (void)cancelConsume {
+    
+    _shouldCancel = YES;
+    dispatch_sync(self.producerQueue, ^{
         
-        [self.timer invalidate];
-        self.timer = nil;
-        [self removeFromSuperview];
-    }
+        [_anchorWordsArr removeAllObjects];
+        [_usersWordsArr removeAllObjects];
+    });
+    [self clearScreen];
 }
 
 #pragma mark - Private
@@ -228,23 +215,25 @@
 
 - (NSString *)getUserWords {
     
-    NSString *userWords = [_usersWordsArr firstObject];
-    if (userWords.length > 0) {
-        dispatch_async(self.producerQueue, ^{
+    __block NSString *userWords = nil;
+    dispatch_sync(self.producerQueue, ^{
+        userWords = _usersWordsArr.firstObject;
+        if (userWords) {
             [_usersWordsArr removeObjectAtIndex:0];
-        });
-    }
+        }
+    });
     return userWords;
 }
 
 - (NSString *)getAnchorWords {
     
-    NSString *anchorWords = [_anchorWordsArr firstObject];
-    if (anchorWords.length > 0) {
-        dispatch_async(self.producerQueue, ^{
+    __block NSString *anchorWords = nil;
+    dispatch_sync(self.producerQueue, ^{
+        anchorWords = _anchorWordsArr.firstObject;
+        if (anchorWords) {
             [_anchorWordsArr removeObjectAtIndex:0];
-        });
-    }
+        }
+    });
     return anchorWords;
 }
 
@@ -256,6 +245,7 @@
 }
 
 - (void)removeOccupiedTrackAtIndex:(NSUInteger)index {
+    
     if (index < self.numOfTracks) {
         self.occupiedTrackBit -= 1 << index;
         dispatch_semaphore_signal(self.trackSemaphore);
@@ -267,7 +257,6 @@
 // 随机未占用弹道
 - (int)randomUnoccupiedTrackIndex {
     
-    dispatch_semaphore_wait(self.trackSemaphore, DISPATCH_TIME_FOREVER);
     NSMutableArray *randomArr = nil;
     for (int i = 0; i < _numOfTracks; i++) {
         
@@ -284,11 +273,12 @@
     if (count > 0) {
         
         NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
-        dispatch_async(self.producerQueue, ^{
+        dispatch_sync(self.producerQueue, ^{
             [self setOccupiedTrackAtIndex:num.intValue];
         });
         return num.intValue;
     }
+
     return -1;
 }
 
@@ -315,33 +305,38 @@
 // 弹幕块起始坐标
 - (CGPoint)startPointWithIndex:(int)index {
     
-    return CGPointMake(self.frame.origin.x+self.frame.size.width, index * _trackHeight);
+    return CGPointMake(self.frame.size.width, index * _trackHeight);
 }
 
 - (void)consumeCarrier {
     
-    while (true) {
+    while (!_shouldCancel) {
         
+        dispatch_semaphore_wait(self.trackSemaphore, DISPATCH_TIME_FOREVER);
         int randomIndex = [self randomUnoccupiedTrackIndex];
         
         if (randomIndex > -1) {
             
+            // when self is deallocated, system will send disaptach_semaphore_dispose msg to _carrierSemaphore, so this wait will break
             dispatch_semaphore_wait(self.carrierSemaphore, DISPATCH_TIME_FOREVER);
             
             NSString *anchorWords = [self getAnchorWords];
             NSString *usersWords = anchorWords?nil:[self getUserWords];
-            if (anchorWords.length > 0) {
-                [self presentAnchorWords:anchorWords withBarrageIndex:randomIndex];
-            }
-            else if (usersWords.length > 0) {
-                [self presentUserWords:usersWords withBarrageIndex:randomIndex];
-            }
-            else {
-                NSLog(@"This line will never run");
-                dispatch_async(self.producerQueue, ^{
-                    [self removeOccupiedTrackAtIndex:randomIndex];
-                });
-            }
+            
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                if (anchorWords.length > 0) {
+                    [self presentAnchorWords:anchorWords withBarrageIndex:randomIndex];
+                }
+                else if (usersWords.length > 0) {
+                    [self presentUserWords:usersWords withBarrageIndex:randomIndex];
+                }
+                else {
+                    NSLog(@"This line will never run: 335");
+                    dispatch_async(self.producerQueue, ^{
+                        [self removeOccupiedTrackAtIndex:randomIndex];
+                    });
+                }
+            });
         }
         else {
             NSLog(@"This line will never run");
@@ -378,24 +373,22 @@
     CGFloat animDuration = [self animateDurationOfVelocity:velocity carrierWidth:size.width];
     CGFloat resetTime = [self resetTrackTimeOfVelocity:velocity carrierWidth:size.width];
     
-//    NSAttributedString *attrStr = [title bos_makeString:^(BOStringMaker *make) {
-//        
-//        make.font([UIFont systemFontOfSize:kWordsFontSize]);
-//        make.foregroundColor(color);
-//        NSShadow *shadow = [[NSShadow alloc] init];
-//        shadow.shadowColor = [UIColor blackColor];
-//        shadow.shadowOffset = CGSizeMake(1, 1);
-//        make.shadow(shadow);
-//    }];
+    NSShadow *shadow = [[NSShadow alloc] init];
+    shadow.shadowColor = FX_TextShadowColor;
+    shadow.shadowOffset = FX_TextShadowOffset;
+    
+    NSDictionary *attrs = @{
+                            NSFontAttributeName: [UIFont systemFontOfSize:FX_TextFontSize],
+                            NSForegroundColorAttributeName: color,//FX_TextFontColor
+                            NSShadowAttributeName: shadow
+                            };
+    NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:title attributes:attrs];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         
         UILabel *lb = [[UILabel alloc] initWithFrame:CGRectMake(point.x, point.y, size.width, _trackHeight)];
         lb.text = title;
-        lb.textColor = color;
-        lb.font = [UIFont systemFontOfSize:FX_TextFontSize];
-//        lb.attributedText = attrStr;
-        
+        lb.attributedText = attrStr;
         [self addSubview:lb];
         
         [UIView animateWithDuration:animDuration
@@ -407,7 +400,7 @@
              CGRect rect = lb.frame;
              rect.origin.x = -rect.size.width;
              lb.frame = rect;
-             [self layoutIfNeeded];
+             [lb layoutIfNeeded];
          } completion:^(BOOL finished) {
              
              [lb removeFromSuperview];

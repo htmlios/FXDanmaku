@@ -14,6 +14,9 @@
 
 // 字幕大小
 #define FX_TextFontSize 18
+#define FX_TextFontColor UIColorFromHexRGB(0xFFA042)
+#define FX_TextShadowColor UIColorFromHexRGB(0x272727)
+#define FX_TextShadowOffset CGSizeMake(1, 1)
 
 // 重置弹道的位移百分比
 #define FX_ResetTrackOffsetRatio 0.2
