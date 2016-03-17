@@ -9,13 +9,29 @@
 #import "FXTrackView.h"
 #import "FXBarrageViewHeader.h"
 #import "FXDeallocMonitor.h"
+#import "FXSemaphore.h"
+#import <pthread.h>
 
 #if DEBUG
 #define PrintBarrageTestLog 0
 #endif
 
+typedef NS_ENUM(NSUInteger, TrackViewStatus) {
+    StatusNotStarted = 1001,
+    StatusRunning,
+    StatusPaused,
+    StatusStoped
+};
+
 @interface FXTrackView () {
-    __block BOOL _shouldCancel;
+    pthread_mutex_t _track_mutex;
+    pthread_cond_t _track_prod, _track_cons;
+    pthread_mutex_t _carrier_mutex;
+    pthread_cond_t _carrier_prod, _carrier_cons;
+    
+    __block TrackViewStatus _status;
+    __block BOOL _hasTracks;
+    __block BOOL _hasCarriers;
 }
 
 @property (assign, nonatomic) BOOL gotExactFrame;
@@ -26,27 +42,18 @@
 @property (strong, nonatomic) NSMutableArray *usersWordsArr;
 
 @property (strong, nonatomic) dispatch_queue_t consumerQueue;
-@property (strong, nonatomic) dispatch_queue_t producerQueue;
+@property (strong, nonatomic) dispatch_queue_t trackProducerQueue;
+@property (strong, nonatomic) dispatch_queue_t carrierProducerQueue;
+@property (strong, nonatomic) dispatch_queue_t computationQueue;
 
 // 按位判断某条弹道是否被占用
 @property (assign, nonatomic) NSUInteger occupiedTrackBit;
-
-@property (strong, nonatomic) dispatch_semaphore_t carrierSemaphore;
-@property (strong, nonatomic) dispatch_semaphore_t trackSemaphore;
 
 @end
 
 @implementation FXTrackView
 
 #pragma mark - Getter
-
-- (dispatch_queue_t)producerQueue {
-    
-    if (!_producerQueue) {
-        _producerQueue = dispatch_queue_create("shawnfoo.trackView.producerQueue", NULL);
-    }
-    return _producerQueue;
-}
 
 - (dispatch_queue_t)consumerQueue {
     
@@ -56,20 +63,29 @@
     return _consumerQueue;
 }
 
-- (dispatch_semaphore_t)carrierSemaphore {
+
+- (dispatch_queue_t)trackProducerQueue {
     
-    if (!_carrierSemaphore) {
-        _carrierSemaphore = dispatch_semaphore_create(0);
+    if (!_trackProducerQueue) {
+        _trackProducerQueue = dispatch_queue_create("shawnfoo.trackView.trackProducerQueue", NULL);
     }
-    return _carrierSemaphore;
+    return _trackProducerQueue;
 }
 
-- (dispatch_semaphore_t)trackSemaphore {
+- (dispatch_queue_t)carrierProducerQueue {
     
-    if (!_trackSemaphore) {
-        _trackSemaphore = dispatch_semaphore_create(_numOfTracks);
+    if (!_trackProducerQueue) {
+        _trackProducerQueue = dispatch_queue_create("shawnfoo.trackView.carrierProducerQueue", NULL);
     }
-    return _trackSemaphore;
+    return _trackProducerQueue;
+}
+
+- (dispatch_queue_t)computationQueue {
+    
+    if (!_computationQueue) {
+        _computationQueue = dispatch_queue_create("shawnfoo.trackView.computationQueue", NULL);
+    }
+    return _computationQueue;
 }
 
 - (NSMutableArray *)usersWordsArr {
@@ -106,7 +122,21 @@
 
 - (void)commonSetup {
     
-     self.backgroundColor = [UIColor clearColor];
+    _status = StatusNotStarted;
+    
+    pthread_mutex_init(&_track_mutex, NULL);
+    pthread_cond_init(&_track_prod, NULL);
+    pthread_cond_init(&_track_cons, NULL);
+    
+    pthread_mutex_init(&_carrier_mutex, NULL);
+    pthread_cond_init(&_carrier_prod, NULL);
+    pthread_cond_init(&_carrier_cons, NULL);
+    
+#ifdef FX_TrackViewBackgroundColor
+    self.backgroundColor = FX_TrackViewBackgroundColor;
+#else
+    self.backgroundColor = [UIColor clearColor];
+#endif
     [self calcTracks];
     [FXDeallocMonitor addMonitorToObj:self];
 }
@@ -130,33 +160,38 @@
     
     if (!self.hidden) {// 隐藏期间不接收任何数据
         
-        dispatch_async(self.producerQueue, ^{
+        @WeakObj(self);
+        dispatch_async(self.carrierProducerQueue, ^{
+            @StrongObj(self);
+            pthread_mutex_lock(&_carrier_mutex);
             if (words.length > 0) {
+                _hasCarriers = YES;
                 [self.usersWordsArr addObject:words];
-                dispatch_semaphore_signal(self.carrierSemaphore);
+                pthread_cond_signal(&_carrier_cons);
             }
+            pthread_mutex_unlock(&_carrier_mutex);
         });
     }
 }
 
-- (void)addAnchorWords:(NSString *)words {
-    
-    if (!self.hidden) {// 隐藏期间不接收任何数据
-        
-        dispatch_async(self.producerQueue, ^{
-            if (words.length > 0) {
-                [self.anchorWordsArr addObject:words];
-                dispatch_semaphore_signal(self.carrierSemaphore);
-            }
-        });
-    }
-}
+//- (void)addAnchorWords:(NSString *)words {
+//    
+//    if (!self.hidden) {// 隐藏期间不接收任何数据
+//        
+//        dispatch_async(self.producerQueue, ^{
+//            if (words.length > 0) {
+//                [self.anchorWordsArr addObject:words];
+//                dispatch_semaphore_signal(self.carrierSemaphore);
+//            }
+//        });
+//    }
+//}
 
 #pragma mark - Actions
 
 - (void)start {
     
-    _shouldCancel = NO;
+    _status = StatusRunning;
     if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
         dispatch_async(self.consumerQueue, ^{
             [self consumeCarrier];
@@ -166,30 +201,31 @@
 
 - (void)pause {
     
+    _status = StatusPaused;
     [self cancelConsume];
     self.hidden = YES;
 }
 
 - (void)resume {
     
+    _status = StatusRunning;
     [self start];
     self.hidden = NO;
 }
 
 - (void)stop {
     
+    _status = StatusStoped;
     [self cancelConsume];
-//    [self removeFromSuperview];
 }
 
 - (void)cancelConsume {
     
-    _shouldCancel = YES;
-    dispatch_sync(self.producerQueue, ^{
-        
-        [_anchorWordsArr removeAllObjects];
-        [_usersWordsArr removeAllObjects];
-    });
+//    dispatch_sync(self.producerQueue, ^{
+//        _occupiedTrackBit = 0;
+//        [_anchorWordsArr removeAllObjects];
+//        [_usersWordsArr removeAllObjects];
+//    });
     [self clearScreen];
 }
 
@@ -203,6 +239,7 @@
         CGFloat height = self.frame.size.height;
         self.numOfTracks = height / FX_EstimatedTrackHeight;
         self.trackHeight = height / _numOfTracks;
+        _hasTracks = _numOfTracks > 0;
     }
 }
 
@@ -213,50 +250,62 @@
     }
 }
 
-- (NSString *)getUserWords {
+- (NSArray *)getUserWords {
     
-    __block NSString *userWords = nil;
-    dispatch_sync(self.producerQueue, ^{
-        userWords = _usersWordsArr.firstObject;
-        if (userWords) {
-            [_usersWordsArr removeObjectAtIndex:0];
-        }
-    });
+    pthread_mutex_lock(&_carrier_mutex);
+    while (!_hasCarriers) {// no carriers, waiting for producer to signal to consumer
+        pthread_cond_wait(&_carrier_cons, &_carrier_mutex);
+    }
+    NSArray *userWords = _usersWordsArr.copy;
+    [_usersWordsArr removeAllObjects];
+    _hasCarriers = NO;
+    pthread_mutex_unlock(&_carrier_mutex);
     return userWords;
 }
 
-- (NSString *)getAnchorWords {
-    
-    __block NSString *anchorWords = nil;
-    dispatch_sync(self.producerQueue, ^{
-        anchorWords = _anchorWordsArr.firstObject;
-        if (anchorWords) {
-            [_anchorWordsArr removeObjectAtIndex:0];
-        }
-    });
-    return anchorWords;
-}
+//- (NSString *)getAnchorWords {
+//    
+//    __block NSString *anchorWords = nil;
+//    dispatch_sync(self.producerQueue, ^{
+//        anchorWords = _anchorWordsArr.firstObject;
+//        if (anchorWords) {
+//            [_anchorWordsArr removeObjectAtIndex:0];
+//        }
+//    });
+//    return anchorWords;
+//}
 
-- (void)setOccupiedTrackAtIndex:(NSUInteger)index {
+- (void)setOccupiedTrackAtIndex:(unsigned int)index {
     
     if (index < self.numOfTracks) {
         self.occupiedTrackBit |= 1 << index;
     }
 }
 
-- (void)removeOccupiedTrackAtIndex:(NSUInteger)index {
+- (void)removeOccupiedTrackAtIndex:(unsigned int)index {
     
+    pthread_mutex_lock(&_track_mutex);
     if (index < self.numOfTracks) {
+        _hasTracks = YES;
         self.occupiedTrackBit -= 1 << index;
-        dispatch_semaphore_signal(self.trackSemaphore);
+        pthread_cond_signal(&_carrier_cons);
     }
+    pthread_mutex_unlock(&_track_mutex);
 }
 
 #pragma mark 弹幕动画相关
 
 // 随机未占用弹道
-- (int)randomUnoccupiedTrackIndex {
+- (unsigned int)randomUnoccupiedTrackIndex {
     
+    //TODO: 判断status
+    
+    pthread_mutex_lock(&_track_mutex);
+    while (!_hasTracks) {
+        pthread_cond_wait(&_track_cons, &_track_mutex);
+    }
+    
+    unsigned int index = -1;
     NSMutableArray *randomArr = nil;
     for (int i = 0; i < _numOfTracks; i++) {
         
@@ -268,18 +317,15 @@
         }
         [randomArr addObject:@(i)];
     }
-    
     NSUInteger count = randomArr.count;
-    if (count > 0) {
-        
-        NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
-        dispatch_sync(self.producerQueue, ^{
-            [self setOccupiedTrackAtIndex:num.intValue];
-        });
-        return num.intValue;
-    }
-
-    return -1;
+    NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
+    index = num.unsignedIntValue;
+    [self setOccupiedTrackAtIndex:index];
+    
+    _hasTracks = count > 1 ? YES : NO;
+    
+    pthread_mutex_unlock(&_track_mutex);
+    return index;
 }
 
 // 随机移动速度
@@ -310,47 +356,55 @@
 
 - (void)consumeCarrier {
     
-    while (!_shouldCancel) {
+    while (StatusRunning == _status) {
         
-        dispatch_semaphore_wait(self.trackSemaphore, DISPATCH_TIME_FOREVER);
-        int randomIndex = [self randomUnoccupiedTrackIndex];
-        
-        if (randomIndex > -1) {
-            
-            // when self is deallocated, system will send disaptach_semaphore_dispose msg to _carrierSemaphore, so this wait will break
-            dispatch_semaphore_wait(self.carrierSemaphore, DISPATCH_TIME_FOREVER);
-            
-            NSString *anchorWords = [self getAnchorWords];
-            NSString *usersWords = anchorWords?nil:[self getUserWords];
-            
-            dispatch_async(dispatch_get_global_queue(0, 0), ^{
-                if (anchorWords.length > 0) {
-                    [self presentAnchorWords:anchorWords withBarrageIndex:randomIndex];
-                }
-                else if (usersWords.length > 0) {
-                    [self presentUserWords:usersWords withBarrageIndex:randomIndex];
-                }
-                else {
-                    NSLog(@"This line will never run: 335");
-                    dispatch_async(self.producerQueue, ^{
-                        [self removeOccupiedTrackAtIndex:randomIndex];
+        NSArray *usersWords = [self getUserWords];
+        for (NSString *word in usersWords) {
+            if (StatusRunning == _status) {
+                int unoccupiedIndex = [self randomUnoccupiedTrackIndex];
+                if (unoccupiedIndex > -1) {
+                    dispatch_async(self.computationQueue, ^{
+                        [self presentUserWords:word withBarrageIndex:unoccupiedIndex];
                     });
                 }
-            });
+                else { break; }
+            }
+            else { break; }
         }
-        else {
-            NSLog(@"This line will never run");
-        }
+        
+//        int randomIndex = [self randomUnoccupiedTrackIndex];
+//        
+//        if (randomIndex > -1) {
+//            
+////            NSString *anchorWords = [self getAnchorWords];
+////            NSString *usersWords = anchorWords?nil:[self getUserWords];
+//            NSString *usersWords = [self getUserWords];
+//            
+//            @WeakObj(self);
+//            dispatch_async(self.computationQueue, ^{
+//                @StrongObj(self);
+////                if (anchorWords.length > 0) {
+////                    [self presentAnchorWords:anchorWords withBarrageIndex:randomIndex];
+////                }
+////                else
+//                if (usersWords.length > 0) {
+//                    [self presentUserWords:usersWords withBarrageIndex:randomIndex];
+//                }
+//                else {
+//                    
+//                }
+//            });
+//        }
     }
 }
 
-- (void)presentAnchorWords:(NSString *)words withBarrageIndex:(int)index {
+- (void)presentAnchorWords:(NSString *)words withBarrageIndex:(unsigned int)index {
     // 以后更多DIY可在此进行
     UIColor *color = UIColorFromHexRGB(0xf9a520);
     [self presentWords:words color:color barrageIndex:index];
 }
 
-- (void)presentUserWords:(NSString *)words withBarrageIndex:(int)index {
+- (void)presentUserWords:(NSString *)words withBarrageIndex:(unsigned int)index {
     // 以后更多DIY可在此进行
     UIColor *color = [UIColor whiteColor];
     [self presentWords:words color:color barrageIndex:index];
@@ -408,7 +462,9 @@
     });
     
     // 重置弹道
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), self.producerQueue, ^(void){
+    @WeakObj(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), self.trackProducerQueue, ^(void){
+        @StrongObj(self);
         [self removeOccupiedTrackAtIndex:index];
     });
 }

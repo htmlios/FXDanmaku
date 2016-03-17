@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -18,24 +19,93 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4jk-SC-C9d" customClass="FXTrackView">
-                                <rect key="frame" x="0.0" y="20" width="600" height="580"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="320"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QX9-ae-l5u">
+                                <rect key="frame" x="8" y="562" width="52" height="30"/>
+                                <state key="normal" title="Add_10"/>
+                                <connections>
+                                    <action selector="add_10:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sua-d3-f7k"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RHu-kW-miF">
+                                <rect key="frame" x="68" y="562" width="52" height="30"/>
+                                <state key="normal" title="Add_20"/>
+                                <connections>
+                                    <action selector="add_10:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LRG-iq-h7V"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DxR-hZ-l41">
+                                <rect key="frame" x="128" y="562" width="52" height="30"/>
+                                <state key="normal" title="Add_30"/>
+                                <connections>
+                                    <action selector="add_10:" destination="BYZ-38-t0r" eventType="touchUpInside" id="n0m-9b-Jni"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fLc-Oq-s9T">
+                                <rect key="frame" x="560" y="562" width="32" height="30"/>
+                                <state key="normal" title="Stop"/>
+                                <connections>
+                                    <action selector="stop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="orn-J5-llW"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6us-Ck-umt">
+                                <rect key="frame" x="537" y="524" width="55" height="30"/>
+                                <state key="normal" title="Resume"/>
+                                <connections>
+                                    <action selector="resume:" destination="BYZ-38-t0r" eventType="touchUpInside" id="EMC-KF-ST8"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QAU-gV-cQX">
+                                <rect key="frame" x="550" y="486" width="42" height="30"/>
+                                <state key="normal" title="Pause"/>
+                                <connections>
+                                    <action selector="pause:" destination="BYZ-38-t0r" eventType="touchUpInside" id="zrZ-yZ-oS7"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uhi-bL-YJM">
+                                <rect key="frame" x="558" y="448" width="34" height="30"/>
+                                <state key="normal" title="Start"/>
+                                <connections>
+                                    <action selector="start:" destination="BYZ-38-t0r" eventType="touchUpInside" id="C5f-f8-JjH"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="4jk-SC-C9d" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="1qg-3K-eQf"/>
+                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="trailing" secondItem="uhi-bL-YJM" secondAttribute="trailing" id="3Gx-rz-goN"/>
+                            <constraint firstItem="RHu-kW-miF" firstAttribute="width" secondItem="QX9-ae-l5u" secondAttribute="width" id="4HM-Wv-18c"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="QX9-ae-l5u" secondAttribute="bottom" constant="8" id="7go-vc-vFV"/>
+                            <constraint firstItem="6us-Ck-umt" firstAttribute="top" secondItem="QAU-gV-cQX" secondAttribute="bottom" constant="8" id="8kG-nL-vCr"/>
+                            <constraint firstItem="QAU-gV-cQX" firstAttribute="trailing" secondItem="uhi-bL-YJM" secondAttribute="trailing" id="FY3-jS-dE1"/>
+                            <constraint firstItem="RHu-kW-miF" firstAttribute="bottom" secondItem="QX9-ae-l5u" secondAttribute="bottom" id="ISx-YA-HB0"/>
+                            <constraint firstItem="DxR-hZ-l41" firstAttribute="leading" secondItem="RHu-kW-miF" secondAttribute="trailing" constant="8" id="LLN-oJ-kPv"/>
                             <constraint firstAttribute="trailing" secondItem="4jk-SC-C9d" secondAttribute="trailing" id="OOP-Vx-jda"/>
-                            <constraint firstItem="4jk-SC-C9d" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="ewO-KH-2T4"/>
+                            <constraint firstItem="RHu-kW-miF" firstAttribute="leading" secondItem="QX9-ae-l5u" secondAttribute="trailing" constant="8" id="PmQ-S8-8cY"/>
+                            <constraint firstItem="6us-Ck-umt" firstAttribute="trailing" secondItem="uhi-bL-YJM" secondAttribute="trailing" id="Q8O-GC-YIn"/>
+                            <constraint firstItem="4jk-SC-C9d" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.5" constant="20" id="RQQ-Ei-RO5"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="fLc-Oq-s9T" secondAttribute="bottom" constant="8" id="Y66-vE-nyX"/>
+                            <constraint firstAttribute="trailing" secondItem="fLc-Oq-s9T" secondAttribute="trailing" constant="8" id="hW3-oo-bfu"/>
+                            <constraint firstItem="DxR-hZ-l41" firstAttribute="width" secondItem="QX9-ae-l5u" secondAttribute="width" id="kKl-D2-tPr"/>
+                            <constraint firstItem="QAU-gV-cQX" firstAttribute="top" secondItem="uhi-bL-YJM" secondAttribute="bottom" constant="8" id="l6o-ws-VN2"/>
+                            <constraint firstItem="DxR-hZ-l41" firstAttribute="bottom" secondItem="RHu-kW-miF" secondAttribute="bottom" id="nLv-6y-4VF"/>
+                            <constraint firstItem="RHu-kW-miF" firstAttribute="height" secondItem="QX9-ae-l5u" secondAttribute="height" id="oS3-Hj-ngS"/>
                             <constraint firstItem="4jk-SC-C9d" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="pi5-Lq-2b8"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="4jk-SC-C9d" secondAttribute="bottom" id="yym-MX-Yjj"/>
+                            <constraint firstItem="QX9-ae-l5u" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="8" id="rGH-Ll-anq"/>
+                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="top" secondItem="6us-Ck-umt" secondAttribute="bottom" constant="8" id="rXi-5q-ZfL"/>
+                            <constraint firstItem="DxR-hZ-l41" firstAttribute="height" secondItem="QX9-ae-l5u" secondAttribute="height" id="uBV-Uv-ojy"/>
                         </constraints>
                     </view>
+                    <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="trackView" destination="4jk-SC-C9d" id="BS8-Bf-OWb"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="450" y="461"/>
         </scene>
     </scenes>
 </document>

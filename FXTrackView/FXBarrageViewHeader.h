@@ -9,6 +9,8 @@
 #ifndef FXBarrageViewHeader_h
 #define FXBarrageViewHeader_h
 
+#define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
+
 // 用于初略计算 弹道的高
 #define FX_EstimatedTrackHeight 22
 
@@ -48,6 +50,9 @@ alpha:1])
 #else
 #define RaiseExceptionWithFormat(formatStr, ...) do {} while(0)
 #endif
+
+#define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;
+#define StrongObj(o) autoreleasepool{} __strong typeof(o) o = o##Weak;
 
 //  ====================      PreDefined Macro End       ====================
 
