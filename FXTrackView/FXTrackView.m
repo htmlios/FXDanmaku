@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 }
 
 @property (assign, nonatomic) BOOL gotExactFrame;
-@property (assign, nonatomic) unsigned int numOfTracks;
+@property (assign, nonatomic) int numOfTracks;
 @property (assign, nonatomic) CGFloat trackHeight;
 
 @property (strong, nonatomic) NSMutableArray *anchorWordsArr;
@@ -115,6 +115,8 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return self;
 }
 
+#pragma mark - LifeCycle
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self commonSetup];
@@ -141,6 +143,16 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     [FXDeallocMonitor addMonitorToObj:self];
 }
 
+- (void)dealloc {
+    
+    pthread_mutex_destroy(&_track_mutex);
+    pthread_mutex_destroy(&_carrier_mutex);
+    pthread_cond_destroy(&_track_prod);
+    pthread_cond_destroy(&_track_cons);
+    pthread_cond_destroy(&_carrier_prod);
+    pthread_cond_destroy(&_carrier_cons);
+}
+
 #pragma mark - Layout
 
 - (void)layoutSubviews {
@@ -164,10 +176,14 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
         dispatch_async(self.carrierProducerQueue, ^{
             @StrongObj(self);
             pthread_mutex_lock(&_carrier_mutex);
+            LogD(@"☀️_carrier_prod get lock");
             if (words.length > 0) {
-                _hasCarriers = YES;
+                
                 [self.usersWordsArr addObject:words];
-                pthread_cond_signal(&_carrier_cons);
+                if (!_hasCarriers) {
+                    _hasCarriers = YES;
+                    pthread_cond_signal(&_carrier_cons);
+                }
             }
             pthread_mutex_unlock(&_carrier_mutex);
         });
@@ -217,6 +233,19 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     
     _status = StatusStoped;
     [self cancelConsume];
+    // Break the waiting of consumers!!! Otherwise, self can't be released. Memory leaks!!
+    if (!_hasTracks) {
+        pthread_mutex_lock(&_track_mutex);
+        _hasTracks = YES;
+        pthread_cond_signal(&_track_cons);
+        pthread_mutex_unlock(&_track_mutex);
+    }
+    if (!_hasCarriers) {
+        pthread_mutex_lock(&_carrier_mutex);
+        _hasCarriers = YES;
+        pthread_cond_signal(&_carrier_cons);
+        pthread_mutex_unlock(&_carrier_mutex);
+    }
 }
 
 - (void)cancelConsume {
@@ -237,7 +266,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     
     if (_gotExactFrame) {
         CGFloat height = self.frame.size.height;
-        self.numOfTracks = height / FX_EstimatedTrackHeight;
+        self.numOfTracks = floor(height / FX_EstimatedTrackHeight);
         self.trackHeight = height / _numOfTracks;
         _hasTracks = _numOfTracks > 0;
     }
@@ -253,12 +282,17 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 - (NSArray *)getUserWords {
     
     pthread_mutex_lock(&_carrier_mutex);
+    LogD(@"☀️_carrier_cons get lock");
     while (!_hasCarriers) {// no carriers, waiting for producer to signal to consumer
+        LogD(@"☀️_carrier_cons waiting");
         pthread_cond_wait(&_carrier_cons, &_carrier_mutex);
     }
-    NSArray *userWords = _usersWordsArr.copy;
-    [_usersWordsArr removeAllObjects];
-    _hasCarriers = NO;
+    NSArray *userWords = nil;
+    if (StatusRunning == _status) {
+        userWords = _usersWordsArr.copy;
+        [_usersWordsArr removeAllObjects];
+        _hasCarriers = NO;
+    }
     pthread_mutex_unlock(&_carrier_mutex);
     return userWords;
 }
@@ -275,20 +309,23 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 //    return anchorWords;
 //}
 
-- (void)setOccupiedTrackAtIndex:(unsigned int)index {
+- (void)setOccupiedTrackAtIndex:(int)index {
     
     if (index < self.numOfTracks) {
         self.occupiedTrackBit |= 1 << index;
     }
 }
 
-- (void)removeOccupiedTrackAtIndex:(unsigned int)index {
+- (void)removeOccupiedTrackAtIndex:(int)index {
     
     pthread_mutex_lock(&_track_mutex);
     if (index < self.numOfTracks) {
-        _hasTracks = YES;
+        LogD(@"🌎_track_prod get lock");
         self.occupiedTrackBit -= 1 << index;
-        pthread_cond_signal(&_carrier_cons);
+        if (!_hasTracks) {
+            _hasTracks = YES;
+            pthread_cond_signal(&_track_cons);
+        }
     }
     pthread_mutex_unlock(&_track_mutex);
 }
@@ -296,33 +333,37 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 #pragma mark 弹幕动画相关
 
 // 随机未占用弹道
-- (unsigned int)randomUnoccupiedTrackIndex {
+- (int)randomUnoccupiedTrackIndex {
     
     //TODO: 判断status
     
     pthread_mutex_lock(&_track_mutex);
+    LogD(@"🌎_track_cons get lock");
     while (!_hasTracks) {
+        LogD(@"🌎_track_cons waiting");
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
-    unsigned int index = -1;
-    NSMutableArray *randomArr = nil;
-    for (int i = 0; i < _numOfTracks; i++) {
+    int index = -1;
+    if (StatusRunning == _status) {
+        NSMutableArray *randomArr = nil;
+        for (int i = 0; i < _numOfTracks; i++) {
+            
+            if ( 1<<i & _occupiedTrackBit) {
+                continue;
+            }
+            if (!randomArr) {
+                randomArr = [NSMutableArray arrayWithCapacity:_numOfTracks];
+            }
+            [randomArr addObject:@(i)];
+        }
+        NSUInteger count = randomArr.count;
+        NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
+        index = num.intValue;
+        [self setOccupiedTrackAtIndex:index];
         
-        if ( 1<<i & _occupiedTrackBit) {
-            continue;
-        }
-        if (!randomArr) {
-            randomArr = [NSMutableArray arrayWithCapacity:_numOfTracks];
-        }
-        [randomArr addObject:@(i)];
+        _hasTracks = count > 1 ? YES : NO;
     }
-    NSUInteger count = randomArr.count;
-    NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
-    index = num.unsignedIntValue;
-    [self setOccupiedTrackAtIndex:index];
-    
-    _hasTracks = count > 1 ? YES : NO;
     
     pthread_mutex_unlock(&_track_mutex);
     return index;
@@ -398,13 +439,13 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     }
 }
 
-- (void)presentAnchorWords:(NSString *)words withBarrageIndex:(unsigned int)index {
+- (void)presentAnchorWords:(NSString *)words withBarrageIndex:(int)index {
     // 以后更多DIY可在此进行
     UIColor *color = UIColorFromHexRGB(0xf9a520);
     [self presentWords:words color:color barrageIndex:index];
 }
 
-- (void)presentUserWords:(NSString *)words withBarrageIndex:(unsigned int)index {
+- (void)presentUserWords:(NSString *)words withBarrageIndex:(int)index {
     // 以后更多DIY可在此进行
     UIColor *color = [UIColor whiteColor];
     [self presentWords:words color:color barrageIndex:index];
