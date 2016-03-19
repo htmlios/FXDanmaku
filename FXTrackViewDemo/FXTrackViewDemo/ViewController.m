@@ -38,7 +38,9 @@
     int i = 0;
     while (i++ < 10) {
         NSString *time = [NSString stringWithFormat:@"%@", @([NSDate new].timeIntervalSince1970)];
-        [_trackView addUserWords:time];
+        [_trackView addData:@{
+                              FXDataTextKey: time
+                              }];
 //        if (arc4random()%2) {
 //            [_trackView addUserWords:time];
 //        }

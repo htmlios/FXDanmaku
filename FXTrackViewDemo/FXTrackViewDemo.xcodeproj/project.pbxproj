@@ -15,7 +15,6 @@
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B85E1C97033D003A1AF9 /* FXTrackView.m */; };
 		2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */; };
-		29D1B35D1C999C18001E6373 /* FXSemaphore.m in Sources */ = {isa = PBXBuildFile; fileRef = 29D1B35C1C999C18001E6373 /* FXSemaphore.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,11 +30,9 @@
 		2916B8561C96FFC9003A1AF9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2916B85D1C97033D003A1AF9 /* FXTrackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackView.h; sourceTree = "<group>"; };
 		2916B85E1C97033D003A1AF9 /* FXTrackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXTrackView.m; sourceTree = "<group>"; };
-		2916B85F1C97033D003A1AF9 /* FXBarrageViewHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXBarrageViewHeader.h; sourceTree = "<group>"; };
+		2916B85F1C97033D003A1AF9 /* FXTrackViewHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewHeader.h; sourceTree = "<group>"; };
 		2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDeallocMonitor.h; sourceTree = "<group>"; };
 		2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXDeallocMonitor.m; sourceTree = "<group>"; };
-		29D1B35B1C999C18001E6373 /* FXSemaphore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXSemaphore.h; sourceTree = "<group>"; };
-		29D1B35C1C999C18001E6373 /* FXSemaphore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXSemaphore.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,11 +92,9 @@
 			children = (
 				2916B85D1C97033D003A1AF9 /* FXTrackView.h */,
 				2916B85E1C97033D003A1AF9 /* FXTrackView.m */,
-				2916B85F1C97033D003A1AF9 /* FXBarrageViewHeader.h */,
+				2916B85F1C97033D003A1AF9 /* FXTrackViewHeader.h */,
 				2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */,
 				2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */,
-				29D1B35B1C999C18001E6373 /* FXSemaphore.h */,
-				29D1B35C1C999C18001E6373 /* FXSemaphore.m */,
 			);
 			name = FXTrackView;
 			path = ../../FXTrackView;
@@ -179,7 +174,6 @@
 				2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */,
 				2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */,
 				2916B8471C96FFC9003A1AF9 /* main.m in Sources */,
-				29D1B35D1C999C18001E6373 /* FXSemaphore.m in Sources */,
 				2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

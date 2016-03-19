@@ -6,8 +6,8 @@
 //  Copyright © 2016年 ShawnFoo. All rights reserved.
 //
 
-#ifndef FXBarrageViewHeader_h
-#define FXBarrageViewHeader_h
+#ifndef FXTrackViewHeader_h
+#define FXTrackViewHeader_h
 
 #define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
 
@@ -44,15 +44,25 @@ alpha:1])
 #define LogD(...) do {} while(0)
 #endif
 
-#ifdef DEBUG
-#define RaiseExceptionWithFormat(formatStr, ...) \
-[NSException raise:NSGenericException format:@"%s [line %d] " formatStr, __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__];
-#else
-#define RaiseExceptionWithFormat(formatStr, ...) do {} while(0)
-#endif
-
 #define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;
 #define StrongObj(o) autoreleasepool{} __strong typeof(o) o = o##Weak;
+
+#define RunBlock_Safe(block) {\
+if (block) {\
+block();\
+}\
+}
+
+#define RunBlock_Safe_MainThread(block) {\
+if ([NSThread isMainThread]) {\
+RunBlock_Safe(block)\
+}\
+else {\
+if (block) {\
+dispatch_async(dispatch_get_main_queue(), block);\
+}\
+}\
+}
 
 //  ====================      PreDefined Macro End       ====================
 

@@ -1,5 +1,5 @@
 //
-//  JCBarrageView.m
+//  FXTrackView.m
 //  
 //
 //  Created by ShawnFoo on 12/4/15.
@@ -7,14 +7,9 @@
 //
 
 #import "FXTrackView.h"
-#import "FXBarrageViewHeader.h"
+#import "FXTrackViewHeader.h"
 #import "FXDeallocMonitor.h"
-#import "FXSemaphore.h"
 #import <pthread.h>
-
-#if DEBUG
-#define PrintBarrageTestLog 0
-#endif
 
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     StatusNotStarted = 1001,
@@ -23,28 +18,35 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     StatusStoped
 };
 
+NSString const *FXDataTextKey = @"kFXDataText";
+NSString const *FXTextCustomAttrsKey = @"kFXTextCustomAttrs";
+NSString const *FXDataCustomViewKey = @"kFXDataCustomView";
+NSString const *FXDataPriorityKey = @"kFXDataPriority";
+
 @interface FXTrackView () {
     pthread_mutex_t _track_mutex;
     pthread_cond_t _track_prod, _track_cons;
-    pthread_mutex_t _carrier_mutex;
-    pthread_cond_t _carrier_prod, _carrier_cons;
+    pthread_mutex_t _data_mutex;
+    pthread_cond_t _data_prod, _data_cons;
     
     __block TrackViewStatus _status;
     __block BOOL _hasTracks;
-    __block BOOL _hasCarriers;
+    __block BOOL _hasData;
 }
 
 @property (assign, nonatomic) BOOL gotExactFrame;
-@property (assign, nonatomic) int numOfTracks;
+@property (assign, nonatomic) NSInteger numOfTracks;
 @property (assign, nonatomic) CGFloat trackHeight;
 
-@property (strong, nonatomic) NSMutableArray *anchorWordsArr;
+@property (strong, nonatomic) NSMutableArray *dataArr;
 @property (strong, nonatomic) NSMutableArray *usersWordsArr;
 
 @property (strong, nonatomic) dispatch_queue_t consumerQueue;
 @property (strong, nonatomic) dispatch_queue_t trackProducerQueue;
-@property (strong, nonatomic) dispatch_queue_t carrierProducerQueue;
+@property (strong, nonatomic) dispatch_queue_t dataProducerQueue;
 @property (strong, nonatomic) dispatch_queue_t computationQueue;
+
+@property (strong, nonatomic) FXTextAttrs defaultAttrs;
 
 // 按位判断某条弹道是否被占用
 @property (assign, nonatomic) NSUInteger occupiedTrackBit;
@@ -53,7 +55,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 
 @implementation FXTrackView
 
-#pragma mark - Getter
+#pragma mark - Lazy Loading Getter
 
 - (dispatch_queue_t)consumerQueue {
     
@@ -63,7 +65,6 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return _consumerQueue;
 }
 
-
 - (dispatch_queue_t)trackProducerQueue {
     
     if (!_trackProducerQueue) {
@@ -72,10 +73,10 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return _trackProducerQueue;
 }
 
-- (dispatch_queue_t)carrierProducerQueue {
+- (dispatch_queue_t)dataProducerQueue {
     
     if (!_trackProducerQueue) {
-        _trackProducerQueue = dispatch_queue_create("shawnfoo.trackView.carrierProducerQueue", NULL);
+        _trackProducerQueue = dispatch_queue_create("shawnfoo.trackView.dataProducerQueue", NULL);
     }
     return _trackProducerQueue;
 }
@@ -96,16 +97,32 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return _usersWordsArr;
 }
 
-- (NSMutableArray *)anchorWordsArr {
-    
-    if (!_anchorWordsArr) {
-        
-        _anchorWordsArr = [NSMutableArray arrayWithCapacity:1];
+- (NSMutableArray *)dataArr {
+
+    if (!_dataArr) {
+        _dataArr = [NSMutableArray arrayWithCapacity:15];
     }
-    return _anchorWordsArr;
+    return _dataArr;
 }
 
-#pragma mark - Initializer
+- (FXTextAttrs)defaultAttrs {
+    
+    if (!_defaultAttrs) {
+        NSShadow *shadow = [[NSShadow alloc] init];
+        shadow.shadowColor = FX_TextShadowColor;
+        shadow.shadowOffset = FX_TextShadowOffset;
+        
+        _defaultAttrs = @{
+                          NSFontAttributeName: [UIFont systemFontOfSize:FX_TextFontSize],
+                          NSForegroundColorAttributeName: [UIColor whiteColor],
+                          NSShadowAttributeName: shadow
+                          };
+    }
+    
+    return _defaultAttrs;
+}
+
+#pragma mark - LifeCycle
 
 - (instancetype)initWithFrame:(CGRect)frame {
     
@@ -115,8 +132,6 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return self;
 }
 
-#pragma mark - LifeCycle
-
 - (void)awakeFromNib {
     [super awakeFromNib];
     [self commonSetup];
@@ -125,32 +140,33 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 - (void)commonSetup {
     
     _status = StatusNotStarted;
+    self.clearTrackViewWhenPaused = YES;
+    self.emptyDataWhenPaused = YES;
     
     pthread_mutex_init(&_track_mutex, NULL);
     pthread_cond_init(&_track_prod, NULL);
     pthread_cond_init(&_track_cons, NULL);
     
-    pthread_mutex_init(&_carrier_mutex, NULL);
-    pthread_cond_init(&_carrier_prod, NULL);
-    pthread_cond_init(&_carrier_cons, NULL);
+    pthread_mutex_init(&_data_mutex, NULL);
+    pthread_cond_init(&_data_prod, NULL);
+    pthread_cond_init(&_data_cons, NULL);
     
 #ifdef FX_TrackViewBackgroundColor
     self.backgroundColor = FX_TrackViewBackgroundColor;
 #else
     self.backgroundColor = [UIColor clearColor];
 #endif
-    [self calcTracks];
     [FXDeallocMonitor addMonitorToObj:self];
 }
 
 - (void)dealloc {
     
     pthread_mutex_destroy(&_track_mutex);
-    pthread_mutex_destroy(&_carrier_mutex);
+    pthread_mutex_destroy(&_data_mutex);
     pthread_cond_destroy(&_track_prod);
     pthread_cond_destroy(&_track_cons);
-    pthread_cond_destroy(&_carrier_prod);
-    pthread_cond_destroy(&_carrier_cons);
+    pthread_cond_destroy(&_data_prod);
+    pthread_cond_destroy(&_data_cons);
 }
 
 #pragma mark - Layout
@@ -158,107 +174,10 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    if (CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
-        RaiseExceptionWithFormat(@"Please make sure trackview's size is not zero!");
-    }
-    else {
-        if (!_gotExactFrame) {
-            [self calcTracks];
-        }
+    if (!_gotExactFrame) {
+        [self calcTracks];
     }
 }
-
-- (void)addUserWords:(NSString *)words {
-    
-    if (!self.hidden) {// 隐藏期间不接收任何数据
-        
-        @WeakObj(self);
-        dispatch_async(self.carrierProducerQueue, ^{
-            @StrongObj(self);
-            pthread_mutex_lock(&_carrier_mutex);
-            LogD(@"☀️_carrier_prod get lock");
-            if (words.length > 0) {
-                
-                [self.usersWordsArr addObject:words];
-                if (!_hasCarriers) {
-                    _hasCarriers = YES;
-                    pthread_cond_signal(&_carrier_cons);
-                }
-            }
-            pthread_mutex_unlock(&_carrier_mutex);
-        });
-    }
-}
-
-//- (void)addAnchorWords:(NSString *)words {
-//    
-//    if (!self.hidden) {// 隐藏期间不接收任何数据
-//        
-//        dispatch_async(self.producerQueue, ^{
-//            if (words.length > 0) {
-//                [self.anchorWordsArr addObject:words];
-//                dispatch_semaphore_signal(self.carrierSemaphore);
-//            }
-//        });
-//    }
-//}
-
-#pragma mark - Actions
-
-- (void)start {
-    
-    _status = StatusRunning;
-    if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
-        dispatch_async(self.consumerQueue, ^{
-            [self consumeCarrier];
-        });
-    }
-}
-
-- (void)pause {
-    
-    _status = StatusPaused;
-    [self cancelConsume];
-    self.hidden = YES;
-}
-
-- (void)resume {
-    
-    _status = StatusRunning;
-    [self start];
-    self.hidden = NO;
-}
-
-- (void)stop {
-    
-    _status = StatusStoped;
-    [self cancelConsume];
-    // Break the waiting of consumers!!! Otherwise, self can't be released. Memory leaks!!
-    if (!_hasTracks) {
-        pthread_mutex_lock(&_track_mutex);
-        _hasTracks = YES;
-        pthread_cond_signal(&_track_cons);
-        pthread_mutex_unlock(&_track_mutex);
-    }
-    if (!_hasCarriers) {
-        pthread_mutex_lock(&_carrier_mutex);
-        _hasCarriers = YES;
-        pthread_cond_signal(&_carrier_cons);
-        pthread_mutex_unlock(&_carrier_mutex);
-    }
-}
-
-- (void)cancelConsume {
-    
-//    dispatch_sync(self.producerQueue, ^{
-//        _occupiedTrackBit = 0;
-//        [_anchorWordsArr removeAllObjects];
-//        [_usersWordsArr removeAllObjects];
-//    });
-    [self clearScreen];
-}
-
-#pragma mark - Private
 
 - (void)calcTracks {
     
@@ -270,72 +189,193 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
         self.trackHeight = height / _numOfTracks;
         _hasTracks = _numOfTracks > 0;
     }
+    else {
+        LogD(@"TrackView's size can't be zero!");
+    }
 }
 
-- (void)clearScreen {
+#pragma mark - Actions
+
+- (void)start {
+    
+    RunBlock_Safe_MainThread(^{
+        _status = StatusRunning;
+        if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
+            dispatch_async(self.consumerQueue, ^{
+                [self consumeData];
+            });
+        }
+    });
+}
+
+- (void)pause {
+    
+    RunBlock_Safe_MainThread(^{
+        _status = StatusPaused;
+        [self stopConsuming];
+        
+        if (self.emptyDataWhenPaused) {
+            pthread_mutex_lock(&_data_mutex);
+            [_dataArr removeAllObjects];
+            _hasData = NO;
+            pthread_mutex_unlock(&_data_mutex);
+        }
+        if (self.hideViewWhenPaused) {
+            self.hidden = YES;
+        }
+    });
+}
+
+- (void)resume {
+    
+    RunBlock_Safe_MainThread(^{
+        _status = StatusRunning;
+        [self start];
+        
+        if (self.hideViewWhenPaused) {
+            self.hidden = NO;
+        }
+        if (self.clearTrackViewWhenPaused) {
+            [self clearTrackView];
+        }
+    })
+}
+
+- (void)stop {
+    
+    RunBlock_Safe_MainThread(^{
+        _status = StatusStoped;
+        [self stopConsuming];
+        [self clearTrackView];
+    });
+}
+
+- (void)stopConsuming {
+    
+    // Break the waiting consumer thread! Otherwise, self can't be released. Memory leaks!
+    if (!_hasTracks) {
+        pthread_mutex_lock(&_track_mutex);
+        _hasTracks = YES;
+        pthread_cond_signal(&_track_cons);
+        pthread_mutex_unlock(&_track_mutex);
+    }
+    if (!_hasData) {
+        pthread_mutex_lock(&_data_mutex);
+        _hasData = YES;
+        pthread_cond_signal(&_data_cons);
+        pthread_mutex_unlock(&_data_mutex);
+    }
+}
+
+- (void)clearTrackView {
     
     for (UIView *subViews in self.subviews) {
         [subViews removeFromSuperview];
     }
 }
 
-- (NSArray *)getUserWords {
+#pragma mark - Data Producer & Consumer
+
+- (void)addData:(FXData)data {
     
-    pthread_mutex_lock(&_carrier_mutex);
-    LogD(@"☀️_carrier_cons get lock");
-    while (!_hasCarriers) {// no carriers, waiting for producer to signal to consumer
-        LogD(@"☀️_carrier_cons waiting");
-        pthread_cond_wait(&_carrier_cons, &_carrier_mutex);
+    if ([self shouldAcceptData]) {
+        @WeakObj(self);
+        dispatch_async(self.dataProducerQueue, ^{
+            @StrongObj(self);
+            pthread_mutex_lock(&_data_mutex);
+            LogD(@"☀️_carrier_prod get lock");
+            if ([self checkData:data]) {
+                [self insertData:data];
+                if (!_hasData) {
+                    _hasData = YES;
+                    pthread_cond_signal(&_data_cons);
+                }
+            }
+            pthread_mutex_unlock(&_data_mutex);
+        });
     }
-    NSArray *userWords = nil;
+}
+
+- (void)addDataArr:(NSArray *)dataArr {
+    
+    if (0 == dataArr.count) { return; }
+    if ([self shouldAcceptData]) {
+        @WeakObj(self);
+        dispatch_async(self.dataProducerQueue, ^{
+            @StrongObj(self);
+            pthread_mutex_lock(&_data_mutex);
+            LogD(@"☀️_carrier_prod get lock");
+            BOOL addedData = NO;
+            for (FXData data in dataArr) {
+                if ([self checkData:data]) {
+                    [self insertData:data];
+                    addedData = YES;
+                }
+            }
+            if (!_hasData && addedData) {
+                _hasData = YES;
+                pthread_cond_signal(&_data_cons);
+            }
+            pthread_mutex_unlock(&_data_mutex);
+        });
+    }
+}
+
+- (FXData)fetchData {
+    
+    pthread_mutex_lock(&_data_mutex);
+    LogD(@"☀️_data_cons get lock");
+    while (!_hasData) {// no carriers, waiting for producer to signal to consumer
+        LogD(@"☀️_data_cons waiting");
+        pthread_cond_wait(&_data_cons, &_data_mutex);
+    }
+    FXData data = nil;
     if (StatusRunning == _status) {
-        userWords = _usersWordsArr.copy;
-        [_usersWordsArr removeAllObjects];
-        _hasCarriers = NO;
+        data = _dataArr.firstObject;
+        [_dataArr removeObjectAtIndex:0];
+        _hasData = _dataArr.count > 0;
     }
-    pthread_mutex_unlock(&_carrier_mutex);
-    return userWords;
+    pthread_mutex_unlock(&_data_mutex);
+    return data;
 }
 
-//- (NSString *)getAnchorWords {
-//    
-//    __block NSString *anchorWords = nil;
-//    dispatch_sync(self.producerQueue, ^{
-//        anchorWords = _anchorWordsArr.firstObject;
-//        if (anchorWords) {
-//            [_anchorWordsArr removeObjectAtIndex:0];
-//        }
-//    });
-//    return anchorWords;
-//}
-
-- (void)setOccupiedTrackAtIndex:(int)index {
+- (void)insertData:(FXData)data {
     
-    if (index < self.numOfTracks) {
-        self.occupiedTrackBit |= 1 << index;
+    NSNumber *priority = data[FXDataPriorityKey];
+    if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
+        [self.dataArr addObject:data];
+    }
+    else {
+        [self.dataArr insertObject:data atIndex:0];
     }
 }
 
-- (void)removeOccupiedTrackAtIndex:(int)index {
+- (BOOL)shouldAcceptData {
     
-    pthread_mutex_lock(&_track_mutex);
-    if (index < self.numOfTracks) {
-        LogD(@"🌎_track_prod get lock");
-        self.occupiedTrackBit -= 1 << index;
-        if (!_hasTracks) {
-            _hasTracks = YES;
-            pthread_cond_signal(&_track_cons);
-        }
-    }
-    pthread_mutex_unlock(&_track_mutex);
+    BOOL isRunning = StatusRunning == _status;
+    BOOL isPaused = StatusPaused == _status;
+    
+    return isRunning || (isPaused&&_acceptDataWhenPaused);
 }
 
-#pragma mark 弹幕动画相关
-
-// 随机未占用弹道
-- (int)randomUnoccupiedTrackIndex {
+- (BOOL)checkData:(FXData)data {
     
-    //TODO: 判断status
+    NSString *text = data[FXDataTextKey];
+    
+    if ([text isKindOfClass:[NSString class]] && text.length>0) {
+        return true;
+    }
+    if ([data[FXTextCustomAttrsKey] isKindOfClass:[NSDictionary class]]) {
+        return true;
+    }
+    //TODO: Add CustomView Support
+    
+    return false;
+}
+
+#pragma mark - Track Producer & Consumer
+
+- (NSInteger)fetchUnoccupiedTrackIndex {
     
     pthread_mutex_lock(&_track_mutex);
     LogD(@"🌎_track_cons get lock");
@@ -344,7 +384,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
-    int index = -1;
+    NSInteger index = -1;
     if (StatusRunning == _status) {
         NSMutableArray *randomArr = nil;
         for (int i = 0; i < _numOfTracks; i++) {
@@ -369,6 +409,29 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return index;
 }
 
+- (void)setOccupiedTrackAtIndex:(NSInteger)index {
+    
+    if (index < self.numOfTracks) {
+        self.occupiedTrackBit |= 1 << index;
+    }
+}
+
+- (void)removeOccupiedTrackAtIndex:(NSInteger)index {
+    
+    pthread_mutex_lock(&_track_mutex);
+    if (index < self.numOfTracks) {
+        LogD(@"🌎_track_prod get lock");
+        self.occupiedTrackBit -= 1 << index;
+        if (!_hasTracks) {
+            _hasTracks = YES;
+            pthread_cond_signal(&_track_cons);
+        }
+    }
+    pthread_mutex_unlock(&_track_mutex);
+}
+
+#pragma mark - Animation Computation
+
 // 随机移动速度
 - (NSUInteger)randomVelocity {
     
@@ -390,124 +453,85 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 }
 
 // 弹幕块起始坐标
-- (CGPoint)startPointWithIndex:(int)index {
+- (CGPoint)startPointWithIndex:(NSUInteger)index {
     
     return CGPointMake(self.frame.size.width, index * _trackHeight);
 }
 
-- (void)consumeCarrier {
+- (void)consumeData {
     
     while (StatusRunning == _status) {
         
-        NSArray *usersWords = [self getUserWords];
-        for (NSString *word in usersWords) {
-            if (StatusRunning == _status) {
-                int unoccupiedIndex = [self randomUnoccupiedTrackIndex];
-                if (unoccupiedIndex > -1) {
-                    dispatch_async(self.computationQueue, ^{
-                        [self presentUserWords:word withBarrageIndex:unoccupiedIndex];
-                    });
-                }
-                else { break; }
+        FXData data = [self fetchData];
+        if (data) {
+            NSInteger unoccupiedIndex = [self fetchUnoccupiedTrackIndex];
+            if (unoccupiedIndex > -1) {
+                dispatch_async(self.computationQueue, ^{
+                    if (data[FXDataTextKey]) {
+                        FXTextAttrs attrs = data[FXTextCustomAttrsKey] ?: nil;
+                        if (!attrs) {
+                            NSNumber *priority = data[FXDataPriorityKey];
+                            if (PriorityNormal == priority.unsignedIntegerValue) {
+                                attrs = self.normalPriorityTextAttrs;
+                            }
+                            else if (PriorityHigh == priority.unsignedIntegerValue) {
+                                attrs = self.highPriorityTextAttrs;
+                            }
+                            attrs = attrs ?: self.defaultAttrs;
+                        }
+                        [self presentText:data[FXDataTextKey] attrs:attrs trackIndex:unoccupiedIndex];
+                    }
+                    else if (data[FXDataCustomViewKey]) {
+                        [self presentCustomView:data[FXDataCustomViewKey] trackIndex:unoccupiedIndex];
+                    }
+                });
             }
-            else { break; }
         }
-        
-//        int randomIndex = [self randomUnoccupiedTrackIndex];
-//        
-//        if (randomIndex > -1) {
-//            
-////            NSString *anchorWords = [self getAnchorWords];
-////            NSString *usersWords = anchorWords?nil:[self getUserWords];
-//            NSString *usersWords = [self getUserWords];
-//            
-//            @WeakObj(self);
-//            dispatch_async(self.computationQueue, ^{
-//                @StrongObj(self);
-////                if (anchorWords.length > 0) {
-////                    [self presentAnchorWords:anchorWords withBarrageIndex:randomIndex];
-////                }
-////                else
-//                if (usersWords.length > 0) {
-//                    [self presentUserWords:usersWords withBarrageIndex:randomIndex];
-//                }
-//                else {
-//                    
-//                }
-//            });
-//        }
     }
 }
 
-- (void)presentAnchorWords:(NSString *)words withBarrageIndex:(int)index {
-    // 以后更多DIY可在此进行
-    UIColor *color = UIColorFromHexRGB(0xf9a520);
-    [self presentWords:words color:color barrageIndex:index];
-}
-
-- (void)presentUserWords:(NSString *)words withBarrageIndex:(int)index {
-    // 以后更多DIY可在此进行
-    UIColor *color = [UIColor whiteColor];
-    [self presentWords:words color:color barrageIndex:index];
-}
-
-- (void)presentWords:(NSString *)title color:(UIColor *)color barrageIndex:(int)index {
-
-#if PrintBarrageTestLog
-    static int count = 0;
-    count++;
-    NSLog(@"%@, count:%@", title, @(count));
-#endif
+- (void)presentText:(NSString *)text attrs:(FXTextAttrs)attrs trackIndex:(NSUInteger)index {
     
-    NSDictionary *fontAttr = @{NSFontAttributeName: [UIFont systemFontOfSize:FX_TextFontSize]};
+    CGSize size = [text sizeWithAttributes:attrs];
     CGPoint point = [self startPointWithIndex:index];
-    CGSize size = [title sizeWithAttributes:fontAttr];
-    
     NSUInteger velocity = [self randomVelocity];
     
     CGFloat animDuration = [self animateDurationOfVelocity:velocity carrierWidth:size.width];
     CGFloat resetTime = [self resetTrackTimeOfVelocity:velocity carrierWidth:size.width];
     
-    NSShadow *shadow = [[NSShadow alloc] init];
-    shadow.shadowColor = FX_TextShadowColor;
-    shadow.shadowOffset = FX_TextShadowOffset;
-    
-    NSDictionary *attrs = @{
-                            NSFontAttributeName: [UIFont systemFontOfSize:FX_TextFontSize],
-                            NSForegroundColorAttributeName: color,//FX_TextFontColor
-                            NSShadowAttributeName: shadow
-                            };
-    NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:title attributes:attrs];
+    NSAttributedString *attrText = [[NSAttributedString alloc] initWithString:text attributes:attrs];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         
-        UILabel *lb = [[UILabel alloc] initWithFrame:CGRectMake(point.x, point.y, size.width, _trackHeight)];
-        lb.text = title;
-        lb.attributedText = attrStr;
-        [self addSubview:lb];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(point.x, point.y, size.width, _trackHeight)];
+        label.attributedText = attrText;
+        [self addSubview:label];
         
         [UIView animateWithDuration:animDuration
                               delay:0
                             options:UIViewAnimationOptionCurveLinear
                          animations:
          ^{
-             
-             CGRect rect = lb.frame;
+             CGRect rect = label.frame;
              rect.origin.x = -rect.size.width;
-             lb.frame = rect;
-             [lb layoutIfNeeded];
+             label.frame = rect;
+             [label layoutIfNeeded];
          } completion:^(BOOL finished) {
              
-             [lb removeFromSuperview];
+             [label removeFromSuperview];
          }];
     });
     
-    // 重置弹道
+    // reset track
     @WeakObj(self);
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), self.trackProducerQueue, ^(void){
         @StrongObj(self);
         [self removeOccupiedTrackAtIndex:index];
     });
+}
+
+- (void)presentCustomView:(UIView *)customView trackIndex:(NSUInteger)index {
+    //TODO: Add support for customView
 }
 
 @end

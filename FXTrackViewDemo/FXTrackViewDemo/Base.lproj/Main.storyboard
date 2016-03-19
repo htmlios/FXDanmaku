@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4jk-SC-C9d" customClass="FXTrackView">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="320"/>
+                                <rect key="frame" x="0.0" y="20" width="600" height="320"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QX9-ae-l5u">
@@ -98,7 +98,6 @@
                             <constraint firstItem="DxR-hZ-l41" firstAttribute="height" secondItem="QX9-ae-l5u" secondAttribute="height" id="uBV-Uv-ojy"/>
                         </constraints>
                     </view>
-                    <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="trackView" destination="4jk-SC-C9d" id="BS8-Bf-OWb"/>
                     </connections>
