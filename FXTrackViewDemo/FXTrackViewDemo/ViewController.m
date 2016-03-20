@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 #import "FXTrackView.h"
+#import <pthread.h>
+#import "FXTrackViewHeader.h"
 
 @interface ViewController ()
 
@@ -23,9 +25,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//    });
-//    [_trackView removeFromSuperview];
+    _trackView.removeFromSuperViewWhenStoped = YES;
+    _trackView.emptyDataWhenPaused = NO;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -37,7 +38,7 @@
 
     int i = 0;
     while (i++ < 10) {
-        NSString *time = [NSString stringWithFormat:@"%@", @([NSDate new].timeIntervalSince1970)];
+        NSString *time = [NSString stringWithFormat:@"%.6f", [NSDate new].timeIntervalSince1970];
         [_trackView addData:@{
                               FXDataTextKey: time
                               }];
@@ -78,7 +79,6 @@
         self.oldFrame = _trackView.frame;
     }
     [_trackView stop];
-    [_trackView removeFromSuperview];
 }
 
 @end

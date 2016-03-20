@@ -12,8 +12,8 @@ typedef NSDictionary* FXData;
 typedef NSDictionary* FXTextAttrs;
 
 typedef NS_ENUM(NSUInteger, FXDataPriority) {
-    PriorityHigh = 2001,
-    PriorityNormal,
+    PriorityNormal = 2001,
+    PriorityHigh
 };
 
 extern NSString const *FXDataTextKey;
@@ -34,8 +34,8 @@ extern NSString const *FXDataPriorityKey;
 @property (assign, nonatomic) BOOL hideViewWhenPaused;
 @property (assign, nonatomic) BOOL removeFromSuperViewWhenStoped;
 
-@property (assign, nonatomic) NSInteger maxVelocity;
-@property (assign, nonatomic) NSInteger minVelocity;
+@property (assign, nonatomic) NSUInteger maxVelocity;
+@property (assign, nonatomic) NSUInteger minVelocity;
 
 - (void)addData:(FXData)data;
 
