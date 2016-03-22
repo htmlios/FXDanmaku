@@ -12,9 +12,9 @@
 #define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
 
 // 用于初略计算 弹道的高
-#define FX_EstimatedTrackHeight 22
+#define FX_EstimatedTrackHeight 30
 
-#define FX_TextFontSize 18
+#define FX_TextFontSize 24
 #define FX_TextFontColor UIColorFromHexRGB(0xFFA042)
 #define FX_TextShadowColor UIColorFromHexRGB(0x272727)
 #define FX_TextShadowOffset CGSizeMake(1, 1)

@@ -28,11 +28,9 @@ extern NSString const *FXDataPriorityKey;
 @property (strong, nonatomic) FXTextAttrs normalPriorityTextAttrs;
 @property (strong, nonatomic) FXTextAttrs highPriorityTextAttrs;
 
-@property (assign, nonatomic) BOOL clearTrackViewWhenPaused;
-@property (assign, nonatomic) BOOL emptyDataWhenPaused;
-@property (assign, nonatomic) BOOL acceptDataWhenPaused;
-@property (assign, nonatomic) BOOL hideViewWhenPaused;
-@property (assign, nonatomic) BOOL removeFromSuperViewWhenStoped;
+@property (assign, nonatomic) BOOL clearScreenWhenStoped;
+@property (assign, nonatomic) BOOL emptyDataWhenStoped;
+@property (assign, nonatomic) BOOL acceptDataWhenStoped;
 
 @property (assign, nonatomic) NSUInteger maxVelocity;
 @property (assign, nonatomic) NSUInteger minVelocity;
@@ -42,10 +40,6 @@ extern NSString const *FXDataPriorityKey;
 - (void)addDataArr:(NSArray *)dataArr;
 
 - (void)start;
-
-- (void)pause;
-
-- (void)resume;
 
 - (void)stop;
 

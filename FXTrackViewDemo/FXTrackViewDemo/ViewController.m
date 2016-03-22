@@ -24,9 +24,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    
-    _trackView.removeFromSuperViewWhenStoped = YES;
-    _trackView.emptyDataWhenPaused = NO;
+
+    _trackView.emptyDataWhenStoped = NO;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -61,16 +60,6 @@
     }
     
     [_trackView start];
-}
-
-- (IBAction)pause:(id)sender {
-    
-    [_trackView pause];
-}
-
-- (IBAction)resume:(id)sender {
-    
-    [_trackView resume];
 }
 
 - (IBAction)stop:(id)sender {

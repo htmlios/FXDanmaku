@@ -14,7 +14,6 @@
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     StatusNotStarted = 1001,
     StatusRunning,
-    StatusPaused,
     StatusStoped
 };
 
@@ -48,6 +47,8 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 @property (strong, nonatomic) FXTextAttrs defaultAttrs;
 
 @property (assign, nonatomic) NSUInteger occupiedTrackBit;
+
+@property (assign, readonly, nonatomic) BOOL shouldAcceptData;
 
 @end
 
@@ -112,6 +113,15 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return _defaultAttrs;
 }
 
+#pragma mark Computed Property
+
+- (BOOL)shouldAcceptData {
+    
+    BOOL notStoped = StatusStoped != _status;
+
+    return notStoped || (!notStoped && _acceptDataWhenStoped);
+}
+
 #pragma mark - LifeCycle
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -133,8 +143,10 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
     self.maxVelocity = !_maxVelocity ? FX_MaxVelocity : _maxVelocity;
     self.minVelocity = !_minVelocity ? FX_MinVelocity : _minVelocity;
-    self.clearTrackViewWhenPaused = YES;
-    self.emptyDataWhenPaused = YES;
+    self.clearScreenWhenStoped = YES;
+    self.emptyDataWhenStoped = YES;
+    self.acceptDataWhenStoped = YES;
+    
 #ifdef FX_TrackViewBackgroundColor
     self.backgroundColor = FX_TrackViewBackgroundColor;
 #else
@@ -192,44 +204,11 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)start {
     
     RunBlock_Safe_MainThread(^{
-        if (StatusNotStarted == _status) {
+        if (StatusRunning != _status) {
+            _status = StatusRunning;
             [self startConsuming];
         }
-        else if (StatusPaused == _status) {
-            [self resume];
-        }
     });
-}
-
-- (void)pause {
-    
-    RunBlock_Safe_MainThread(^{
-        if (StatusRunning == _status) {
-            _status = StatusPaused;
-            [self stopConsuming];
-            
-            if (self.hideViewWhenPaused) {
-                self.hidden = YES;
-            }
-            if (self.clearTrackViewWhenPaused) {
-                [self clearTrackView];
-            }
-
-        }
-    });
-}
-
-- (void)resume {
-    
-    RunBlock_Safe_MainThread(^{
-        LogD(@"numOfTrack:        %@", @(self.occupiedTrackBit));
-        if (StatusPaused == _status) {
-            [self startConsuming];
-            if (self.hideViewWhenPaused) {
-                self.hidden = NO;
-            }
-        }
-    })
 }
 
 - (void)stop {
@@ -239,16 +218,12 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
             _status = StatusStoped;
             [self stopConsuming];
             [self clearTrackView];
-            if (self.removeFromSuperViewWhenStoped) {
-                [self removeFromSuperview];
-            }
         }
     });
 }
 
 - (void)startConsuming {
     
-    _status = StatusRunning;
     if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
         dispatch_async(self.consumerQueue, ^{
             [self consumeData];
@@ -259,7 +234,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)stopConsuming {
     
     // Exit the consumer thread if waiting! Otherwise, self can't be released. Memory leaks!
-    
     if (!_hasTracks) {
         pthread_mutex_lock(&_track_mutex);
         _hasTracks = YES;
@@ -285,47 +259,45 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 - (void)addData:(FXData)data {
     
-    if ([self shouldAcceptData]) {
-        @WeakObj(self);
-        dispatch_async(self.dataProducerQueue, ^{
-            @StrongObj(self);
-            pthread_mutex_lock(&_data_mutex);
-            LogD(@"☀️_carrier_prod get lock");
-            if ([self checkData:data]) {
-                [self insertData:data];
-                if (!_hasData) {
-                    _hasData = YES;
+    if (!self.shouldAcceptData) { return; }
+    dispatch_async(self.dataProducerQueue, ^{
+        pthread_mutex_lock(&_data_mutex);
+        LogD(@"☀️_carrier_prod get lock");
+        if ([self checkData:data]) {
+            [self insertData:data];
+            if (!_hasData) {
+                _hasData = YES;
+                if (StatusRunning == _status) {
                     pthread_cond_signal(&_data_cons);
                 }
             }
-            pthread_mutex_unlock(&_data_mutex);
-        });
-    }
+        }
+        pthread_mutex_unlock(&_data_mutex);
+    });
 }
 
 - (void)addDataArr:(NSArray *)dataArr {
     
+    if (!self.shouldAcceptData) { return; }
     if (0 == dataArr.count) { return; }
-    if ([self shouldAcceptData]) {
-        @WeakObj(self);
-        dispatch_async(self.dataProducerQueue, ^{
-            @StrongObj(self);
-            pthread_mutex_lock(&_data_mutex);
-            LogD(@"☀️_carrier_prod get lock");
-            BOOL addedData = NO;
-            for (FXData data in dataArr) {
-                if ([self checkData:data]) {
-                    [self insertData:data];
-                    addedData = YES;
-                }
+    dispatch_async(self.dataProducerQueue, ^{
+        pthread_mutex_lock(&_data_mutex);
+        LogD(@"☀️_carrier_prod get lock");
+        BOOL addedData = NO;
+        for (FXData data in dataArr) {
+            if ([self checkData:data]) {
+                [self insertData:data];
+                addedData = YES;
             }
-            if (!_hasData && addedData) {
-                _hasData = YES;
+        }
+        if (!_hasData && addedData) {
+            _hasData = YES;
+            if (StatusRunning == _status) {
                 pthread_cond_signal(&_data_cons);
             }
-            pthread_mutex_unlock(&_data_mutex);
-        });
-    }
+        }
+        pthread_mutex_unlock(&_data_mutex);
+    });
 }
 
 - (FXData)fetchData {
@@ -349,26 +321,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return data;
 }
 
-- (void)insertData:(FXData)data {
-    
-    NSNumber *priority = data[FXDataPriorityKey];
-    if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
-        [self.dataArr addObject:data];
-    }
-    else if (PriorityHigh == priority.unsignedIntegerValue) {
-        [self.dataArr insertObject:data atIndex:0];
-    }
-}
-
-- (BOOL)shouldAcceptData {
-    
-    BOOL notStarted = StatusNotStarted == _status;
-    BOOL running = StatusRunning == _status;
-    BOOL paused = StatusPaused == _status;
-    
-    return notStarted || running || (paused&&_acceptDataWhenPaused&&(!_emptyDataWhenPaused));
-}
-
 - (BOOL)checkData:(FXData)data {
     
     NSString *text = data[FXDataTextKey];
@@ -382,6 +334,17 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     //TODO: Add CustomView Support
     
     return false;
+}
+
+- (void)insertData:(FXData)data {
+    
+    NSNumber *priority = data[FXDataPriorityKey];
+    if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
+        [self.dataArr addObject:data];
+    }
+    else if (PriorityHigh == priority.unsignedIntegerValue) {
+        [self.dataArr insertObject:data atIndex:0];
+    }
 }
 
 #pragma mark - Track Producer & Consumer
@@ -504,9 +467,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
     LogD(@"stopConsuming");
     
-    BOOL emptyDataWhenPaused = StatusPaused == _status && self.emptyDataWhenPaused;
-    BOOL stoped = StatusStoped == _status;
-    if (emptyDataWhenPaused || stoped) {
+    if (_emptyDataWhenStoped) {
         pthread_mutex_lock(&_data_mutex);
         [_dataArr removeAllObjects];
         _hasData = NO;
