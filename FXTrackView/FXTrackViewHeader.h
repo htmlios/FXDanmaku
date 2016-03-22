@@ -11,6 +11,8 @@
 
 #define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
 
+#define FX_TrackRandom true
+
 // 用于初略计算 弹道的高
 #define FX_EstimatedTrackHeight 30
 

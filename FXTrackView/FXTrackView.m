@@ -349,7 +349,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 #pragma mark - Track Producer & Consumer
 
-- (NSInteger)fetchUnoccupiedTrackIndex {
+- (NSInteger)fetchRandomUnoccupiedTrackIndex {
     
     pthread_mutex_lock(&_track_mutex);
     LogD(@"🌎_track_cons get lock");
@@ -360,24 +360,62 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     
     NSInteger index = -1;
     if (StatusRunning == _status) {
-        NSMutableArray *randomArr = nil;
+        
+        UInt8 *array = NULL;
+        int n = 0;
+        for (int i = 0; i < _numOfTracks; i++) {
+            if (1<<i & self.occupiedTrackBit) {
+                continue;
+            }
+            if (!array) {
+                array = malloc(sizeof(UInt8)*(_numOfTracks-i));
+            }
+            array[n++] = i;
+        }
+        if (array) {
+            index = array[arc4random()%n];
+            [self setOccupiedTrackAtIndex:index];
+            _hasTracks = n > 1 ? YES : NO;
+            free(array);
+        }
+        else {
+            _hasTracks = NO;
+        }
+    }
+    
+    pthread_mutex_unlock(&_track_mutex);
+    return index;
+}
+
+- (NSInteger)fetchOrderedUnoccupiedTrackIndex {
+    
+    pthread_mutex_lock(&_track_mutex);
+    LogD(@"🌎_track_cons get lock");
+    while (!_hasTracks) {
+        LogD(@"🌎_track_cons waiting");
+        pthread_cond_wait(&_track_cons, &_track_mutex);
+    }
+    
+    NSInteger index = -1;
+    if (StatusRunning == _status) {
+        
+        BOOL hasTracks = NO;
         for (int i = 0; i < _numOfTracks; i++) {
             
             if (1<<i & self.occupiedTrackBit) {
                 continue;
             }
-            if (!randomArr) {
-                randomArr = [NSMutableArray arrayWithCapacity:_numOfTracks];
+            else if (-1 == index) {
+                index = i;
             }
-            [randomArr addObject:@(i)];
+            else {
+                hasTracks = YES;
+            }
         }
-        NSUInteger count = randomArr.count;
-//        if (count > 0) {
-            NSNumber *num = (count==1 ? randomArr[0] : randomArr[arc4random()%count]);
-            index = num.intValue;
+        if (index > -1) {
             [self setOccupiedTrackAtIndex:index];
-//        }
-        _hasTracks = count > 1 ? YES : NO;
+        }
+        _hasTracks = hasTracks;
     }
     
     pthread_mutex_unlock(&_track_mutex);
@@ -395,13 +433,11 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     
     pthread_mutex_lock(&_track_mutex);
     if (index < self.numOfTracks) {
-//        if (self.occupiedTrackBit & 1 << index) {
-            self.occupiedTrackBit -= 1 << index;
-            if (!_hasTracks) {
-                _hasTracks = YES;
-                pthread_cond_signal(&_track_cons);
-            }
-//        }
+        self.occupiedTrackBit -= 1 << index;
+        if (!_hasTracks) {
+            _hasTracks = YES;
+            pthread_cond_signal(&_track_cons);
+        }
     }
     pthread_mutex_unlock(&_track_mutex);
 }
@@ -441,7 +477,11 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         
         FXData data = [self fetchData];
         if (data) {
-            NSInteger unoccupiedIndex = [self fetchUnoccupiedTrackIndex];
+#if FX_TrackRandom
+            NSInteger unoccupiedIndex = [self fetchRandomUnoccupiedTrackIndex];
+#else
+            NSInteger unoccupiedIndex = [self fetchOrderedUnoccupiedTrackIndex];
+#endif
             if (unoccupiedIndex > -1) {
                 dispatch_async(self.computationQueue, ^{
                     if (data[FXDataTextKey]) {
@@ -462,6 +502,12 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                         [self presentCustomView:data[FXDataCustomViewKey] trackIndex:unoccupiedIndex];
                     }
                 });
+            }
+            else if (!_emptyDataWhenStoped) {
+                // add it back
+                pthread_mutex_lock(&_data_mutex);
+                [_dataArr insertObject:data atIndex:0];
+                pthread_mutex_unlock(&_data_mutex);
             }
         }
     }
