@@ -11,8 +11,6 @@
 
 #define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
 
-#define FX_TrackRandom true
-
 // 用于初略计算 弹道的高
 #define FX_EstimatedTrackHeight 30
 
@@ -32,6 +30,8 @@
 
 
 // ====================      PreDefined Macro Start       ====================
+
+#define NotificationCenter [NSNotificationCenter defaultCenter]
 
 #define UIColorFromHexRGB(rgbValue) \
 ([UIColor colorWithRed:((float)((rgbValue&0xFF0000)>>16))/255.0 \
@@ -64,6 +64,8 @@ dispatch_async(dispatch_get_main_queue(), block);\
 }\
 }\
 }
+
+#define CGSizeNotZero(size) (size.width != 0 && size.height != 0)
 
 //  ====================      PreDefined Macro End       ====================
 
