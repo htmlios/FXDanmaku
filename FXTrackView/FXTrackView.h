@@ -29,7 +29,7 @@ extern NSString const *FXDataPriorityKey;
 @property (strong, nonatomic) FXTextAttrs highPriorityTextAttrs;
 
 @property (assign, nonatomic) BOOL randomTrack;
-@property (assign, nonatomic) BOOL clearScreenWhenPaused;
+@property (assign, nonatomic) BOOL cleanScreenWhenPaused;
 @property (assign, nonatomic) BOOL emptyDataWhenPaused;
 @property (assign, nonatomic) BOOL acceptDataWhenPaused;
 @property (assign, nonatomic) BOOL removeFromSuperViewWhenStoped;
@@ -46,5 +46,9 @@ extern NSString const *FXDataPriorityKey;
 - (void)pause;
 
 - (void)stop;
+
+- (void)cleanScreen;
+
+- (void)frameDidChange;
 
 @end

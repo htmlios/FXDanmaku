@@ -8,8 +8,10 @@
 
 #import "DemoViewController.h"
 #import "FXTrackView.h"
-#import <pthread.h>
 #import "FXTrackViewHeader.h"
+
+#define CurrentDevice [UIDevice currentDevice]
+#define CurrentOrientation [[UIDevice currentDevice] orientation]
 
 @interface DemoViewController ()
 
@@ -25,14 +27,39 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
 
-    _supportOrientation = UIInterfaceOrientationMaskAllButUpsideDown;
-    _trackView.emptyDataWhenStoped = NO;
+    _supportOrientation = UIInterfaceOrientationMaskPortrait;
+    [self setupTrackView];
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
+    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC, 0);
+    @WeakObj(self);
+    dispatch_source_set_event_handler(timer, ^{
+        @StrongObj(self);
+        if (self) {
+            NSString *time = [NSString stringWithFormat:@"%.6lf", [NSDate new].timeIntervalSince1970];
+            [_trackView addData:@{
+                                  FXDataTextKey: time
+                                  }];
+        }
+        else {
+            dispatch_source_cancel(timer);
+        }
+    });
+    dispatch_resume(timer);
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (void)setupTrackView {
+    _trackView.randomTrack = NO;
+    _trackView.emptyDataWhenPaused = NO;
+    _trackView.cleanScreenWhenPaused = YES;
+}
+
+#pragma mark - Foreground & Background
+
 
 
 #pragma mark - Device Orientation
@@ -46,10 +73,17 @@
     return _supportOrientation;
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id)coordinator {
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     
-    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    [_trackView pause];
+    // if you didn't set cleanScreenWhenPaused true, then you have to call method below
+//    [_trackView cleanScreen];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     
+    [_trackView frameDidChange];
+    [_trackView start];
 }
 
 #pragma mark - Actions
@@ -58,26 +92,39 @@
     
     if ([sender respondsToSelector:@selector(selectedSegmentIndex)]) {
         
-        UIInterfaceOrientationMask changeToMask = 0;
+        UIInterfaceOrientation changeToOrientation = 0;
         NSInteger index = sender.selectedSegmentIndex;
         switch (index) {
             case 0:
-                changeToMask = UIInterfaceOrientationMaskPortrait;
+            {
+                if (!UIDeviceOrientationIsPortrait(CurrentOrientation)) {
+                    _supportOrientation = UIInterfaceOrientationMaskPortrait;
+                    changeToOrientation = UIInterfaceOrientationPortrait;
+                }
+            }
                 break;
             case 1:
-                changeToMask = UIInterfaceOrientationMaskLandscapeLeft;
+            {
+                if (UIInterfaceOrientationLandscapeLeft != CurrentOrientation) {
+                    _supportOrientation = UIInterfaceOrientationMaskLandscapeLeft;
+                    changeToOrientation = UIInterfaceOrientationLandscapeLeft;
+                }
+            }
                 break;
             case 2:
-                changeToMask = UIInterfaceOrientationMaskLandscapeRight;
+            {
+                if (UIInterfaceOrientationLandscapeRight != CurrentOrientation) {
+                    _supportOrientation = UIInterfaceOrientationMaskLandscapeRight;
+                    changeToOrientation = UIInterfaceOrientationLandscapeRight;
+                }
+            }
                 break;
             default:
                 break;
         }
         
-        if (changeToMask != _supportOrientation) {
-            _supportOrientation = changeToMask;
-            [UIViewController attemptRotationToDeviceOrientation];
-            [[UIApplication sharedApplication] setStatusBarOrientation:UIInterfaceOrientationLandscapeLeft animated:YES];
+        if (changeToOrientation) {
+            [CurrentDevice setValue:@(changeToOrientation) forKey:@"orientation"];
         }
     }
 }
@@ -86,8 +133,8 @@
 - (IBAction)add_10:(id)sender {
 
     int i = 0;
-    while (i++ < 10) {
-        NSString *time = [NSString stringWithFormat:@"%.6f", [NSDate new].timeIntervalSince1970];
+    while (i++ < 50) {
+        NSString *time = [NSString stringWithFormat:@"%.6lf", [NSDate new].timeIntervalSince1970];
         [_trackView addData:@{
                               FXDataTextKey: time
                               }];
@@ -107,10 +154,17 @@
         [self.view addSubview:trackView];
         [trackView layoutIfNeeded];
         self.trackView = trackView;
+        [self setupTrackView];
     }
     
     [_trackView start];
 }
+
+- (IBAction)pause:(id)sender {
+    
+    [_trackView pause];
+}
+
 
 - (IBAction)stop:(id)sender {
     

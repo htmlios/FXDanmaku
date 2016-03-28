@@ -24,7 +24,7 @@
 
 #define FX_MinVelocity 120
 
-#define FX_MaxVelocity 150
+#define FX_MaxVelocity 121
 
 // 按十分之一的重置距离 算出的公式如下 10*minVel*lbWidth = width*minVel + 9*lbWidth*gap  (gap为最大速度与最小速度之差)
 
@@ -40,7 +40,7 @@ blue:((float)(rgbValue&0xFF))/255.0 \
 alpha:1])
 
 #ifdef DEBUG
-#define LogD(format, ...) NSLog((@"\n%s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define LogD(format, ...) NSLog((@"\nDebug: %s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define LogD(...) do {} while(0)
 #endif

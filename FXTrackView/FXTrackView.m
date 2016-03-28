@@ -34,9 +34,10 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     __block BOOL _hasData;
 }
 
-@property (assign, nonatomic) BOOL gotExactFrame;
+@property (assign, nonatomic) BOOL hasCalcTracks;
 @property (assign, nonatomic) NSInteger numOfTracks;
 
+@property (assign, nonatomic) CGRect trackViewFrame;
 @property (assign, nonatomic) CGFloat trackHeight;
 @property (strong, nonatomic) NSMutableArray *dataArr;
 
@@ -63,11 +64,10 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 - (void)setMaxVelocity:(NSUInteger)maxVelocity {
     
-    if (maxVelocity < _minVelocity) {
-        LogD(@"MaxVelocity can't be slower than minVelocity!😪");
-        return;
+    if (maxVelocity >= _minVelocity) {
+        _maxVelocity = maxVelocity;
     }
-    _maxVelocity = maxVelocity;
+    else { LogD(@"MaxVelocity can't be slower than minVelocity!😪"); }
 }
 
 #pragma mark Lazy Loading Getter
@@ -167,10 +167,11 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     self.maxVelocity = !_maxVelocity ? FX_MaxVelocity : _maxVelocity;
     self.minVelocity = !_minVelocity ? FX_MinVelocity : _minVelocity;
     self.randomTrack = YES;
-    self.clearScreenWhenPaused = NO;
+    self.cleanScreenWhenPaused = NO;
     self.emptyDataWhenPaused = NO;
     self.acceptDataWhenPaused = YES;
     self.removeFromSuperViewWhenStoped = YES;
+    self.hasCalcTracks = NO;
     
 #ifdef FX_TrackViewBackgroundColor
     self.backgroundColor = FX_TrackViewBackgroundColor;
@@ -204,30 +205,33 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    if (!_gotExactFrame) {
-        [self trackViewCalculation];
+    if (!_hasCalcTracks && CGSizeNotZero(self.frame.size)) {
+        _hasCalcTracks = YES;
+        [self calcTrackNumAndHeight];
     }
 }
 
-- (void)trackViewCalculation {
+- (void)calcTrackNumAndHeight {
     
-    self.gotExactFrame = CGSizeNotZero(self.frame.size);
-    
-    if (_gotExactFrame) {
-        [self layoutIfNeeded];
+    if (StatusRunning != _status) {
         CGFloat height = self.frame.size.height;
-        
         self.numOfTracks = floor(height / FX_EstimatedTrackHeight);
         self.trackHeight = height / _numOfTracks;
         _hasTracks = _numOfTracks > 0;
     }
-    else {
-        LogD(@"TrackView's size can't be zero!");
-    }
 }
 
-#pragma mark - Device Orientation
+- (void)removeFromSuperview {
+    [super removeFromSuperview];
+    [self stop];
+}
 
+- (void)frameDidChange {
+    
+    if (StatusRunning != _status) {
+        [self calcTrackNumAndHeight];
+    }
+}
 
 #pragma mark - Actions
 
@@ -244,9 +248,13 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)pause {
     
     RunBlock_Safe_MainThread(^{
+        
         if (StatusRunning == _status) {
             _status = StatusPaused;
             [self stopConsuming];
+            if (_cleanScreenWhenPaused) {
+                [self cleanScreen];
+            }
         }
     });
 }
@@ -257,7 +265,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         if (StatusStoped != _status) {
             _status = StatusStoped;
             [self stopConsuming];
-            [self clearTrackView];
+            [self cleanScreen];
             if (_removeFromSuperViewWhenStoped) {
                 [self removeFromSuperview];
             }
@@ -291,7 +299,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
 }
 
-- (void)clearTrackView {
+- (void)cleanScreen {
     
     for (UIView *subViews in self.subviews) {
         [subViews removeFromSuperview];
@@ -305,7 +313,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     if (!self.shouldAcceptData) { return; }
     dispatch_async(self.dataProducerQueue, ^{
         pthread_mutex_lock(&_data_mutex);
-        LogD(@"☀️_carrier_prod get lock");
         if ([self checkData:data]) {
             [self insertData:data];
             if (!_hasData) {
@@ -325,7 +332,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     if (0 == dataArr.count) { return; }
     dispatch_async(self.dataProducerQueue, ^{
         pthread_mutex_lock(&_data_mutex);
-        LogD(@"☀️_carrier_prod get lock");
         BOOL addedData = NO;
         for (FXData data in dataArr) {
             if ([self checkData:data]) {
@@ -346,11 +352,8 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (FXData)fetchData {
     
     pthread_mutex_lock(&_data_mutex);
-    LogD(@"☀️_data_cons get lock");
     while (!_hasData) {// no carriers, waiting for producer to signal to consumer
-        LogD(@"☀️_data_cons waiting");
         pthread_cond_wait(&_data_cons, &_data_mutex);
-        LogD(@"☀️_data_cons continuing");
     }
     FXData data = nil;
     if (StatusRunning == _status) {
@@ -395,9 +398,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (NSInteger)fetchRandomUnoccupiedTrackIndex {
     
     pthread_mutex_lock(&_track_mutex);
-    LogD(@"🌎_track_cons get lock");
     while (!_hasTracks) {
-        LogD(@"🌎_track_cons waiting");
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
@@ -433,9 +434,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (NSInteger)fetchOrderedUnoccupiedTrackIndex {
     
     pthread_mutex_lock(&_track_mutex);
-    LogD(@"🌎_track_cons get lock");
     while (!_hasTracks) {
-        LogD(@"🌎_track_cons waiting");
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
@@ -490,6 +489,9 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 // random vel
 - (NSUInteger)randomVelocity {
     
+    if (_maxVelocity == _minVelocity) {
+        return _maxVelocity;
+    }
     return arc4random()%(_maxVelocity-_minVelocity) + _minVelocity;
 }
 
@@ -520,7 +522,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         
         FXData data = [self fetchData];
         if (data) {
-            NSInteger unoccupiedIndex = self.randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndex];
+            NSInteger unoccupiedIndex = _randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndex];
             if (unoccupiedIndex > -1) {
                 dispatch_async(self.computationQueue, ^{
                     if (data[FXDataTextKey]) {
@@ -543,7 +545,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                 });
             }
             else if (!_emptyDataWhenPaused) {
-                // add it back
+                // add it back if hasn't been consumed
                 pthread_mutex_lock(&_data_mutex);
                 [_dataArr insertObject:data atIndex:0];
                 pthread_mutex_unlock(&_data_mutex);
@@ -568,14 +570,13 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
     
     // cancel all timers and reset occupied tracks!
-    [_dispatchSourceTimers enumerateObjectsWithOptions:NSEnumerationConcurrent
-                                            usingBlock:^(dispatch_source_t sourceTimer, NSUInteger idx, BOOL *stop)
-     {
-         dispatch_source_cancel(sourceTimer);
-     }];
+    for (dispatch_source_t timer in _dispatchSourceTimers) {
+        dispatch_source_cancel(timer);
+    }
     [_dispatchSourceTimers removeAllObjects];
     pthread_mutex_lock(&_track_mutex);
     self.occupiedTrackMaskBit = 0;
+    _hasTracks = YES;
     pthread_mutex_unlock(&_track_mutex);
 }
 
@@ -611,18 +612,16 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
              [label removeFromSuperview];
          }];
     });
-    
-    // reset track
+
+    // create timer to reset track
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.trackProducerQueue);
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), 0, 0);
-    @WeakObj(self);
     dispatch_source_set_event_handler(timer, ^{
-        @StrongObj(self);
-        [self removeOccupiedTrackAtIndex:index];
         dispatch_source_cancel(timer);
+        [self removeOccupiedTrackAtIndex:index];
         [self.dispatchSourceTimers removeObject:timer];
     });
-    [_dispatchSourceTimers addObject:timer];
+    [self.dispatchSourceTimers addObject:timer];
     dispatch_resume(timer);
 }
 

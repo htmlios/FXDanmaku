@@ -18,58 +18,68 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4jk-SC-C9d" customClass="FXTrackView">
-                                <rect key="frame" x="0.0" y="20" width="600" height="463"/>
+                                <rect key="frame" x="0.0" y="20" width="600" height="438"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QX9-ae-l5u">
-                                <rect key="frame" x="259" y="550" width="83" height="30"/>
+                                <rect key="frame" x="259" y="510" width="83" height="30"/>
                                 <state key="normal" title="Add10Datas"/>
                                 <connections>
                                     <action selector="add_10:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Sua-d3-f7k"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fLc-Oq-s9T">
-                                <rect key="frame" x="415" y="547" width="42" height="36"/>
+                                <rect key="frame" x="358" y="552" width="42" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Stop"/>
                                 <connections>
                                     <action selector="stop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="orn-J5-llW"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1X4-gX-Dh3">
+                                <rect key="frame" x="273" y="552" width="55" height="36"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <state key="normal" title="Pause"/>
+                                <connections>
+                                    <action selector="pause:" destination="BYZ-38-t0r" eventType="touchUpInside" id="zfT-oP-G1l"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uhi-bL-YJM">
-                                <rect key="frame" x="143" y="547" width="43" height="36"/>
+                                <rect key="frame" x="200" y="552" width="43" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Start"/>
                                 <connections>
                                     <action selector="start:" destination="BYZ-38-t0r" eventType="touchUpInside" id="C5f-f8-JjH"/>
                                 </connections>
                             </button>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Crf-rN-Fvp">
-                                <rect key="frame" x="143" y="502" width="314" height="29"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="g5J-6D-w7Q">
+                                <rect key="frame" x="131" y="470" width="338" height="29"/>
                                 <segments>
-                                    <segment title="portrait"/>
-                                    <segment title="LanscapeLeft"/>
-                                    <segment title="LanscapeRight"/>
+                                    <segment title="Portrait"/>
+                                    <segment title="LandscapeLeft"/>
+                                    <segment title="LandscapeRight"/>
                                 </segments>
                                 <connections>
-                                    <action selector="userDidChangeOrientationSeg:" destination="BYZ-38-t0r" eventType="valueChanged" id="9Vo-yG-lLp"/>
+                                    <action selector="userDidChangeOrientationSeg:" destination="BYZ-38-t0r" eventType="valueChanged" id="dx5-AA-NzM"/>
                                 </connections>
                             </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="QX9-ae-l5u" secondAttribute="bottom" constant="20" id="2WL-YB-iV1"/>
-                            <constraint firstItem="QX9-ae-l5u" firstAttribute="centerY" secondItem="uhi-bL-YJM" secondAttribute="centerY" id="2vV-if-1Dz"/>
-                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="centerY" secondItem="uhi-bL-YJM" secondAttribute="centerY" id="DIK-20-IO1"/>
+                            <constraint firstItem="1X4-gX-Dh3" firstAttribute="centerY" secondItem="uhi-bL-YJM" secondAttribute="centerY" id="2Ud-dQ-zh6"/>
+                            <constraint firstItem="QX9-ae-l5u" firstAttribute="top" secondItem="g5J-6D-w7Q" secondAttribute="bottom" constant="12" id="3hm-cZ-zU4"/>
                             <constraint firstItem="4jk-SC-C9d" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="Di6-50-MU6"/>
-                            <constraint firstItem="QX9-ae-l5u" firstAttribute="top" secondItem="Crf-rN-Fvp" secondAttribute="bottom" constant="20" id="NJD-Do-PHY"/>
-                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="trailing" secondItem="Crf-rN-Fvp" secondAttribute="trailing" id="TNw-sO-drf"/>
-                            <constraint firstItem="uhi-bL-YJM" firstAttribute="leading" secondItem="Crf-rN-Fvp" secondAttribute="leading" id="aUp-er-uVQ"/>
-                            <constraint firstItem="Crf-rN-Fvp" firstAttribute="top" secondItem="4jk-SC-C9d" secondAttribute="bottom" constant="19" id="dcN-DA-R8e"/>
+                            <constraint firstItem="1X4-gX-Dh3" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="G9m-k8-bh9"/>
+                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="centerY" secondItem="uhi-bL-YJM" secondAttribute="centerY" id="GWR-EZ-fhT"/>
+                            <constraint firstItem="1X4-gX-Dh3" firstAttribute="top" secondItem="QX9-ae-l5u" secondAttribute="bottom" constant="12" id="Mij-hF-lde"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="1X4-gX-Dh3" secondAttribute="bottom" constant="12" id="PSD-Gh-1aq"/>
+                            <constraint firstItem="g5J-6D-w7Q" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="QhY-jk-fwe"/>
+                            <constraint firstItem="g5J-6D-w7Q" firstAttribute="top" secondItem="4jk-SC-C9d" secondAttribute="bottom" constant="12" id="ZvQ-lF-W1M"/>
+                            <constraint firstItem="QX9-ae-l5u" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="irZ-Vs-aQc"/>
                             <constraint firstItem="4jk-SC-C9d" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="njd-Dx-nhH"/>
-                            <constraint firstItem="Crf-rN-Fvp" firstAttribute="centerX" secondItem="QX9-ae-l5u" secondAttribute="centerX" id="sDA-1N-JV4"/>
+                            <constraint firstItem="1X4-gX-Dh3" firstAttribute="leading" secondItem="uhi-bL-YJM" secondAttribute="trailing" constant="30" id="qTp-iU-rGx"/>
                             <constraint firstAttribute="trailing" secondItem="4jk-SC-C9d" secondAttribute="trailing" id="tvU-Q9-rib"/>
-                            <constraint firstItem="QX9-ae-l5u" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="wPN-wm-rim"/>
+                            <constraint firstItem="fLc-Oq-s9T" firstAttribute="leading" secondItem="1X4-gX-Dh3" secondAttribute="trailing" constant="30" id="udO-DZ-FLd"/>
                         </constraints>
                     </view>
                     <connections>
