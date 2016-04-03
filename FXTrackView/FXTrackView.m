@@ -215,8 +215,13 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     
     if (StatusRunning != _status) {
         CGFloat height = self.frame.size.height;
-        self.numOfTracks = floor(height / FX_EstimatedTrackHeight);
-        self.trackHeight = height / _numOfTracks;
+        
+        // height = numOfTrack * estimatedTrackHeight + (numOfTrack-1) * trackVerticalSpan
+        // According to the formula above, you'll understand the statements below
+        self.numOfTracks = floor((height+FX_TrackVSpan) / (FX_EstimatedTrackHeight+FX_TrackVSpan));
+        self.trackHeight = (height - (_numOfTracks-1)*FX_TrackVSpan) / _numOfTracks;
+        
+        LogD(@"%@", @(_numOfTracks*_trackHeight));
         _hasTracks = _numOfTracks > 0;
     }
 }
@@ -370,16 +375,20 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (BOOL)checkData:(FXData)data {
     
     NSString *text = data[FXDataTextKey];
-    
+    UIView *customView = data[FXDataCustomViewKey];
+    BOOL isOk = NO;
     if ([text isKindOfClass:[NSString class]] && text.length>0) {
-        return true;
+        isOk = YES;
+        if ([data[FXTextCustomAttrsKey] isKindOfClass:[NSDictionary class]]) {
+            isOk = YES;
+        }
     }
-    if ([data[FXTextCustomAttrsKey] isKindOfClass:[NSDictionary class]]) {
-        return true;
-    }
-    //TODO: Add CustomView Support
     
-    return false;
+    if ([customView isKindOfClass:[UIView class]]) {
+        isOk = YES;
+    }
+    
+    return isOk;
 }
 
 - (void)insertData:(FXData)data {
@@ -388,7 +397,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
         [self.dataArr addObject:data];
     }
-    else if (PriorityHigh == priority.unsignedIntegerValue) {
+    else if (priority.unsignedIntegerValue > PriorityNormal) {
         [self.dataArr insertObject:data atIndex:0];
     }
 }
@@ -496,13 +505,13 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 // animation time
-- (CGFloat)animateDurationOfVelocity:(NSUInteger)velocity carrierWidth:(CGFloat)width {
+- (NSTimeInterval)animateDurationOfVelocity:(NSUInteger)velocity carrierWidth:(CGFloat)width {
     
     return (self.frame.size.width + width) / velocity;
 }
 
 // time to reset occupied track
-- (CGFloat)resetTrackTimeOfVelocity:(NSUInteger)velocity carrierWidth:(CGFloat)width {
+- (NSTimeInterval)resetTrackTimeOfVelocity:(NSUInteger)velocity carrierWidth:(CGFloat)width {
     
     // totalDisplacement = resetDisplacement + carrierWidth
     return (self.frame.size.width*FX_ResetTrackOffsetRatio + width) / velocity;
@@ -511,7 +520,8 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 // start point of carrier
 - (CGPoint)startPointWithIndex:(NSUInteger)index {
     
-    return CGPointMake(self.frame.size.width, index * _trackHeight);
+    CGFloat yAxis = !index ? 0 : index*(_trackHeight+FX_TrackVSpan);
+    return CGPointMake(self.frame.size.width, yAxis);
 }
 
 #pragma mark - Carrier Presentation
@@ -583,15 +593,19 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)presentText:(NSString *)text attrs:(FXTextAttrs)attrs trackIndex:(NSUInteger)index {
     
     CGSize size = [text sizeWithAttributes:attrs];
-    CGPoint point = [self startPointWithIndex:index];
-    NSUInteger velocity = [self randomVelocity];
     
-    CGFloat animDuration = [self animateDurationOfVelocity:velocity carrierWidth:size.width];
-    CGFloat resetTime = [self resetTrackTimeOfVelocity:velocity carrierWidth:size.width];
-    
-    CGRect fromFrame = CGRectMake(point.x, point.y, size.width, _trackHeight);
-    CGRect toFrame = fromFrame;
-    toFrame.origin.x = -toFrame.size.width;
+    CGPoint point;
+    NSUInteger velocity;
+    NSTimeInterval animDuration, resetTime;
+    CGRect fromFrame, toFrame;
+    [self calculationWithSize:size
+                   trackIndex:index
+                   startPoint:&point
+                     velocity:&velocity
+            animationDuration:&animDuration
+                    resetTime:&resetTime
+                     fromRect:&fromFrame
+                       toRect:&toFrame];
     
     NSAttributedString *attrText = [[NSAttributedString alloc] initWithString:text attributes:attrs];
     
@@ -607,12 +621,76 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                          animations:
          ^{
              label.frame = toFrame;
-             [label layoutIfNeeded];
+             [self layoutIfNeeded];
          } completion:^(BOOL finished) {
              [label removeFromSuperview];
          }];
     });
+    
+    [self resetTrackAtIndex:index inTime:resetTime];
+}
 
+- (void)presentCustomView:(UIView *)customView trackIndex:(NSUInteger)index {
+    
+    CGSize size = customView.frame.size;
+    if (!size.width) {
+        size = [customView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    }
+    
+    CGPoint point;
+    NSUInteger velocity;
+    NSTimeInterval animDuration, resetTime;
+    CGRect fromFrame, toFrame;
+    [self calculationWithSize:size
+                   trackIndex:index
+                   startPoint:&point
+                     velocity:&velocity
+            animationDuration:&animDuration
+                    resetTime:&resetTime
+                     fromRect:&fromFrame
+                       toRect:&toFrame];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        customView.frame = fromFrame;
+        [customView layoutIfNeeded];
+        [self addSubview:customView];
+        [UIView animateWithDuration:animDuration
+                              delay:0
+                            options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
+                         animations:^
+        {
+            customView.frame = toFrame;
+            [self layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            [customView removeFromSuperview];
+        }];
+    });
+    
+    [self resetTrackAtIndex:index inTime:resetTime];
+}
+
+- (void)calculationWithSize:(CGSize)size
+                 trackIndex:(NSUInteger)index
+                 startPoint:(CGPoint *)point
+                   velocity:(NSUInteger *)vel
+          animationDuration:(NSTimeInterval *)duration
+                  resetTime:(NSTimeInterval*)resetTime
+                   fromRect:(CGRect *)fromRect
+                     toRect:(CGRect *)toRect {
+    
+    *point = [self startPointWithIndex:index];
+    *vel = [self randomVelocity];
+    *duration = [self animateDurationOfVelocity:*vel carrierWidth:size.width];
+    *resetTime = [self resetTrackTimeOfVelocity:*vel carrierWidth:size.width];;
+    
+    *fromRect = CGRectMake(point->x, point->y , size.width, _trackHeight);
+    *toRect = *fromRect;
+    toRect->origin.x = -size.width;
+}
+
+- (void)resetTrackAtIndex:(NSUInteger)index inTime:(NSTimeInterval)resetTime {
+    
     // create timer to reset track
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.trackProducerQueue);
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), 0, 0);
@@ -623,10 +701,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     });
     [self.dispatchSourceTimers addObject:timer];
     dispatch_resume(timer);
-}
-
-- (void)presentCustomView:(UIView *)customView trackIndex:(NSUInteger)index {
-    //TODO: Add support for customView
 }
 
 @end

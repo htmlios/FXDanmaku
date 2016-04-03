@@ -14,17 +14,19 @@
 // 用于初略计算 弹道的高
 #define FX_EstimatedTrackHeight 30
 
+#define FX_TrackVSpan 4
+
 #define FX_TextFontSize 24
 #define FX_TextFontColor UIColorFromHexRGB(0xFFA042)
 #define FX_TextShadowColor UIColorFromHexRGB(0x272727)
 #define FX_TextShadowOffset CGSizeMake(1, 1)
 
 // the ratio of displacement to reset track
-#define FX_ResetTrackOffsetRatio 0.2
+#define FX_ResetTrackOffsetRatio 0.3
 
-#define FX_MinVelocity 120
+#define FX_MinVelocity 130
 
-#define FX_MaxVelocity 121
+#define FX_MaxVelocity 150
 
 // 按十分之一的重置距离 算出的公式如下 10*minVel*lbWidth = width*minVel + 9*lbWidth*gap  (gap为最大速度与最小速度之差)
 
