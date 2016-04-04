@@ -15,6 +15,7 @@
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B85E1C97033D003A1AF9 /* FXTrackView.m */; };
 		2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */; };
+		D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D02A4FD71CB29EF8004C4F25 /* CornerButton.m */; };
 		D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +35,8 @@
 		2916B85F1C97033D003A1AF9 /* FXTrackViewHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewHeader.h; sourceTree = "<group>"; };
 		2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDeallocMonitor.h; sourceTree = "<group>"; };
 		2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXDeallocMonitor.m; sourceTree = "<group>"; };
+		D02A4FD61CB29EF8004C4F25 /* CornerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CornerButton.h; sourceTree = "<group>"; };
+		D02A4FD71CB29EF8004C4F25 /* CornerButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CornerButton.m; sourceTree = "<group>"; };
 		D0E737B01CB1057400BAC448 /* NSObject+FXAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+FXAlertView.h"; sourceTree = "<group>"; };
 		D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+FXAlertView.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,11 +71,11 @@
 		2916B8441C96FFC9003A1AF9 /* FXTrackViewDemo */ = {
 			isa = PBXGroup;
 			children = (
-				2916B85C1C97033D003A1AF9 /* FXTrackView */,
 				2916B8481C96FFC9003A1AF9 /* AppDelegate.h */,
 				2916B8491C96FFC9003A1AF9 /* AppDelegate.m */,
 				2916B84B1C96FFC9003A1AF9 /* DemoViewController.h */,
 				2916B84C1C96FFC9003A1AF9 /* DemoViewController.m */,
+				2916B85C1C97033D003A1AF9 /* FXTrackView */,
 				D0E737B31CB1057900BAC448 /* Util */,
 				2916B84E1C96FFC9003A1AF9 /* Main.storyboard */,
 				2916B8511C96FFC9003A1AF9 /* Assets.xcassets */,
@@ -109,6 +112,8 @@
 			children = (
 				D0E737B01CB1057400BAC448 /* NSObject+FXAlertView.h */,
 				D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */,
+				D02A4FD61CB29EF8004C4F25 /* CornerButton.h */,
+				D02A4FD71CB29EF8004C4F25 /* CornerButton.m */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -189,6 +194,7 @@
 				2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */,
 				2916B8471C96FFC9003A1AF9 /* main.m in Sources */,
 				2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */,
+				D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */,
 				D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

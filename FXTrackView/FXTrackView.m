@@ -228,13 +228,20 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 - (void)removeFromSuperview {
     [super removeFromSuperview];
-    [self stop];
+    
+    if (StatusStoped != _status) {
+        LogD(@"You should call 'stop' method before removing trackView from its superview!");
+        [self stop];
+    }
 }
 
 - (void)frameDidChange {
     
     if (StatusRunning != _status) {
         [self calcTrackNumAndHeight];
+    }
+    else {
+        LogD(@"Please pause or stop trackView before calling 'frameDidChange' method");
     }
 }
 
@@ -243,7 +250,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)start {
     
     RunBlock_Safe_MainThread(^{
-        if (StatusRunning != _status) {
+        if (StatusRunning != _status && CGSizeNotZero(self.frame.size)) {
             _status = StatusRunning;
             [self startConsuming];
         }
@@ -280,16 +287,14 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 - (void)startConsuming {
     
-    if (!CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
-        dispatch_async(self.consumerQueue, ^{
-            [self consumeData];
-        });
-    }
+    dispatch_async(self.consumerQueue, ^{
+        [self consumeData];
+    });
 }
 
 - (void)stopConsuming {
     
-    // Exit the consumer thread if waiting! Otherwise, self can't be released. Memory leaks!
+    // Exit the consumer thread if waiting! Otherwise, self can't be released! Memory leaks!
     if (!_hasTracks) {
         pthread_mutex_lock(&_track_mutex);
         _hasTracks = YES;
@@ -524,6 +529,15 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return CGPointMake(self.frame.size.width, yAxis);
 }
 
+// check if the back carrier will collide with front one at the speed between minVelocity and maxVeloctiy
+- (BOOL)willCollideWithFrontOne {
+    
+    // formula: ((1-FX_ResetTrackOffsetRatio)*trackViewWidth + frontCarrierWidth) / minVelocity >= trackViewWidth / maxVelocity
+    // only when meeting this condition above, can make sure the back carrier won't overstep front one!
+    
+    return (1-FX_ResetTrackOffsetRatio) >= _minVelocity/_maxVelocity;
+}
+
 #pragma mark - Carrier Presentation
 
 - (void)consumeData {
@@ -579,7 +593,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         pthread_mutex_unlock(&_data_mutex);
     }
     
-    // cancel all timers and reset occupied tracks!
+    // cancel all timers, then reset occupied tracks!
     for (dispatch_source_t timer in _dispatchSourceTimers) {
         dispatch_source_cancel(timer);
     }
@@ -602,7 +616,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                    trackIndex:index
                    startPoint:&point
                      velocity:&velocity
-            animationDuration:&animDuration
+                 animDuration:&animDuration
                     resetTime:&resetTime
                      fromRect:&fromFrame
                        toRect:&toFrame];
@@ -645,7 +659,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                    trackIndex:index
                    startPoint:&point
                      velocity:&velocity
-            animationDuration:&animDuration
+                 animDuration:&animDuration
                     resetTime:&resetTime
                      fromRect:&fromFrame
                        toRect:&toFrame];
@@ -657,7 +671,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         [self addSubview:customView];
         [UIView animateWithDuration:animDuration
                               delay:0
-                            options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
+                            options:UIViewAnimationOptionCurveLinear
                          animations:^
         {
             customView.frame = toFrame;
@@ -674,7 +688,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                  trackIndex:(NSUInteger)index
                  startPoint:(CGPoint *)point
                    velocity:(NSUInteger *)vel
-          animationDuration:(NSTimeInterval *)duration
+               animDuration:(NSTimeInterval *)duration
                   resetTime:(NSTimeInterval*)resetTime
                    fromRect:(CGRect *)fromRect
                      toRect:(CGRect *)toRect {

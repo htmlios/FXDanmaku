@@ -15,10 +15,13 @@
 #define CurrentDevice [UIDevice currentDevice]
 #define CurrentOrientation [[UIDevice currentDevice] orientation]
 #define ScreenScale [UIScreen mainScreen].scale
+#define NotificationCetner [NSNotificationCenter defaultCenter]
 
 @interface DemoViewController ()
 
 @property (weak, nonatomic) IBOutlet FXTrackView *trackView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *dataTypeSegment;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *prioritySegment;
 @property (assign, nonatomic) UIInterfaceOrientationMask supportOrientation;
 @property (assign, nonatomic) CGRect oldFrame;
 
@@ -39,35 +42,47 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)setupObserver {
+    
+    [NotificationCetner addObserver:self
+                           selector:@selector(applicationWillResignActive:)
+                               name:UIApplicationWillResignActiveNotification
+                             object:nil];
+    [NotificationCetner addObserver:self
+                           selector:@selector(applicationDidBecomeActive:)
+                               name:UIApplicationDidBecomeActiveNotification
+                             object:nil];
+}
+
 #pragma mark - Views
 
 - (void)setupTrackView {
+    
     _trackView.randomTrack = NO;
     _trackView.emptyDataWhenPaused = NO;
     _trackView.cleanScreenWhenPaused = YES;
 }
 
-- (UIButton *)customButtonWithTitle:(NSString *)title imageName:(NSString *)name {
+- (UIButton *)customViewWithTitle:(NSString *)title imageName:(NSString *)name {
     
     UIImage *image = nil;
     if (title.length && (image = [UIImage imageNamed:name])) {
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         
-        [button setAttributedTitle:[self attrbutedText:title] forState:UIControlStateNormal];
+        [button setAttributedTitle:[self attrbutedTextOfCustomView:title] forState:UIControlStateNormal];
         [button setImage:image forState:UIControlStateNormal];
         [button.imageView setContentMode:UIViewContentModeScaleAspectFit];
         button.layer.borderWidth = 1.0/ScreenScale;
-        button.layer.borderColor = [UIColor redColor].CGColor;
+        button.layer.borderColor = [UIColor whiteColor].CGColor;
         
         button.imageEdgeInsets = UIEdgeInsetsMake(0, -12, 0, 0);
-        [button addTarget:self action:@selector(userClickedCustomView:) forControlEvents:UIControlEventTouchUpInside];
         return button;
     }
     return nil;
 }
 
-- (NSAttributedString *)attrbutedText:(NSString *)text {
+- (NSAttributedString *)attrbutedTextOfCustomView:(NSString *)text {
     
     static NSDictionary *attrs;
     if (!attrs) {
@@ -86,7 +101,18 @@
 
 #pragma mark - Foreground & Background
 
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+    
+    // resume trackView
+    [_trackView start];
+}
 
+- (void)applicationWillResignActive:(NSNotification*)notification {
+    
+    [_trackView pause];
+    // if you didn't set cleanScreenWhenPaused true, then you have to call this method below
+//    [_trackView cleanScreen];
+}
 
 #pragma mark - Device Orientation
 
@@ -113,20 +139,6 @@
 }
 
 #pragma mark - Actions
-
-- (void)userClickedCustomView:(id)sender {
-    
-    UIButton *bt = sender;
-    if ([bt isKindOfClass:[UIButton class]]) {
-        
-        [self presentConfirmViewWithTitle:@"Wow"
-                                  message:bt.currentTitle
-                       confirmButtonTitle:nil
-                        cancelButtonTitle:@"ok"
-                           confirmHandler:nil
-                            cancelHandler:nil];
-    }
-}
 
 - (IBAction)userDidChangeOrientationSeg:(UISegmentedControl *)sender {
     
@@ -169,51 +181,48 @@
     }
 }
 
+- (IBAction)addFiveData:(id)sender {
+    
+    [self addNumOfData:5];
+}
 
-- (IBAction)add_10:(id)sender {
+- (IBAction)addTenData:(UIButton *)sender {
 
+    [self addNumOfData:10];
+}
+- (IBAction)addThirtyData:(id)sender {
+    
+    [self addNumOfData:30];
+}
+
+- (void)addNumOfData:(NSUInteger)num {
     
     static int i = 0;
-    int j = 0;
-    while (j++ < 10) {
-        //            [_trackView addData:@{
-        //                                  FXDataTextKey: time
-        //                                  }];
+    NSUInteger j = 0;
+    
+    while (j++ < num) {
         
-        NSString *imageName = [NSString stringWithFormat:@"avatar%@", @(arc4random()%6+1)];
-        UIButton *button = [self customButtonWithTitle:[NSString stringWithFormat:@"num: %@", @(i++)] imageName:imageName];
-        if (button) {
+        NSString *text = [NSString stringWithFormat:@"num: %@", @(i++)];
+        
+        BOOL isHighPriority = !_prioritySegment.selectedSegmentIndex;
+        BOOL dataIsText = !_dataTypeSegment.selectedSegmentIndex;
+        if (dataIsText) {
             [_trackView addData:@{
-                                  FXDataCustomViewKey: button
+                                  FXDataTextKey: text,
+                                  FXDataPriorityKey: isHighPriority ? @(PriorityHigh) : @(PriorityNormal)
                                   }];
         }
+        else {
+            NSString *imageName = [NSString stringWithFormat:@"avatar%@", @(arc4random()%6+1)];
+            UIButton *button = [self customViewWithTitle:text imageName:imageName];
+            if (button) {
+                [_trackView addData:@{
+                                      FXDataCustomViewKey: button,
+                                      FXDataPriorityKey: isHighPriority?@(PriorityHigh):@(PriorityNormal)
+                                      }];
+            }
+        }
     }
-    
-//    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
-//    dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC, 0);
-//    @WeakObj(self);
-//    dispatch_source_set_event_handler(timer, ^{
-//        @StrongObj(self);
-//        if (self) {
-//            NSString *time = [NSString stringWithFormat:@"%.6lf", [NSDate new].timeIntervalSince1970];
-//            //            [_trackView addData:@{
-//            //                                  FXDataTextKey: time
-//            //                                  }];
-//            
-//            NSString *imageName = [NSString stringWithFormat:@"avatar%@", @(arc4random()%6+1)];
-//            
-//            UIButton *button = [self customViewWithTitle:time imageName:imageName];
-//            if (button) {
-//                [_trackView addData:@{
-//                                      FXDataCustomViewKey: button
-//                                      }];
-//            }
-//        }
-//        else {
-//            dispatch_source_cancel(timer);
-//        }
-//    });
-//    dispatch_resume(timer);
 }
 
 - (IBAction)start:(id)sender {
