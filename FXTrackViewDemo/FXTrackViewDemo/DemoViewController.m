@@ -58,9 +58,9 @@
 
 - (void)setupTrackView {
     
-    _trackView.randomTrack = NO;
     _trackView.emptyDataWhenPaused = NO;
     _trackView.cleanScreenWhenPaused = YES;
+    _trackView.removeFromSuperViewWhenStoped = NO;
 }
 
 - (UIButton *)customViewWithTitle:(NSString *)title imageName:(NSString *)name {
@@ -97,6 +97,30 @@
     }
     
     return [[NSAttributedString alloc] initWithString:text attributes:attrs];
+}
+
+- (NSDictionary *)normalPriorityAttributes {
+    
+    NSShadow *shadow = [[NSShadow alloc] init];
+    shadow.shadowColor = [UIColor blackColor];
+    shadow.shadowOffset = CGSizeMake(1, 1);
+    return @{
+             NSFontAttributeName: [UIFont systemFontOfSize:24 weight:UIFontWeightLight],
+             NSForegroundColorAttributeName: [UIColor colorWithWhite:1.0 alpha:0.95],
+             NSShadowAttributeName: shadow
+             };
+}
+
+- (NSDictionary *)highPriorityAttributes {
+    
+    NSShadow *shadow = [[NSShadow alloc] init];
+    shadow.shadowColor = [UIColor blackColor];
+    shadow.shadowOffset = CGSizeMake(1, 1);
+    return @{
+             NSFontAttributeName: [UIFont boldSystemFontOfSize:24],
+             NSForegroundColorAttributeName: [UIColor yellowColor],
+             NSShadowAttributeName: shadow
+             };
 }
 
 #pragma mark - Foreground & Background
@@ -204,9 +228,17 @@
         
         NSString *text = [NSString stringWithFormat:@"num: %@", @(i++)];
         
-        BOOL isHighPriority = !_prioritySegment.selectedSegmentIndex;
+        // FXDataPriority default value is PriorityNormal
+        BOOL isHighPriority = _prioritySegment.selectedSegmentIndex;
         BOOL dataIsText = !_dataTypeSegment.selectedSegmentIndex;
         if (dataIsText) {
+            // set up reused NSStringAttributes
+            if (!_trackView.highPriorityTextAttrs) {
+                _trackView.highPriorityTextAttrs = [self highPriorityAttributes];
+            }
+            if (!_trackView.normalPriorityTextAttrs) {
+                _trackView.normalPriorityTextAttrs = [self normalPriorityAttributes];
+            }
             [_trackView addData:@{
                                   FXDataTextKey: text,
                                   FXDataPriorityKey: isHighPriority ? @(PriorityHigh) : @(PriorityNormal)

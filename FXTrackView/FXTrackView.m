@@ -166,7 +166,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     _status = StatusNotStarted;
     self.maxVelocity = !_maxVelocity ? FX_MaxVelocity : _maxVelocity;
     self.minVelocity = !_minVelocity ? FX_MinVelocity : _minVelocity;
-    self.randomTrack = YES;
+    self.randomTrack = NO;
     self.cleanScreenWhenPaused = NO;
     self.emptyDataWhenPaused = NO;
     self.acceptDataWhenPaused = YES;
@@ -626,6 +626,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     dispatch_async(dispatch_get_main_queue(), ^{
         // label as data carrier
         UILabel *label = [[UILabel alloc] initWithFrame:fromFrame];
+        label.textAlignment = NSTextAlignmentCenter;
         label.attributedText = attrText;
         [self addSubview:label];
         

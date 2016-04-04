@@ -30,7 +30,6 @@
                                 <state key="normal" title="Add5"/>
                                 <connections>
                                     <action selector="addFiveData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JfC-qR-g5j"/>
-                                    <action selector="addTenData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bot-IH-FMm"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fLc-Oq-s9T" customClass="CornerButton">
@@ -135,7 +134,6 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Add30"/>
                                 <connections>
-                                    <action selector="addTenData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="A2o-Ug-Q0x"/>
                                     <action selector="addThirtyData:" destination="BYZ-38-t0r" eventType="touchUpInside" id="9yV-Eu-Iue"/>
                                 </connections>
                             </button>
