@@ -39,7 +39,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 @property (assign, nonatomic) CGRect trackViewFrame;
 @property (assign, nonatomic) CGFloat trackHeight;
-@property (strong, nonatomic) NSMutableArray *dataArr;
+@property (strong, nonatomic) NSMutableArray *dataQueue;
 
 @property (strong, nonatomic) dispatch_queue_t consumerQueue;
 @property (strong, nonatomic) dispatch_queue_t trackProducerQueue;
@@ -104,12 +104,12 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return _computationQueue;
 }
 
-- (NSMutableArray *)dataArr {
+- (NSMutableArray *)dataQueue {
 
-    if (!_dataArr) {
-        _dataArr = [NSMutableArray arrayWithCapacity:15];
+    if (!_dataQueue) {
+        _dataQueue = [NSMutableArray arrayWithCapacity:15];
     }
-    return _dataArr;
+    return _dataQueue;
 }
 
 - (NSMutableArray *)dispatchSourceTimers {
@@ -367,11 +367,11 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
     FXData data = nil;
     if (StatusRunning == _status) {
-        data = _dataArr.firstObject;
+        data = _dataQueue.firstObject;
         if (data) {
-            [_dataArr removeObjectAtIndex:0];
+            [_dataQueue removeObjectAtIndex:0];
         }
-        _hasData = _dataArr.count > 0;
+        _hasData = _dataQueue.count > 0;
     }
     pthread_mutex_unlock(&_data_mutex);
     return data;
@@ -400,10 +400,10 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     
     NSNumber *priority = data[FXDataPriorityKey];
     if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
-        [self.dataArr addObject:data];
+        [self.dataQueue addObject:data];
     }
     else if (priority.unsignedIntegerValue > PriorityNormal) {
-        [self.dataArr insertObject:data atIndex:0];
+        [self.dataQueue insertObject:data atIndex:0];
     }
 }
 
@@ -571,7 +571,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
             else if (!_emptyDataWhenPaused) {
                 // add it back if hasn't been consumed
                 pthread_mutex_lock(&_data_mutex);
-                [_dataArr insertObject:data atIndex:0];
+                [_dataQueue insertObject:data atIndex:0];
                 pthread_mutex_unlock(&_data_mutex);
             }
         }
@@ -588,7 +588,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     // empty data if needed
     if (stoped || (paused&&_emptyDataWhenPaused)) {
         pthread_mutex_lock(&_data_mutex);
-        [_dataArr removeAllObjects];
+        [_dataQueue removeAllObjects];
         _hasData = NO;
         pthread_mutex_unlock(&_data_mutex);
     }

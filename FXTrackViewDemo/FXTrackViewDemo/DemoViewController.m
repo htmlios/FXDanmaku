@@ -23,7 +23,6 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *dataTypeSegment;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *prioritySegment;
 @property (assign, nonatomic) UIInterfaceOrientationMask supportOrientation;
-@property (assign, nonatomic) CGRect oldFrame;
 
 @end
 
@@ -35,6 +34,10 @@
 
     _supportOrientation = UIInterfaceOrientationMaskPortrait;
     [self setupTrackView];
+}
+
+- (void)dealloc {
+    [NotificationCenter removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -158,6 +161,7 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     
+    // call 'frameDidChange' method to recalculate the num of tracks and height of each track when trackview's frame changed
     [_trackView frameDidChange];
     [_trackView start];
 }
@@ -221,13 +225,12 @@
 
 - (void)addNumOfData:(NSUInteger)num {
     
-    static int i = 0;
+    static NSUInteger i = 0;
     NSUInteger j = 0;
     
     while (j++ < num) {
         
         NSString *text = [NSString stringWithFormat:@"num: %@", @(i++)];
-        
         // FXDataPriority default value is PriorityNormal
         BOOL isHighPriority = _prioritySegment.selectedSegmentIndex;
         BOOL dataIsText = !_dataTypeSegment.selectedSegmentIndex;
@@ -258,29 +261,15 @@
 }
 
 - (IBAction)start:(id)sender {
-
-    if (!_trackView) {
-        FXTrackView *trackView = [[FXTrackView alloc] initWithFrame:_oldFrame];
-        [self.view addSubview:trackView];
-        [trackView layoutIfNeeded];
-        self.trackView = trackView;
-        [self setupTrackView];
-    }
-    
     [_trackView start];
 }
 
 - (IBAction)pause:(id)sender {
-    
     [_trackView pause];
 }
 
 
 - (IBAction)stop:(id)sender {
-    
-    if (CGRectIsEmpty(_oldFrame)) {
-        self.oldFrame = _trackView.frame;
-    }
     [_trackView stop];
 }
 

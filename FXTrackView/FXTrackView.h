@@ -38,7 +38,7 @@ extern NSString const *FXDataPriorityKey;
 @property (strong, nonatomic) FXTextAttrs highPriorityTextAttrs;
 
 /**
- *  Defualt: false. If you set this true, data(AttrText, CustomView) will be presented at unoccupied track randomly. Otherwise, data will be presented orderly(Starting from the first track, iterate every track until getting an unocciped tack). IMO, I would recommend to keep this property false, since that will save the time calculating a ramdom track from all unoccupied tracks. But it's up to you, we can't achieve random track effect and save that time at the same time😂
+ *  Defualt: false. If you set this true, data(AttrText, CustomView) will be presented at unoccupied track randomly. Otherwise, data will be presented orderly(Starting from the first track, iterate every track until getting an unocciped tack). IMO, I would recommend to keep this property false, since that will save the time calculating a ramdom track from all unoccupied tracks. But it's up to you, we can't achieve random track effect and save that consumption at the same time😂
  */
 @property (assign, nonatomic) BOOL randomTrack;
 /**
@@ -67,19 +67,41 @@ extern NSString const *FXDataPriorityKey;
  */
 @property (assign, nonatomic) NSUInteger minVelocity;
 
-
+/**
+ *  Add one data. FXData is typealias for NSDictionary
+ *
+ *  @param data There are two kinds of data. One is Text(FXDataTextKey), the other is CustomView(FXDataCustomViewKey). For Text type, you can specify custom attributes of text by setting FXTextCustomAttrsKey's value. What's more, you can set two reused TextAttributes, normalPriorityTextAttrs and highPriorityTextAttrs. FXDataPriorityKey will give you alternative to decide which data should be presented as soon as there has unoccupied tracks. It has two value: PriorityNormal(default) and PriorityHigh.
+ */
 - (void)addData:(FXData)data;
 
+/**
+ *  Add a group of data. Only member that is kind of FXData will be added in to data queue
+ */
 - (void)addDataArr:(NSArray *)dataArr;
 
+/**
+ *  Start or resume presenting data
+ */
 - (void)start;
 
+/**
+ *  Pause presenting data. You can resume it by calling 'start' method
+ */
 - (void)pause;
 
+/**
+ *  Stop presenting data.
+ */
 - (void)stop;
 
+/**
+ *  Clean screen(Remove all data presenting on the TrackView). You can set cleanScreenWhenPaused true to save you from calling this method manually
+ */
 - (void)cleanScreen;
 
+/**
+ *  When trackview's frame changed, you should call this method to recalculate the num of tracks and height of each track. Otherwise, data might be presented in the position out of trackview!
+ */
 - (void)frameDidChange;
 
 @end
