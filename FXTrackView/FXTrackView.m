@@ -9,6 +9,7 @@
 #import "FXTrackView.h"
 #import "FXTrackViewHeader.h"
 #import "FXDeallocMonitor.h"
+#import "FXClickableViewManager.h"
 #import <pthread.h>
 
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
@@ -51,6 +52,8 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 @property (strong, nonatomic) FXTextAttrs defaultAttrs;
 
 @property (assign, nonatomic) NSUInteger occupiedTrackMaskBit;
+
+@property (strong, nonatomic) NSMutableDictionary *clickableViewManagerDic;
 
 @property (assign, readonly, nonatomic) BOOL shouldAcceptData;
 
@@ -137,6 +140,28 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return _defaultAttrs;
 }
 
+- (NSMutableDictionary *)clickableViewManagerDic {
+    
+    if (!_clickableViewManagerDic) {
+        _clickableViewManagerDic = [NSMutableDictionary dictionaryWithCapacity:_numOfTracks];
+    }
+    return _clickableViewManagerDic;
+}
+
+- (FXClickableViewManager *)clickableViewManagerAtTrackIndex:(NSUInteger)index {
+    
+    __block FXClickableViewManager *manager = nil;
+    @WeakObj(self);
+    dispatch_sync(dispatch_get_global_queue(0, 0), ^{
+        @StrongObj(self);
+        if (!self.clickableViewManagerDic[@(index)]) {
+            self.clickableViewManagerDic[@(index)] = [[FXClickableViewManager alloc] init];
+        }
+        manager = self.clickableViewManagerDic[@(index)];
+    });
+    return manager;
+}
+
 #pragma mark Computed Property Getter
 
 - (BOOL)shouldAcceptData {
@@ -178,7 +203,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 #else
     self.backgroundColor = [UIColor clearColor];
 #endif
-    
+
     pthread_mutex_init(&_track_mutex, NULL);
     pthread_cond_init(&_track_prod, NULL);
     pthread_cond_init(&_track_cons, NULL);
@@ -221,7 +246,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         self.numOfTracks = floor((height+FX_TrackVSpan) / (FX_EstimatedTrackHeight+FX_TrackVSpan));
         self.trackHeight = (height - (_numOfTracks-1)*FX_TrackVSpan) / _numOfTracks;
         
-        LogD(@"%@", @(_numOfTracks*_trackHeight));
         _hasTracks = _numOfTracks > 0;
     }
 }
@@ -670,6 +694,14 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         customView.frame = fromFrame;
         [customView layoutIfNeeded];
         [self addSubview:customView];
+        
+#if FX_CumstomViewClickable
+        if ([customView isKindOfClass:[UIControl class]]) {
+            customView.userInteractionEnabled = NO;// So FXTrackView can be the handler of all touches in responder chain!
+            FXClickableViewManager *manager = [self clickableViewManagerAtTrackIndex:index];
+            [manager addClickableView:(UIControl *)customView];
+        }
+#endif
         [UIView animateWithDuration:animDuration
                               delay:0
                             options:UIViewAnimationOptionCurveLinear
@@ -717,5 +749,23 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     [self.dispatchSourceTimers addObject:timer];
     dispatch_resume(timer);
 }
+
+#pragma mark - Touch Event
+
+#if FX_CumstomViewClickable
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    
+    UITouch *touch = touches.anyObject;
+    CGPoint touchPoint = [touch locationInView:self];
+    NSUInteger trackIndex = touchPoint.y / (_trackHeight+FX_TrackVSpan);
+    LogD(@"clicked point: %@", NSStringFromCGPoint(touchPoint));
+    FXClickableViewManager *trackManager = _clickableViewManagerDic[@(trackIndex)];
+    UIControl *subClassObj = [trackManager clickableViewAtPoint:touchPoint];
+    if (subClassObj) {
+        [subClassObj sendActionsForControlEvents:UIControlEventTouchUpInside];
+    }
+}
+#endif
 
 @end

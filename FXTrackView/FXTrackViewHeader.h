@@ -9,6 +9,9 @@
 #ifndef FXTrackViewHeader_h
 #define FXTrackViewHeader_h
 
+// if customView is clickable
+#define FX_CumstomViewClickable true
+
 #define FX_EstimatedTrackHeight 30
 
 #define FX_TrackVSpan 4

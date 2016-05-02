@@ -9,17 +9,18 @@ A high-performance trackview to present data asynchronously.
 
 ##Features
 
-1. Created 4 serial dispatch_queues to do different jobs asynchronously
+1. Have the ability dispatching touchUpInside action to each customView(subclass of UIControl)
+2. Created 4 serial dispatch_queues to do different jobs asynchronously
 	* consumerQueue: fetch unoccupied tracks and dispatch data to each unoccupied track
 	* trackProducerQueue: reset occupied track
 	* dataProducerQueue: check validity of data, and add it into dataQueue
 	* computationQueue:  calculate random velocity of track, animation duration, time of resetting track as well as startPoint of data
-2. Followed producer-cosumer pattern. Also, to prevent from data race I have used **pthread lib**
-3. Data can be CustomView or AttributedText
-4. Method to handle device orientation changed, which might cause trackView's frame changed
-5. Two priority levels(Normal/High) for presenting data
-6. Random velocity of each data
-7. Easy to use. Only three control methods: start(resume), pause, stop
+3. Followed producer-cosumer pattern. Also, to prevent from data race I have used **pthread lib**
+4. Data can be CustomView or AttributedText
+5. Method to handle device orientation changed, which might cause trackView's frame changed
+6. Two priority levels(Normal/High) for presenting data
+7. Random velocity of each data
+8. Easy to use. Only three control methods: start(resume), pause, stop
 
 
 ## Note

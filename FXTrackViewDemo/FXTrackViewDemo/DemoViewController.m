@@ -75,6 +75,7 @@
         
         [button setAttributedTitle:[self attrbutedTextOfCustomView:title] forState:UIControlStateNormal];
         [button setImage:image forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(userClickedCustomBt:) forControlEvents:UIControlEventTouchUpInside];
         [button.imageView setContentMode:UIViewContentModeScaleAspectFit];
         button.layer.borderWidth = 1.0/ScreenScale;
         button.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -83,6 +84,11 @@
         return button;
     }
     return nil;
+}
+
+- (void)userClickedCustomBt:(id)sender {
+    
+    NSLog(@"You just clicked: %@", sender);
 }
 
 - (NSAttributedString *)attrbutedTextOfCustomView:(NSString *)text {
