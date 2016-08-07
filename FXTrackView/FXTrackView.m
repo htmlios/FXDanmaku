@@ -1,6 +1,6 @@
 //
 //  FXTrackView.m
-//  
+//
 //
 //  Created by ShawnFoo on 12/4/15.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
@@ -48,6 +48,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 @property (strong, nonatomic) dispatch_queue_t computationQueue;
 
 @property (strong, nonatomic) NSMutableArray *dispatchSourceTimers;
+@property (strong, nonatomic) dispatch_semaphore_t timersLock;
 
 @property (strong, nonatomic) FXTextAttrs defaultAttrs;
 
@@ -108,7 +109,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (NSMutableArray *)dataQueue {
-
+    
     if (!_dataQueue) {
         _dataQueue = [NSMutableArray arrayWithCapacity:15];
     }
@@ -164,6 +165,10 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 #pragma mark Computed Property Getter
 
+- (BOOL)isRunning {
+    return StatusRunning == _status;
+}
+
 - (BOOL)shouldAcceptData {
     
     BOOL notStoped = StatusStoped != _status;
@@ -195,15 +200,17 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     self.cleanScreenWhenPaused = NO;
     self.emptyDataWhenPaused = NO;
     self.acceptDataWhenPaused = YES;
-    self.removeFromSuperViewWhenStoped = YES;
+    self.removeFromSuperViewWhenStoped = NO;
     self.hasCalcTracks = NO;
+    self.layer.masksToBounds = YES;
+    self.timersLock = dispatch_semaphore_create(1);
     
 #ifdef FX_TrackViewBackgroundColor
     self.backgroundColor = FX_TrackViewBackgroundColor;
 #else
     self.backgroundColor = [UIColor clearColor];
 #endif
-
+    
     pthread_mutex_init(&_track_mutex, NULL);
     pthread_cond_init(&_track_prod, NULL);
     pthread_cond_init(&_track_cons, NULL);
@@ -284,7 +291,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)pause {
     
     RunBlock_Safe_MainThread(^{
-        
         if (StatusRunning == _status) {
             _status = StatusPaused;
             [self stopConsuming];
@@ -469,7 +475,38 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return index;
 }
 
-- (NSInteger)fetchOrderedUnoccupiedTrackIndex {
+- (NSInteger)fetchOrderedUnoccupiedTrackIndexFromBottom {
+    
+    pthread_mutex_lock(&_track_mutex);
+    while (!_hasTracks) {
+        pthread_cond_wait(&_track_cons, &_track_mutex);
+    }
+    NSInteger index = -1;
+    if (StatusRunning == _status) {
+        BOOL hasTracks = NO;
+        for (NSInteger i = _numOfTracks-1; i > -1; i--) {
+            if (1<<i & _occupiedTrackMaskBit) {
+                continue;
+            }
+            else if (-1 == index) {
+                index = i;
+            }
+            else {
+                hasTracks = YES;
+                break;
+            }
+        }
+        if (index > -1) {
+            [self setOccupiedTrackAtIndex:index];
+        }
+        _hasTracks = hasTracks;
+    }
+    
+    pthread_mutex_unlock(&_track_mutex);
+    return index;
+}
+
+- (NSInteger)fetchOrderedUnoccupiedTrackIndexFromTop {
     
     pthread_mutex_lock(&_track_mutex);
     while (!_hasTracks) {
@@ -478,7 +515,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     
     NSInteger index = -1;
     if (StatusRunning == _status) {
-        
         BOOL hasTracks = NO;
         for (int i = 0; i < _numOfTracks; i++) {
             
@@ -567,10 +603,9 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)consumeData {
     
     while (StatusRunning == _status) {
-        
         FXData data = [self fetchData];
         if (data) {
-            NSInteger unoccupiedIndex = _randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndex];
+            NSInteger unoccupiedIndex = _randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndexFromBottom];
             if (unoccupiedIndex > -1) {
                 dispatch_async(self.computationQueue, ^{
                     if (data[FXDataTextKey]) {
@@ -618,10 +653,15 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
     
     // cancel all timers, then reset occupied tracks!
+    dispatch_semaphore_wait(self.timersLock, DISPATCH_TIME_FOREVER);
     for (dispatch_source_t timer in _dispatchSourceTimers) {
-        dispatch_source_cancel(timer);
+        if (0 == dispatch_source_testcancel(timer)) {
+            dispatch_source_cancel(timer);
+        }
     }
     [_dispatchSourceTimers removeAllObjects];
+    dispatch_semaphore_signal(self.timersLock);
+    
     pthread_mutex_lock(&_track_mutex);
     self.occupiedTrackMaskBit = 0;
     _hasTracks = YES;
@@ -706,12 +746,12 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                               delay:0
                             options:UIViewAnimationOptionCurveLinear
                          animations:^
-        {
-            customView.frame = toFrame;
-            [self layoutIfNeeded];
-        } completion:^(BOOL finished) {
-            [customView removeFromSuperview];
-        }];
+         {
+             customView.frame = toFrame;
+             [self layoutIfNeeded];
+         } completion:^(BOOL finished) {
+             [customView removeFromSuperview];
+         }];
     });
     
     [self resetTrackAtIndex:index inTime:resetTime];
@@ -741,10 +781,18 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     // create timer to reset track
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.trackProducerQueue);
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), 0, 0);
+    @WeakObj(timer);
+    @WeakObj(self);
     dispatch_source_set_event_handler(timer, ^{
-        dispatch_source_cancel(timer);
-        [self removeOccupiedTrackAtIndex:index];
-        [self.dispatchSourceTimers removeObject:timer];
+        @StrongObj(timer);
+        @StrongObj(self);
+        dispatch_semaphore_wait(self.timersLock, DISPATCH_TIME_FOREVER);
+        if (0 == dispatch_source_testcancel(timer)) {
+            dispatch_source_cancel(timer);
+            [self removeOccupiedTrackAtIndex:index];
+            [self.dispatchSourceTimers removeObject:timer];
+        }
+        dispatch_semaphore_signal(self.timersLock);
     });
     [self.dispatchSourceTimers addObject:timer];
     dispatch_resume(timer);
@@ -753,19 +801,28 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 #pragma mark - Touch Event
 
 #if FX_CumstomViewClickable
-
+#if !FX_HandleTouchManually
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     
-    UITouch *touch = touches.anyObject;
+    if (![self shouldHandleTouch:touches.anyObject]) {
+        // To forward the message to the next responder, send the message to super (the superclass implementation); do not send the message directly to the next responder.
+        [super touchesBegan:touches withEvent:event];
+    }
+}
+#endif
+#endif
+
+- (BOOL)shouldHandleTouch:(UITouch *)touch {
+    
     CGPoint touchPoint = [touch locationInView:self];
     NSUInteger trackIndex = touchPoint.y / (_trackHeight+FX_TrackVSpan);
-    LogD(@"clicked point: %@", NSStringFromCGPoint(touchPoint));
     FXClickableViewManager *trackManager = _clickableViewManagerDic[@(trackIndex)];
     UIControl *subClassObj = [trackManager clickableViewAtPoint:touchPoint];
     if (subClassObj) {
         [subClassObj sendActionsForControlEvents:UIControlEventTouchUpInside];
+        return YES;
     }
+    return NO;
 }
-#endif
 
 @end

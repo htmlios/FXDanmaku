@@ -44,7 +44,7 @@
             }
         }
         if (view) {
-            [self.clickableViews addPointer:(__bridge void * _Nullable)(view)];
+            [self.clickableViews addPointer:(__bridge void*)view];
         }
     });
 }

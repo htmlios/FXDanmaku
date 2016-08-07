@@ -23,6 +23,8 @@ extern NSString const *FXDataPriorityKey;
 
 @interface FXTrackView : UIView
 
+@property (assign, readonly, nonatomic) BOOL isRunning;
+
 /**
  *  the height of one track
  */
@@ -54,7 +56,7 @@ extern NSString const *FXDataPriorityKey;
  */
 @property (assign, nonatomic) BOOL acceptDataWhenPaused;
 /**
- *  Default: true. Remove trackView from its superview when calling 'stop' method
+ *  Default: no. Remove trackView from its superview when calling 'stop' method
  */
 @property (assign, nonatomic) BOOL removeFromSuperViewWhenStoped;
 
@@ -103,5 +105,14 @@ extern NSString const *FXDataPriorityKey;
  *  When trackview's frame changed, you should call this method to recalculate the num of tracks and height of each track. Otherwise, data might be presented in the position out of trackview!
  */
 - (void)frameDidChange;
+
+/**
+ *  Check should handle touch by yourself
+ *
+ *  @param touch UITouch object
+ *
+ *  @return return YES if touch in any
+ */
+- (BOOL)shouldHandleTouch:(UITouch *)touch;
 
 @end
