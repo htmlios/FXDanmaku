@@ -15,6 +15,7 @@
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B85E1C97033D003A1AF9 /* FXTrackView.m */; };
 		2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */; };
+		29ECC0AD1E1414BC001A92A5 /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */; };
 		D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D02A4FD71CB29EF8004C4F25 /* CornerButton.m */; };
 		D05F45A71CD7AC7100F2F7A5 /* FXClickableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F45A61CD7AC7100F2F7A5 /* FXClickableViewManager.m */; };
 		D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
@@ -36,6 +37,8 @@
 		2916B85F1C97033D003A1AF9 /* FXTrackViewHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewHeader.h; sourceTree = "<group>"; };
 		2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDeallocMonitor.h; sourceTree = "<group>"; };
 		2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXDeallocMonitor.m; sourceTree = "<group>"; };
+		29ECC0AB1E1414BC001A92A5 /* FXReusableObjectQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXReusableObjectQueue.h; sourceTree = "<group>"; };
+		29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReusableObjectQueue.m; sourceTree = "<group>"; };
 		D02A4FD61CB29EF8004C4F25 /* CornerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CornerButton.h; sourceTree = "<group>"; };
 		D02A4FD71CB29EF8004C4F25 /* CornerButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CornerButton.m; sourceTree = "<group>"; };
 		D05F45A51CD7AC7100F2F7A5 /* FXClickableViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXClickableViewManager.h; sourceTree = "<group>"; };
@@ -107,6 +110,8 @@
 				2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */,
 				D05F45A51CD7AC7100F2F7A5 /* FXClickableViewManager.h */,
 				D05F45A61CD7AC7100F2F7A5 /* FXClickableViewManager.m */,
+				29ECC0AB1E1414BC001A92A5 /* FXReusableObjectQueue.h */,
+				29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */,
 			);
 			name = FXTrackView;
 			path = ../../FXTrackView;
@@ -149,7 +154,7 @@
 		2916B83A1C96FFC9003A1AF9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = ShawnFoo;
 				TargetAttributes = {
 					2916B8411C96FFC9003A1AF9 = {
@@ -199,6 +204,7 @@
 				2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */,
 				2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */,
 				2916B8471C96FFC9003A1AF9 /* main.m in Sources */,
+				29ECC0AD1E1414BC001A92A5 /* FXReusableObjectQueue.m in Sources */,
 				2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */,
 				D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */,
 				D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */,
@@ -240,8 +246,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -283,8 +291,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
