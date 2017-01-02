@@ -8,25 +8,34 @@
 
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol FXReusableObject <NSObject>
 
-@optional
 + (NSString *)resableIdentifier;
-- (void)objectWillEnqueue;
-- (void)objectWillBeReused;
+
+@optional
+- (instancetype)initWithReuseIdentifier:(nullable NSString *)identifier;
+- (void)prepareForReuse;
 
 @end
 
 @interface FXReusableObjectQueue : NSObject
 
++ (instancetype)queue;
++ (instancetype)queueWithMaxCountOfUnusedObjects:(NSUInteger)maxCount;
+- (instancetype)initWithMaxCountOfUnusedObjects:(NSUInteger)maxCount NS_DESIGNATED_INITIALIZER;
+
 #pragma mark - Resubale Object Register
-- (void)registerClass:(Class)cls forObjectReuseIdentifier:(NSString *)identifier;
-- (void)registerNib:(UINib *)nib forObjectReuseIdentifier:(NSString *)identifier;
+- (void)registerClass:(nullable Class)cls forObjectReuseIdentifier:(NSString *)identifier;
+- (void)registerNib:(nullable UINib *)nib forObjectReuseIdentifier:(NSString *)identifier;
 - (void)unregisterObjectResueWithIdentifier:(NSString *)identifier;
 
 #pragma mark - Queue Operation
-- (void)enqueueReusableObject:(id<FXReusableObject>)object;
-- (id<FXReusableObject>)dequeueReusableObjectWithIdentifier:(NSString *)identifier;
+- (void)enqueueReusableObject:(nullable id<FXReusableObject>)object;
+- (nullable id<FXReusableObject>)dequeueReusableObjectWithIdentifier:(NSString *)identifier;
 - (void)emptyUnusedObjects;
 
 @end
+
+NS_ASSUME_NONNULL_END

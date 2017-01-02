@@ -7,14 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FXTrackViewData.h"
 
 typedef NSDictionary* FXData;
 typedef NSDictionary* FXTextAttrs;
-
-typedef NS_ENUM(NSUInteger, FXDataPriority) {
-    PriorityNormal = 2001,
-    PriorityHigh
-};
 
 extern NSString const *FXDataTextKey;
 extern NSString const *FXTextCustomAttrsKey;
