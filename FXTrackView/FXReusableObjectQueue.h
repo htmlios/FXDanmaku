@@ -12,10 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol FXReusableObject <NSObject>
 
-+ (NSString *)resableIdentifier;
-
 @optional
 - (instancetype)initWithReuseIdentifier:(nullable NSString *)identifier;
+- (NSString *)reuseIdentifier;
 - (void)prepareForReuse;
 
 @end

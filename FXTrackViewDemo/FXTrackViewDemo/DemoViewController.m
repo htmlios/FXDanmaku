@@ -31,7 +31,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-
+    
     _supportOrientation = UIInterfaceOrientationMaskPortrait;
     [self setupTrackView];
 }
@@ -70,7 +70,7 @@
     
     UIImage *image = nil;
     if (title.length && (image = [UIImage imageNamed:name])) {
-        
+//        UITableViewCell UITableView
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         
         [button setAttributedTitle:[self attrbutedTextOfCustomView:title] forState:UIControlStateNormal];
@@ -237,32 +237,32 @@
     while (j++ < num) {
         
         NSString *text = [NSString stringWithFormat:@"num: %@", @(i++)];
-        // FXDataPriority default value is PriorityNormal
+        // FXDataPriority default value is FXDataPriorityNormal
         BOOL isHighPriority = _prioritySegment.selectedSegmentIndex;
         BOOL dataIsText = !_dataTypeSegment.selectedSegmentIndex;
-        if (dataIsText) {
-            // set up reused NSStringAttributes
-            if (!_trackView.highPriorityTextAttrs) {
-                _trackView.highPriorityTextAttrs = [self highPriorityAttributes];
-            }
-            if (!_trackView.normalPriorityTextAttrs) {
-                _trackView.normalPriorityTextAttrs = [self normalPriorityAttributes];
-            }
-            [_trackView addData:@{
-                                  FXDataTextKey: text,
-                                  FXDataPriorityKey: isHighPriority ? @(PriorityHigh) : @(PriorityNormal)
-                                  }];
-        }
-        else {
-            NSString *imageName = [NSString stringWithFormat:@"avatar%@", @(arc4random()%6+1)];
-            UIButton *button = [self customViewWithTitle:text imageName:imageName];
-            if (button) {
-                [_trackView addData:@{
-                                      FXDataCustomViewKey: button,
-                                      FXDataPriorityKey: isHighPriority?@(PriorityHigh):@(PriorityNormal)
-                                      }];
-            }
-        }
+//        if (dataIsText) {
+//            // set up reused NSStringAttributes
+//            if (!_trackView.highPriorityTextAttrs) {
+//                _trackView.highPriorityTextAttrs = [self highPriorityAttributes];
+//            }
+//            if (!_trackView.normalPriorityTextAttrs) {
+//                _trackView.normalPriorityTextAttrs = [self normalPriorityAttributes];
+//            }
+//            [_trackView addData:@{
+//                                  FXDataTextKey: text,
+//                                  FXDataPriorityKey: isHighPriority ? @(FXDataPriorityHigh) : @(FXDataPriorityNormal)
+//                                  }];
+//        }
+//        else {
+//            NSString *imageName = [NSString stringWithFormat:@"avatar%@", @(arc4random()%6+1)];
+//            UIButton *button = [self customViewWithTitle:text imageName:imageName];
+//            if (button) {
+//                [_trackView addData:@{
+//                                      FXDataCustomViewKey: button,
+//                                      FXDataPriorityKey: isHighPriority?@(FXDataPriorityHigh):@(FXDataPriorityNormal)
+//                                      }];
+//            }
+//        }
     }
 }
 

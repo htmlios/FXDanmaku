@@ -131,8 +131,8 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 
 - (void)enqueueReusableObject:(id<FXReusableObject>)object {
     NSString *identifier = nil;
-    if ([[object class] respondsToSelector:@selector(resableIdentifier)]
-        && (identifier = [[object class] resableIdentifier]))
+    if ([object respondsToSelector:@selector(reuseIdentifier)]
+        && (identifier = [object reuseIdentifier]))
     {
         FXSetOfReuseObject set = self.unusedObjectsSetDictionary[identifier];
         if (set.count < self.maxCountOfUnusedObjects) {

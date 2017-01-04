@@ -9,13 +9,13 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSUInteger, FXDataPriority) {
-    PriorityNormal = 2001,
-    PriorityHigh
+    FXDataPriorityNormal = 2001,
+    FXDataPriorityHigh
 };
 
 @interface FXTrackViewData : NSObject
 
-@property (nonatomic, class, readonly) NSString *itemIdentifier;
+@property (nonatomic, copy) NSString *itemReuseIdentifier;
 @property (nonatomic, assign) FXDataPriority priority;
 
 @end

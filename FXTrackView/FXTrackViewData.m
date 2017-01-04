@@ -7,7 +7,16 @@
 //
 
 #import "FXTrackViewData.h"
+#import "FXTrackViewItem.h"
 
 @implementation FXTrackViewData
+
+- (NSString *)itemReuseIdentifier {
+    return _itemReuseIdentifier ?: NSStringFromClass([FXTrackViewItem class]);
+}
+
+- (FXDataPriority)priority {
+    return _priority == 0 ? FXDataPriorityNormal : _priority;
+}
 
 @end

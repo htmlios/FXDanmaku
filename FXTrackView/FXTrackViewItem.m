@@ -10,8 +10,14 @@
 
 @implementation FXTrackViewItem
 
-+ (NSString *)resableIdentifier {
-    return NSStringFromClass(self);
+- (NSString *)reuseIdentifier {
+    return _reuseIdentifier ?: NSStringFromClass([self class]);
+}
+
+- (void)setupItemWithData:(FXTrackViewData *)data {
+#if DEBUG
+    
+#endif
 }
 
 @end

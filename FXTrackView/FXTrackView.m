@@ -11,6 +11,8 @@
 #import "FXDeallocMonitor.h"
 #import "FXClickableViewManager.h"
 #import <pthread.h>
+#import "FXReusableObjectQueue.h"
+#import "FXTrackViewItem.h"
 
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     StatusNotStarted = 1001,
@@ -40,17 +42,13 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 @property (assign, nonatomic) CGRect trackViewFrame;
 @property (assign, nonatomic) CGFloat trackHeight;
-@property (strong, nonatomic) NSMutableArray *dataQueue;
+@property (nonatomic, strong) NSMutableArray *dataQueue;
+@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
 
 @property (strong, nonatomic) dispatch_queue_t consumerQueue;
 @property (strong, nonatomic) dispatch_queue_t trackProducerQueue;
 @property (strong, nonatomic) dispatch_queue_t dataProducerQueue;
 @property (strong, nonatomic) dispatch_queue_t computationQueue;
-
-@property (strong, nonatomic) NSMutableArray *dispatchSourceTimers;
-@property (strong, nonatomic) dispatch_semaphore_t timersLock;
-
-@property (strong, nonatomic) FXTextAttrs defaultAttrs;
 
 @property (assign, nonatomic) NSUInteger occupiedTrackMaskBit;
 
@@ -74,10 +72,9 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     else { LogD(@"MaxVelocity can't be slower than minVelocity!😪"); }
 }
 
-#pragma mark Lazy Loading Getter
+#pragma mark Lazy Loading
 
 - (dispatch_queue_t)consumerQueue {
-    
     if (!_consumerQueue) {
         _consumerQueue = dispatch_queue_create("shawnfoo.trackView.consumerQueue", NULL);
     }
@@ -85,7 +82,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (dispatch_queue_t)trackProducerQueue {
-    
     if (!_trackProducerQueue) {
         _trackProducerQueue = dispatch_queue_create("shawnfoo.trackView.trackProducerQueue", NULL);
     }
@@ -93,7 +89,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (dispatch_queue_t)dataProducerQueue {
-    
     if (!_dataProducerQueue) {
         _dataProducerQueue = dispatch_queue_create("shawnfoo.trackView.dataProducerQueue", NULL);
     }
@@ -101,7 +96,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (dispatch_queue_t)computationQueue {
-    
     if (!_computationQueue) {
         _computationQueue = dispatch_queue_create("shawnfoo.trackView.computationQueue", NULL);
     }
@@ -109,36 +103,17 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (NSMutableArray *)dataQueue {
-    
     if (!_dataQueue) {
-        _dataQueue = [NSMutableArray arrayWithCapacity:15];
+        _dataQueue = [NSMutableArray array];
     }
     return _dataQueue;
 }
 
-- (NSMutableArray *)dispatchSourceTimers {
-    
-    if (!_dispatchSourceTimers) {
-        _dispatchSourceTimers = [NSMutableArray arrayWithCapacity:_numOfTracks];
+- (FXReusableObjectQueue *)reuseItemQueue {
+    if (!_reuseItemQueue) {
+        _reuseItemQueue = [FXReusableObjectQueue queue];
     }
-    return _dispatchSourceTimers;
-}
-
-- (FXTextAttrs)defaultAttrs {
-    
-    if (!_defaultAttrs) {
-        NSShadow *shadow = [[NSShadow alloc] init];
-        shadow.shadowColor = FX_TextShadowColor;
-        shadow.shadowOffset = FX_TextShadowOffset;
-        
-        _defaultAttrs = @{
-                          NSFontAttributeName: [UIFont systemFontOfSize:FX_TextFontSize],
-                          NSForegroundColorAttributeName: [UIColor whiteColor],
-                          NSShadowAttributeName: shadow
-                          };
-    }
-    
-    return _defaultAttrs;
+    return _reuseItemQueue;
 }
 
 - (NSMutableDictionary *)clickableViewManagerDic {
@@ -163,7 +138,7 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     return manager;
 }
 
-#pragma mark Computed Property Getter
+#pragma mark Computed Property
 
 - (BOOL)isRunning {
     return StatusRunning == _status;
@@ -178,16 +153,17 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 #pragma mark - LifeCycle
 
 - (instancetype)initWithFrame:(CGRect)frame {
-    
     if (self = [super initWithFrame:frame]) {
         [self commonSetup];
     }
     return self;
 }
 
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    [self commonSetup];
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self commonSetup];
+    }
+    return self;
 }
 
 - (void)commonSetup {
@@ -203,7 +179,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     self.removeFromSuperViewWhenStoped = NO;
     self.hasCalcTracks = NO;
     self.layer.masksToBounds = YES;
-    self.timersLock = dispatch_semaphore_create(1);
     
 #ifdef FX_TrackViewBackgroundColor
     self.backgroundColor = FX_TrackViewBackgroundColor;
@@ -267,7 +242,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (void)frameDidChange {
-    
     if (StatusRunning != _status) {
         [self calcTrackNumAndHeight];
     }
@@ -276,10 +250,68 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     }
 }
 
+#pragma mark - Register
+
+- (void)registerNib:(UINib *)nib forItemReuseIdentifier:(NSString *)identifier {
+    if (identifier) {
+        [self.reuseItemQueue registerNib:nib forObjectReuseIdentifier:identifier];
+    }
+}
+
+- (void)registerClass:(Class)itemClass forItemReuseIdentifier:(NSString *)identifier {
+    if (identifier) {
+        [self.reuseItemQueue registerClass:itemClass forObjectReuseIdentifier:identifier];
+    }
+}
+
+#pragma mark - Data Input
+
+- (void)addData:(FXTrackViewData *)data {
+    
+    if (!self.shouldAcceptData) {
+        return;
+    }
+    dispatch_async(self.dataProducerQueue, ^{
+        pthread_mutex_lock(&_data_mutex);
+        if ([data isKindOfClass:[FXTrackViewData class]]) {
+            [self insertData:data];
+            if (!_hasData) {
+                _hasData = YES;
+                if (StatusRunning == _status) {
+                    pthread_cond_signal(&_data_cons);
+                }
+            }
+        }
+        pthread_mutex_unlock(&_data_mutex);
+    });
+}
+
+- (void)addDataArr:(NSArray *)dataArr {
+    
+    if (!self.shouldAcceptData) { return; }
+    if (0 == dataArr.count) { return; }
+    dispatch_async(self.dataProducerQueue, ^{
+        pthread_mutex_lock(&_data_mutex);
+        BOOL addedData = NO;
+        for (FXTrackViewData *data in dataArr) {
+            if ([data isKindOfClass:[FXTrackViewData class]]) {
+                [self insertData:data];
+                addedData = YES;
+            }
+        }
+        if (!_hasData && addedData) {
+            _hasData = YES;
+            if (StatusRunning == _status) {
+                pthread_cond_signal(&_data_cons);
+            }
+        }
+        pthread_mutex_unlock(&_data_mutex);
+    });
+}
+
 #pragma mark - Actions
 
 - (void)start {
-    
     RunBlock_Safe_MainThread(^{
         if (StatusRunning != _status && CGSizeNotZero(self.frame.size)) {
             _status = StatusRunning;
@@ -289,7 +321,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (void)pause {
-    
     RunBlock_Safe_MainThread(^{
         if (StatusRunning == _status) {
             _status = StatusPaused;
@@ -302,7 +333,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (void)stop {
-    
     RunBlock_Safe_MainThread(^{
         if (StatusStoped != _status) {
             _status = StatusStoped;
@@ -316,7 +346,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 }
 
 - (void)startConsuming {
-    
     dispatch_async(self.consumerQueue, ^{
         [self consumeData];
     });
@@ -348,92 +377,31 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 
 #pragma mark - Data Producer & Consumer
 
-- (void)addData:(FXData)data {
-    
-    if (!self.shouldAcceptData) { return; }
-    dispatch_async(self.dataProducerQueue, ^{
-        pthread_mutex_lock(&_data_mutex);
-        if ([self checkData:data]) {
-            [self insertData:data];
-            if (!_hasData) {
-                _hasData = YES;
-                if (StatusRunning == _status) {
-                    pthread_cond_signal(&_data_cons);
-                }
-            }
-        }
-        pthread_mutex_unlock(&_data_mutex);
-    });
-}
-
-- (void)addDataArr:(NSArray *)dataArr {
-    
-    if (!self.shouldAcceptData) { return; }
-    if (0 == dataArr.count) { return; }
-    dispatch_async(self.dataProducerQueue, ^{
-        pthread_mutex_lock(&_data_mutex);
-        BOOL addedData = NO;
-        for (FXData data in dataArr) {
-            if ([self checkData:data]) {
-                [self insertData:data];
-                addedData = YES;
-            }
-        }
-        if (!_hasData && addedData) {
-            _hasData = YES;
-            if (StatusRunning == _status) {
-                pthread_cond_signal(&_data_cons);
-            }
-        }
-        pthread_mutex_unlock(&_data_mutex);
-    });
-}
-
-- (FXData)fetchData {
+- (FXTrackViewData *)fetchData {
     
     pthread_mutex_lock(&_data_mutex);
     while (!_hasData) {// no carriers, waiting for producer to signal to consumer
         pthread_cond_wait(&_data_cons, &_data_mutex);
     }
-    FXData data = nil;
+    FXTrackViewData *data = nil;
     if (StatusRunning == _status) {
-        data = _dataQueue.firstObject;
+        data = self->_dataQueue.firstObject;
         if (data) {
-            [_dataQueue removeObjectAtIndex:0];
+            [self->_dataQueue removeObjectAtIndex:0];
         }
-        _hasData = _dataQueue.count > 0;
+        _hasData = self->_dataQueue.count > 0;
     }
     pthread_mutex_unlock(&_data_mutex);
     return data;
 }
 
-- (BOOL)checkData:(FXData)data {
+- (void)insertData:(FXTrackViewData *)data {
     
-    NSString *text = data[FXDataTextKey];
-    UIView *customView = data[FXDataCustomViewKey];
-    BOOL isOk = NO;
-    if ([text isKindOfClass:[NSString class]] && text.length>0) {
-        isOk = YES;
-        if ([data[FXTextCustomAttrsKey] isKindOfClass:[NSDictionary class]]) {
-            isOk = YES;
-        }
-    }
-    
-    if ([customView isKindOfClass:[UIView class]]) {
-        isOk = YES;
-    }
-    
-    return isOk;
-}
-
-- (void)insertData:(FXData)data {
-    
-    NSNumber *priority = data[FXDataPriorityKey];
-    if (!priority || PriorityNormal == priority.unsignedIntegerValue) {
-        [self.dataQueue addObject:data];
-    }
-    else if (priority.unsignedIntegerValue > PriorityNormal) {
+    if (FXDataPriorityHigh == data.priority) {
         [self.dataQueue insertObject:data atIndex:0];
+    }
+    else {
+        [self.dataQueue addObject:data];
     }
 }
 
@@ -603,28 +571,12 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
 - (void)consumeData {
     
     while (StatusRunning == _status) {
-        FXData data = [self fetchData];
+        FXTrackViewData *data = [self fetchData];
         if (data) {
             NSInteger unoccupiedIndex = _randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndexFromBottom];
             if (unoccupiedIndex > -1) {
                 dispatch_async(self.computationQueue, ^{
-                    if (data[FXDataTextKey]) {
-                        FXTextAttrs attrs = data[FXTextCustomAttrsKey] ?: nil;
-                        if (!attrs) {
-                            NSNumber *priority = data[FXDataPriorityKey];
-                            if (PriorityNormal == priority.unsignedIntegerValue) {
-                                attrs = _normalPriorityTextAttrs;
-                            }
-                            else if (PriorityHigh == priority.unsignedIntegerValue) {
-                                attrs = _highPriorityTextAttrs;
-                            }
-                            attrs = attrs ?: self.defaultAttrs;
-                        }
-                        [self presentText:data[FXDataTextKey] attrs:attrs trackIndex:unoccupiedIndex];
-                    }
-                    else if (data[FXDataCustomViewKey]) {
-                        [self presentCustomView:data[FXDataCustomViewKey] trackIndex:unoccupiedIndex];
-                    }
+                    [self presentData:data atIndex:unoccupiedIndex];
                 });
             }
             else if (!_emptyDataWhenPaused) {
@@ -652,94 +604,48 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
         pthread_mutex_unlock(&_data_mutex);
     }
     
-    // cancel all timers, then reset occupied tracks!
-    dispatch_semaphore_wait(self.timersLock, DISPATCH_TIME_FOREVER);
-    for (dispatch_source_t timer in _dispatchSourceTimers) {
-        if (0 == dispatch_source_testcancel(timer)) {
-            dispatch_source_cancel(timer);
-        }
-    }
-    [_dispatchSourceTimers removeAllObjects];
-    dispatch_semaphore_signal(self.timersLock);
-    
     pthread_mutex_lock(&_track_mutex);
     self.occupiedTrackMaskBit = 0;
     _hasTracks = YES;
     pthread_mutex_unlock(&_track_mutex);
 }
 
-- (void)presentText:(NSString *)text attrs:(FXTextAttrs)attrs trackIndex:(NSUInteger)index {
-    
-    CGSize size = [text sizeWithAttributes:attrs];
-    
-    CGPoint point;
-    NSUInteger velocity;
-    NSTimeInterval animDuration, resetTime;
-    CGRect fromFrame, toFrame;
-    [self calculationWithSize:size
-                   trackIndex:index
-                   startPoint:&point
-                     velocity:&velocity
-                 animDuration:&animDuration
-                    resetTime:&resetTime
-                     fromRect:&fromFrame
-                       toRect:&toFrame];
-    
-    NSAttributedString *attrText = [[NSAttributedString alloc] initWithString:text attributes:attrs];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // label as data carrier
-        UILabel *label = [[UILabel alloc] initWithFrame:fromFrame];
-        label.textAlignment = NSTextAlignmentCenter;
-        label.attributedText = attrText;
-        [self addSubview:label];
-        
-        [UIView animateWithDuration:animDuration
-                              delay:0
-                            options:UIViewAnimationOptionCurveLinear
-                         animations:
-         ^{
-             label.frame = toFrame;
-             [self layoutIfNeeded];
-         } completion:^(BOOL finished) {
-             [label removeFromSuperview];
-         }];
-    });
-    
-    [self resetTrackAtIndex:index inTime:resetTime];
-}
-
-- (void)presentCustomView:(UIView *)customView trackIndex:(NSUInteger)index {
-    
-    CGSize size = customView.frame.size;
-    if (!size.width) {
-        size = [customView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-    }
-    
-    CGPoint point;
-    NSUInteger velocity;
-    NSTimeInterval animDuration, resetTime;
-    CGRect fromFrame, toFrame;
-    [self calculationWithSize:size
-                   trackIndex:index
-                   startPoint:&point
-                     velocity:&velocity
-                 animDuration:&animDuration
-                    resetTime:&resetTime
-                     fromRect:&fromFrame
-                       toRect:&toFrame];
-    
+- (void)presentData:(FXTrackViewData *)data atIndex:(NSUInteger)index {
     dispatch_async(dispatch_get_main_queue(), ^{
         
-        customView.frame = fromFrame;
-        [customView layoutIfNeeded];
-        [self addSubview:customView];
+        FXTrackViewItem *item = (FXTrackViewItem *)[self.reuseItemQueue dequeueReusableObjectWithIdentifier:data.itemReuseIdentifier];
+        if (![item isKindOfClass:[FXTrackViewItem class]]) {
+            LogD(@"Item(%@) is not kind of class FXTrackViewItem!", data.itemReuseIdentifier);
+            return;
+        }
+        
+        CGSize size = item.frame.size;
+        if (!size.width) {
+            size = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        }
+        
+        CGPoint point;
+        NSUInteger velocity;
+        NSTimeInterval animDuration, resetTime;
+        CGRect fromFrame, toFrame;
+        [self calculationWithSize:size
+                       trackIndex:index
+                       startPoint:&point
+                         velocity:&velocity
+                     animDuration:&animDuration
+                        resetTime:&resetTime
+                         fromRect:&fromFrame
+                           toRect:&toFrame];
+        
+        item.frame = fromFrame;
+        [item layoutIfNeeded];
+        [self addSubview:item];
         
 #if FX_CumstomViewClickable
-        if ([customView isKindOfClass:[UIControl class]]) {
-            customView.userInteractionEnabled = NO;// So FXTrackView can be the handler of all touches in responder chain!
+        if ([item isKindOfClass:[UIControl class]]) {
+            item.userInteractionEnabled = NO;// So FXTrackView can be the handler of all touches in responder chain!
             FXClickableViewManager *manager = [self clickableViewManagerAtTrackIndex:index];
-            [manager addClickableView:(UIControl *)customView];
+            [manager addClickableView:(UIControl *)item];
         }
 #endif
         [UIView animateWithDuration:animDuration
@@ -747,14 +653,15 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
                             options:UIViewAnimationOptionCurveLinear
                          animations:^
          {
-             customView.frame = toFrame;
+             item.frame = toFrame;
              [self layoutIfNeeded];
          } completion:^(BOOL finished) {
-             [customView removeFromSuperview];
+             [item removeFromSuperview];
+             
+             //FIXME: put in self.trackProducerQueue or in main thread?
+             [self removeOccupiedTrackAtIndex:index];
          }];
     });
-    
-    [self resetTrackAtIndex:index inTime:resetTime];
 }
 
 - (void)calculationWithSize:(CGSize)size
@@ -774,28 +681,6 @@ NSString const *FXDataPriorityKey = @"kFXDataPriority";
     *fromRect = CGRectMake(point->x, point->y , size.width, _trackHeight);
     *toRect = *fromRect;
     toRect->origin.x = -size.width;
-}
-
-- (void)resetTrackAtIndex:(NSUInteger)index inTime:(NSTimeInterval)resetTime {
-    
-    // create timer to reset track
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, self.trackProducerQueue);
-    dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, resetTime * NSEC_PER_SEC), 0, 0);
-    @WeakObj(timer);
-    @WeakObj(self);
-    dispatch_source_set_event_handler(timer, ^{
-        @StrongObj(timer);
-        @StrongObj(self);
-        dispatch_semaphore_wait(self.timersLock, DISPATCH_TIME_FOREVER);
-        if (0 == dispatch_source_testcancel(timer)) {
-            dispatch_source_cancel(timer);
-            [self removeOccupiedTrackAtIndex:index];
-            [self.dispatchSourceTimers removeObject:timer];
-        }
-        dispatch_semaphore_signal(self.timersLock);
-    });
-    [self.dispatchSourceTimers addObject:timer];
-    dispatch_resume(timer);
 }
 
 #pragma mark - Touch Event

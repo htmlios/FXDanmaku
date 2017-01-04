@@ -9,14 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "FXTrackViewData.h"
 
-typedef NSDictionary* FXData;
-typedef NSDictionary* FXTextAttrs;
-
-extern NSString const *FXDataTextKey;
-extern NSString const *FXTextCustomAttrsKey;
-extern NSString const *FXDataCustomViewKey;
-extern NSString const *FXDataPriorityKey;
-
 @interface FXTrackView : UIView
 
 @property (assign, readonly, nonatomic) BOOL isRunning;
@@ -26,14 +18,6 @@ extern NSString const *FXDataPriorityKey;
  */
 @property (assign, readonly, nonatomic) CGFloat trackHeight;
 
-/**
- *  reused text attributes for normal priority
- */
-@property (strong, nonatomic) FXTextAttrs normalPriorityTextAttrs;
-/**
- *  reused text attributes for high priority
- */
-@property (strong, nonatomic) FXTextAttrs highPriorityTextAttrs;
 
 /**
  *  Defualt: false. If you set this true, data(AttrText, CustomView) will be presented at unoccupied track randomly. Otherwise, data will be presented orderly(Starting from the first track, iterate every track until getting an unocciped tack). IMO, I would recommend to keep this property false, since that will save the time calculating a ramdom track from all unoccupied tracks. But it's up to you, we can't achieve random track effect and save that consumption at the same time😂
@@ -65,15 +49,15 @@ extern NSString const *FXDataPriorityKey;
  */
 @property (assign, nonatomic) NSUInteger minVelocity;
 
-/**
- *  Add one data. FXData is typealias for NSDictionary
- *
- *  @param data There are two kinds of data. One is Text(FXDataTextKey), the other is CustomView(FXDataCustomViewKey). For Text type, you can specify custom attributes of text by setting FXTextCustomAttrsKey's value. What's more, you can set two reused TextAttributes, normalPriorityTextAttrs and highPriorityTextAttrs. FXDataPriorityKey will give you alternative to decide which data should be presented as soon as there has unoccupied tracks. It has two value: PriorityNormal(default) and PriorityHigh.
- */
-- (void)addData:(FXData)data;
+
+- (void)registerNib:(UINib *)nib forItemReuseIdentifier:(NSString *)identifier;
+
+- (void)registerClass:(Class)itemClass forItemReuseIdentifier:(NSString *)identifier;
+
+- (void)addData:(FXTrackViewData *)data;
 
 /**
- *  Add a group of data. Only member that is kind of FXData will be added in to data queue
+ *  Add array with FXTrackViewData objects.
  */
 - (void)addDataArr:(NSArray *)dataArr;
 

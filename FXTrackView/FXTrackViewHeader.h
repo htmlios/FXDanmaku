@@ -9,6 +9,8 @@
 #ifndef FXTrackViewHeader_h
 #define FXTrackViewHeader_h
 
+#ifdef __OBJC__
+
 // if customView is clickable
 #define FX_CumstomViewClickable true
 
@@ -67,5 +69,7 @@ dispatch_async(dispatch_get_main_queue(), block);\
 #define CGSizeNotZero(size) (size.width != 0 && size.height != 0)
 
 //  ====================      PreDefined Macro End       ====================
+
+#endif /* __OBJC__ */
 
 #endif /* FXBarrageViewHeader_h */
