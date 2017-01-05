@@ -154,7 +154,6 @@
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    
     return _supportOrientation;
 }
 

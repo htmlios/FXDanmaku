@@ -10,6 +10,17 @@
 
 @implementation FXTrackViewItem
 
+- (instancetype)init {
+    if (self = [super init]) {
+        [self commonSetup];
+    }
+    return self;
+}
+
+- (void)commonSetup {
+    self.userInteractionEnabled = NO;
+}
+
 - (NSString *)reuseIdentifier {
     return _reuseIdentifier ?: NSStringFromClass([self class]);
 }

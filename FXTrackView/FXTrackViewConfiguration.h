@@ -7,7 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CGBase.h>
+
+typedef NS_ENUM(NSUInteger, FXTrackItemInsertOrder) {
+    FXTrackItemInsertOrderFromTop,
+    FXTrackItemInsertOrderFromBottom,
+    FXTrackItemInsertOrderRandom
+};
 
 @interface FXTrackViewConfiguration : NSObject
+
+@property (nonatomic, assign) FXTrackItemInsertOrder itemInsertOrder;
+@property (nonatomic, assign) CGFloat itemVerticalSpace;
+
+@property (nonatomic, assign) float trackResetOffsetRatio;
+
 
 @end

@@ -8,8 +8,21 @@
 
 #import <UIKit/UIKit.h>
 #import "FXTrackViewData.h"
+#import "FXTrackViewItem.h"
+@class FXTrackView;
+
+@protocol FXTrackViewDelegate <NSObject>
+
+- (void)trackView:(FXTrackView *)trackView willDisplayItem:(FXTrackViewItem *)item;
+- (void)trackView:(FXTrackView *)trackView didEndDisplayingItem:(FXTrackViewItem *)item;
+
+- (void)trackView:(FXTrackView *)trackView didClickItem:(FXTrackViewItem *)item;
+
+@end
 
 @interface FXTrackView : UIView
+
+@property (nonatomic, weak) id<FXTrackViewDelegate> delegate;
 
 @property (assign, readonly, nonatomic) BOOL isRunning;
 
@@ -56,8 +69,9 @@
 
 - (void)addData:(FXTrackViewData *)data;
 
+
 /**
- *  Add array with FXTrackViewData objects.
+ Add array with FXTrackViewData objects.
  */
 - (void)addDataArr:(NSArray *)dataArr;
 
@@ -91,7 +105,7 @@
  *
  *  @param touch UITouch object
  *
- *  @return return YES if touch in any
+ *  @return return YES if touched any items
  */
 - (BOOL)shouldHandleTouch:(UITouch *)touch;
 

@@ -17,10 +17,10 @@
 		2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */; };
 		2945AE051E1AACF500BED1B6 /* FXTrackViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */; };
 		2945AE081E1AAE1200BED1B6 /* FXTrackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2945AE071E1AAE1200BED1B6 /* FXTrackViewItem.m */; };
+		295CA2131E1EA20000720A8A /* FXSingleRowItemsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 295CA2121E1EA20000720A8A /* FXSingleRowItemsManager.m */; };
 		298007AC1E1D489400DBA585 /* FXTrackViewConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 298007AB1E1D489400DBA585 /* FXTrackViewConfiguration.m */; };
 		29ECC0AD1E1414BC001A92A5 /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */; };
 		D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D02A4FD71CB29EF8004C4F25 /* CornerButton.m */; };
-		D05F45A71CD7AC7100F2F7A5 /* FXClickableViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D05F45A61CD7AC7100F2F7A5 /* FXClickableViewManager.m */; };
 		D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
 /* End PBXBuildFile section */
 
@@ -44,14 +44,14 @@
 		2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXTrackViewData.m; sourceTree = "<group>"; };
 		2945AE061E1AAE1200BED1B6 /* FXTrackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewItem.h; sourceTree = "<group>"; };
 		2945AE071E1AAE1200BED1B6 /* FXTrackViewItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXTrackViewItem.m; sourceTree = "<group>"; };
+		295CA2111E1EA20000720A8A /* FXSingleRowItemsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXSingleRowItemsManager.h; sourceTree = "<group>"; };
+		295CA2121E1EA20000720A8A /* FXSingleRowItemsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXSingleRowItemsManager.m; sourceTree = "<group>"; };
 		298007AA1E1D489400DBA585 /* FXTrackViewConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewConfiguration.h; sourceTree = "<group>"; };
 		298007AB1E1D489400DBA585 /* FXTrackViewConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXTrackViewConfiguration.m; sourceTree = "<group>"; };
 		29ECC0AB1E1414BC001A92A5 /* FXReusableObjectQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXReusableObjectQueue.h; sourceTree = "<group>"; };
 		29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReusableObjectQueue.m; sourceTree = "<group>"; };
 		D02A4FD61CB29EF8004C4F25 /* CornerButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CornerButton.h; sourceTree = "<group>"; };
 		D02A4FD71CB29EF8004C4F25 /* CornerButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CornerButton.m; sourceTree = "<group>"; };
-		D05F45A51CD7AC7100F2F7A5 /* FXClickableViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXClickableViewManager.h; sourceTree = "<group>"; };
-		D05F45A61CD7AC7100F2F7A5 /* FXClickableViewManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXClickableViewManager.m; sourceTree = "<group>"; };
 		D0E737B01CB1057400BAC448 /* NSObject+FXAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+FXAlertView.h"; sourceTree = "<group>"; };
 		D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+FXAlertView.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -121,8 +121,8 @@
 				2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */,
 				2945AE061E1AAE1200BED1B6 /* FXTrackViewItem.h */,
 				2945AE071E1AAE1200BED1B6 /* FXTrackViewItem.m */,
-				D05F45A51CD7AC7100F2F7A5 /* FXClickableViewManager.h */,
-				D05F45A61CD7AC7100F2F7A5 /* FXClickableViewManager.m */,
+				295CA2111E1EA20000720A8A /* FXSingleRowItemsManager.h */,
+				295CA2121E1EA20000720A8A /* FXSingleRowItemsManager.m */,
 				29ECC0AB1E1414BC001A92A5 /* FXReusableObjectQueue.h */,
 				29ECC0AC1E1414BC001A92A5 /* FXReusableObjectQueue.m */,
 				2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */,
@@ -215,7 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2916B84D1C96FFC9003A1AF9 /* DemoViewController.m in Sources */,
-				D05F45A71CD7AC7100F2F7A5 /* FXClickableViewManager.m in Sources */,
+				295CA2131E1EA20000720A8A /* FXSingleRowItemsManager.m in Sources */,
 				2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */,
 				2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */,
 				2945AE081E1AAE1200BED1B6 /* FXTrackViewItem.m in Sources */,
