@@ -63,7 +63,6 @@
     
     _trackView.emptyDataWhenPaused = NO;
     _trackView.cleanScreenWhenPaused = YES;
-    _trackView.removeFromSuperViewWhenStoped = NO;
 }
 
 - (UIButton *)customViewWithTitle:(NSString *)title imageName:(NSString *)name {

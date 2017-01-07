@@ -15,7 +15,7 @@
 #import "FXSingleRowItemsManager.h"
 
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
-    StatusNotStarted = 1001,
+    StatusNotStarted,
     StatusRunning,
     StatusPaused,
     StatusStoped
@@ -188,7 +188,6 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     _cleanScreenWhenPaused = NO;
     _emptyDataWhenPaused = NO;
     _acceptDataWhenPaused = YES;
-    _removeFromSuperViewWhenStoped = NO;
     _hasCalcTracks = NO;
     self.layer.masksToBounds = YES;
     
@@ -306,10 +305,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     RunBlock_Safe_MainThread(^{
         if (StatusRunning == _status) {
             _status = StatusPaused;
-            [self stopConsuming];
-            if (_cleanScreenWhenPaused) {
-                [self cleanScreen];
-            }
+            [self breakConsumerSuspensionIfNeeded];
         }
     });
 }
@@ -318,11 +314,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     RunBlock_Safe_MainThread(^{
         if (StatusStoped != _status) {
             _status = StatusStoped;
-            [self stopConsuming];
-            [self cleanScreen];
-            if (_removeFromSuperViewWhenStoped) {
-                [self removeFromSuperview];
-            }
+            [self breakConsumerSuspensionIfNeeded];
         }
     });
 }
@@ -333,9 +325,9 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     });
 }
 
-- (void)stopConsuming {
+- (void)breakConsumerSuspensionIfNeeded {
     
-    // Exit the consumer thread if waiting! Otherwise, self can't be released! Memory leaks!
+    // Break the the suspension of consumer thread! Otherwise, self can't be released! Memory leaks!
     if (!_hasTracks) {
         pthread_mutex_lock(&_track_mutex);
         _hasTracks = YES;
@@ -352,9 +344,15 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 
 - (void)cleanScreen {
     
-    for (UIView *subViews in self.subviews) {
-        [subViews removeFromSuperview];
+    for (UIView *subView in self.subviews) {
+        if ([subView isKindOfClass:[FXTrackViewItem class]]) {
+            [subView removeFromSuperview];
+            [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)subView];
+        }
     }
+    dispatch_async(self.trackProducerQueue, ^{
+        [self resetOccupiedTrackRows];
+    });
 }
 
 #pragma mark - Data Producer & Consumer
@@ -362,7 +360,7 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 - (FXTrackViewData *)fetchData {
     
     pthread_mutex_lock(&_data_mutex);
-    while (!_hasData) {// no carriers, waiting for producer to signal to consumer
+    while (!_hasData) {// waiting for producer to signal consumer
         pthread_cond_wait(&_data_cons, &_data_mutex);
     }
     FXTrackViewData *data = nil;
@@ -387,16 +385,24 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     }
 }
 
+- (void)emptyDataQueue {
+    
+    pthread_mutex_lock(&_data_mutex);
+    [self->_dataQueue removeAllObjects];
+    _hasData = NO;
+    pthread_mutex_unlock(&_data_mutex);
+}
+
 #pragma mark - Track Producer & Consumer
 
-- (NSInteger)fetchRandomUnoccupiedTrackIndex {
+- (NSInteger)fetchRandomUnoccupiedTrackRow {
     
     pthread_mutex_lock(&_track_mutex);
     while (!_hasTracks) {
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
-    NSInteger index = -1;
+    NSInteger row = -1;
     if (StatusRunning == _status) {
         
         UInt8 *array = NULL;
@@ -411,8 +417,8 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
             array[n++] = i;
         }
         if (array) {
-            index = array[arc4random()%n];
-            [self setOccupiedTrackAtIndex:index];
+            row = array[arc4random()%n];
+            [self setOccupiedTrackAtRow:row];
             _hasTracks = n > 1 ? YES : NO;
             free(array);
         }
@@ -422,88 +428,95 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     }
     
     pthread_mutex_unlock(&_track_mutex);
-    return index;
+    return row;
 }
 
-- (NSInteger)fetchOrderedUnoccupiedTrackIndexFromBottom {
+- (NSInteger)fetchOrderedUnoccupiedTrackRowFromBottom {
     
     pthread_mutex_lock(&_track_mutex);
     while (!_hasTracks) {
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
-    NSInteger index = -1;
+    NSInteger row = -1;
     if (StatusRunning == _status) {
         BOOL hasTracks = NO;
         for (NSInteger i = self.numOfTracks-1; i > -1; i--) {
             if (1<<i & _occupiedTrackMaskBit) {
                 continue;
             }
-            else if (-1 == index) {
-                index = i;
+            else if (-1 == row) {
+                row = i;
             }
             else {
                 hasTracks = YES;
                 break;
             }
         }
-        if (index > -1) {
-            [self setOccupiedTrackAtIndex:index];
+        if (row > -1) {
+            [self setOccupiedTrackAtRow:row];
         }
         _hasTracks = hasTracks;
     }
     
     pthread_mutex_unlock(&_track_mutex);
-    return index;
+    return row;
 }
 
-- (NSInteger)fetchOrderedUnoccupiedTrackIndexFromTop {
+- (NSInteger)fetchOrderedUnoccupiedTrackRowFromTop {
     
     pthread_mutex_lock(&_track_mutex);
     while (!_hasTracks) {
         pthread_cond_wait(&_track_cons, &_track_mutex);
     }
     
-    NSInteger index = -1;
+    NSInteger row = -1;
     if (StatusRunning == _status) {
         BOOL hasTracks = NO;
         for (int i = 0; i < self.numOfTracks; i++) {
             if (1<<i & _occupiedTrackMaskBit) {
                 continue;
             }
-            else if (-1 == index) {
-                index = i;
+            else if (-1 == row) {
+                row = i;
             }
             else {
                 hasTracks = YES;
             }
         }
-        if (index > -1) {
-            [self setOccupiedTrackAtIndex:index];
+        if (row > -1) {
+            [self setOccupiedTrackAtRow:row];
         }
         _hasTracks = hasTracks;
     }
     
     pthread_mutex_unlock(&_track_mutex);
-    return index;
+    return row;
 }
 
-- (void)setOccupiedTrackAtIndex:(NSInteger)index {
-    
-    if (index < self.numOfTracks) {
-        self.occupiedTrackMaskBit |= 1 << index;
+- (void)setOccupiedTrackAtRow:(NSInteger)row {
+    if (row < self.numOfTracks) {
+        self.occupiedTrackMaskBit |= 1 << row;
     }
 }
 
-- (void)removeOccupiedTrackAtIndex:(NSInteger)index {
+- (void)removeOccupiedTrackAtRow:(NSInteger)row {
     
     pthread_mutex_lock(&_track_mutex);
-    if ((index<self.numOfTracks) && (1<<index & _occupiedTrackMaskBit)) {
-        self.occupiedTrackMaskBit -= 1 << index;
+    if ((row<self.numOfTracks) && (1<<row & _occupiedTrackMaskBit)) {
+        self.occupiedTrackMaskBit -= 1 << row;
         if (!_hasTracks) {
             _hasTracks = YES;
             pthread_cond_signal(&_track_cons);
         }
     }
+    pthread_mutex_unlock(&_track_mutex);
+}
+
+- (void)resetOccupiedTrackRows {
+    
+    pthread_mutex_lock(&_track_mutex);
+    self.occupiedTrackMaskBit = 0;
+    _hasTracks = YES;
     pthread_mutex_unlock(&_track_mutex);
 }
 
@@ -520,8 +533,8 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     return (self.frame.size.width + width) / velocity;
 }
 
-- (CGPoint)startPointWithIndex:(NSUInteger)index {
-    CGFloat yAxis = !index ? 0 : index*(self.trackHeight+FX_TrackVSpan);
+- (CGPoint)startPointWithRow:(NSUInteger)row {
+    CGFloat yAxis = !row ? 0 : row*(self.trackHeight+FX_TrackVSpan);
     return CGPointMake(self.frame.size.width, yAxis);
 }
 
@@ -532,10 +545,10 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     while (StatusRunning == _status) {
         FXTrackViewData *data = [self fetchData];
         if (data) {
-            NSInteger unoccupiedIndex = self.randomTrack ? [self fetchRandomUnoccupiedTrackIndex] : [self fetchOrderedUnoccupiedTrackIndexFromBottom];
-            if (unoccupiedIndex > -1) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self presentData:data atIndex:unoccupiedIndex];
+            NSInteger unoccupiedRow = self.randomTrack ? [self fetchRandomUnoccupiedTrackRow] : [self fetchOrderedUnoccupiedTrackRowFromBottom];
+            if (unoccupiedRow > -1) {
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    [self presentData:data atRow:unoccupiedRow];
                 });
             }
             else if (!self.emptyDataWhenPaused) {
@@ -551,36 +564,43 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
 
 - (void)stopConsumingData {
     
-    BOOL stoped = StatusStoped == _status;
-    BOOL paused = StatusPaused == _status;
+    BOOL emptyData = NO;
+    BOOL cleanScreen = NO;
     
-    if (stoped || (paused&&_emptyDataWhenPaused)) {
-        pthread_mutex_lock(&_data_mutex);
-        [self->_dataQueue removeAllObjects];
-        _hasData = NO;
-        pthread_mutex_unlock(&_data_mutex);
+    if (StatusStoped == _status) {
+        emptyData = YES;
+        cleanScreen = YES;
+    }
+    else if (StatusPaused == _status) {
+        emptyData = self.emptyDataWhenPaused;
+        cleanScreen = self.cleanScreenWhenPaused;
     }
     
-    pthread_mutex_lock(&_track_mutex);
-    self.occupiedTrackMaskBit = 0;
-    _hasTracks = YES;
-    pthread_mutex_unlock(&_track_mutex);
+    if (emptyData) {
+        dispatch_sync(self.dataProducerQueue, ^{
+            [self emptyDataQueue];
+        });
+    }
+    
+    if (cleanScreen) {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [self cleanScreen];
+        });
+    }
 }
 
-- (void)presentData:(FXTrackViewData *)data atIndex:(NSUInteger)index {
+- (void)presentData:(FXTrackViewData *)data atRow:(NSUInteger)row {
     
     FXTrackViewItem *item = (FXTrackViewItem *)[self.reuseItemQueue dequeueReusableObjectWithIdentifier:data.itemReuseIdentifier];
     if (![item isKindOfClass:[FXTrackViewItem class]]) {
         LogD(@"Item(%@) is not kind of class FXTrackViewItem!", data.itemReuseIdentifier);
         return;
     }
+    [item itemWillBeDisplayedWithData:data];
+    [item layoutIfNeeded];
     
-    CGSize itemSize = item.frame.size;
-    if (!itemSize.width) {
-        itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-    }
-    
-    CGPoint point = [self startPointWithIndex:index];
+    CGSize itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    CGPoint point = [self startPointWithRow:row];
     NSUInteger velocity = [self randomVelocity];
     NSTimeInterval animDuration = [self animateDurationOfVelocity:velocity itemWidth:itemSize.width];
     
@@ -588,9 +608,8 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     CGRect toFrame = item.frame;
     toFrame.origin.x = -itemSize.width;
     
-    [item layoutIfNeeded];
     [self addSubview:item];
-    [self.rowItemsManager[@(index)] addTrackViewItem:item];
+    [self.rowItemsManager[@(row)] addTrackViewItem:item];
     
     [UIView animateWithDuration:animDuration
                           delay:0
@@ -603,16 +622,15 @@ typedef NS_ENUM(NSUInteger, TrackViewStatus) {
                      completion:^(BOOL finished)
      {
          [item removeFromSuperview];
-         [self.rowItemsManager[@(index)] removeTrackViewItem:item];
-         [self.reuseItemQueue enqueueReusableObject:item];
+         [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
          
          dispatch_async(self.trackProducerQueue, ^{
-             [self removeOccupiedTrackAtIndex:index];
+             [self removeOccupiedTrackAtRow:row];
          });
      }];
 }
 
-#pragma mark - Touch Dispatch
+#pragma mark - Event Dispatch
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     if (![self shouldHandleTouch:touches.anyObject]) {

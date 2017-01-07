@@ -20,6 +20,7 @@
 
 @end
 
+
 @interface FXTrackView : UIView
 
 @property (nonatomic, weak) id<FXTrackViewDelegate> delegate;
@@ -48,10 +49,6 @@
  *  Default: true. If you set this false, [trackView addData/addDataArr] method won't work during paused
  */
 @property (assign, nonatomic) BOOL acceptDataWhenPaused;
-/**
- *  Default: no. Remove trackView from its superview when calling 'stop' method
- */
-@property (assign, nonatomic) BOOL removeFromSuperViewWhenStoped;
 
 /**
  *  max velocity of data carrier(UILabel for AttrText, CustomView)
@@ -68,7 +65,6 @@
 - (void)registerClass:(Class)itemClass forItemReuseIdentifier:(NSString *)identifier;
 
 - (void)addData:(FXTrackViewData *)data;
-
 
 /**
  Add array with FXTrackViewData objects.

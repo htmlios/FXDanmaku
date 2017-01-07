@@ -7,13 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "FXReusableObjectQueue.h"
 #import "FXTrackViewData.h"
 
-@interface FXTrackViewItem : UIView <FXReusableObject>
+@interface FXTrackViewItem : UIView
 
-@property (nonatomic, copy) NSString *reuseIdentifier;
+@property (nonatomic, readonly, copy) NSString *reuseIdentifier;
 
-- (void)setupItemWithData:(FXTrackViewData *)data;
+- (instancetype)initWithReuseIdentifier:(NSString *)identifier;
+- (void)prepareForReuse;
+
+- (void)itemWillBeDisplayedWithData:(FXTrackViewData *)data;
 
 @end

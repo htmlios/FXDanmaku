@@ -11,16 +11,16 @@
 
 @interface FXSingleRowItemsManager ()
 
-@property (nonatomic, strong) NSMutableArray<FXTrackViewItem *> *items;
+@property (nonatomic, strong) NSHashTable<FXTrackViewItem *> *items;
 
 @end
 
 @implementation FXSingleRowItemsManager
 
 #pragma mark - LazyLoading
-- (NSMutableArray<FXTrackViewItem *> *)items {
+- (NSHashTable<FXTrackViewItem *> *)items {
     if (!_items) {
-        _items = [NSMutableArray arrayWithCapacity:1];
+        _items = [NSHashTable weakObjectsHashTable];
     }
     return _items;
 }
@@ -30,16 +30,6 @@
     if ([item isKindOfClass:[FXTrackViewItem class]]) {
         [self.items addObject:item];
     }
-}
-
-- (void)removeTrackViewItem:(FXTrackViewItem *)item {
-    if (item) {
-        [self.items removeObject:item];
-    }
-}
-
-- (void)removeAllItems {
-    [self.items removeAllObjects];
 }
 
 #pragma mark - Hit Test

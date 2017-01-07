@@ -12,8 +12,6 @@
 @interface FXSingleRowItemsManager : NSObject
 
 - (void)addTrackViewItem:(FXTrackViewItem *)item;
-- (void)removeTrackViewItem:(FXTrackViewItem *)item;
-- (void)removeAllItems;
 
 - (FXTrackViewItem *)itemAtPoint:(CGPoint)point;
 

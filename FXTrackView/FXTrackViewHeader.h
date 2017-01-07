@@ -41,9 +41,19 @@ blue:((float)(rgbValue&0xFF))/255.0 \
 alpha:1])
 
 #ifdef DEBUG
-#define LogD(format, ...) NSLog((@"\nDebug: %s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define LogD(format, ...) NSLog((@"\nFXTrackView: %s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define LogD(...) do {} while(0)
+#endif
+
+#ifdef DEBUG
+#define FXTrackViewExceptionName @"FXTrackViewException"
+#define FXException(desc) @throw [NSException \
+exceptionWithName:FXTrackViewExceptionName \
+reason:desc \
+userInfo:nil];
+#else
+#define FXException(desc) do {} while(0)
 #endif
 
 #define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;

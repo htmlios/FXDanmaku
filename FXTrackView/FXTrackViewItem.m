@@ -7,11 +7,36 @@
 //
 
 #import "FXTrackViewItem.h"
+#import "FXTrackViewHeader.h"
+
+@interface FXTrackViewItem () 
+
+@property (nonatomic, copy) NSString *reuseIdentifier;
+
+@end
 
 @implementation FXTrackViewItem
 
-- (instancetype)init {
-    if (self = [super init]) {
+- (NSString *)reuseIdentifier {
+    return _reuseIdentifier ?: NSStringFromClass([self class]);
+}
+
+- (instancetype)initWithReuseIdentifier:(NSString *)identifier {
+    if (self = [super initWithFrame:CGRectZero]) {
+        _reuseIdentifier = [identifier copy];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [self commonSetup];
+    }
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         [self commonSetup];
     }
     return self;
@@ -21,14 +46,12 @@
     self.userInteractionEnabled = NO;
 }
 
-- (NSString *)reuseIdentifier {
-    return _reuseIdentifier ?: NSStringFromClass([self class]);
+- (void)prepareForReuse {
+    [self.layer removeAllAnimations];
 }
 
-- (void)setupItemWithData:(FXTrackViewData *)data {
-#if DEBUG
-    
-#endif
+- (void)itemWillBeDisplayedWithData:(FXTrackViewData *)data {
+    FXException(@"Please override this method implement in your subclass so you can custom your item with pass-in data.");
 }
 
 @end

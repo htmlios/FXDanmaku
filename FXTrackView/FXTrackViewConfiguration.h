@@ -22,5 +22,7 @@ typedef NS_ENUM(NSUInteger, FXTrackItemInsertOrder) {
 
 @property (nonatomic, assign) float trackResetOffsetRatio;
 
+@property (nonatomic, assign) NSUInteger dataQueueCapacity;
+
 
 @end
