@@ -11,34 +11,8 @@
 
 #ifdef __OBJC__
 
-// if customView is clickable
-#define FX_CumstomViewClickable true
-
-#define FX_EstimatedTrackHeight 30
-
-#define FX_TrackVSpan 4
-
-// the ratio of displacement to reset track
-#define FX_ResetTrackOffsetRatio 0.25
-
-#define FX_TrackViewBackgroundColor UIColorFromHexRGB(0x000000)
-#define FX_TextFontSize 24
-#define FX_TextFontColor UIColorFromHexRGB(0xFFA042)
-#define FX_TextShadowColor UIColorFromHexRGB(0x272727)
-#define FX_TextShadowOffset CGSizeMake(1, 1)
-
-#define FX_MinVelocity 100
-#define FX_MaxVelocity 120
-
-// ====================      PreDefined Macro Start       ====================
-
-#define NotificationCenter [NSNotificationCenter defaultCenter]
-
-#define UIColorFromHexRGB(rgbValue) \
-([UIColor colorWithRed:((float)((rgbValue&0xFF0000)>>16))/255.0 \
-green:((float)((rgbValue&0xFF00)>>8))/255.0 \
-blue:((float)(rgbValue&0xFF))/255.0 \
-alpha:1])
+#define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;
+#define StrongObj(o) autoreleasepool{} __strong typeof(o) o = o##Weak;
 
 #ifdef DEBUG
 #define LogD(format, ...) NSLog((@"\nFXTrackView: %s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -56,9 +30,6 @@ userInfo:nil];
 #define FXException(desc) do {} while(0)
 #endif
 
-#define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;
-#define StrongObj(o) autoreleasepool{} __strong typeof(o) o = o##Weak;
-
 #define RunBlock_Safe(block) {\
 if (block) {\
 block();\
@@ -75,10 +46,6 @@ dispatch_async(dispatch_get_main_queue(), block);\
 }\
 }\
 }
-
-#define CGSizeNotZero(size) (size.width != 0 && size.height != 0)
-
-//  ====================      PreDefined Macro End       ====================
 
 #endif /* __OBJC__ */
 

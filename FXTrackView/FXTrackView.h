@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "FXTrackViewData.h"
 #import "FXTrackViewItem.h"
+#import "FXTrackViewConfiguration.h"
 @class FXTrackView;
 
 @protocol FXTrackViewDelegate <NSObject>
@@ -16,7 +17,7 @@
 - (void)trackView:(FXTrackView *)trackView willDisplayItem:(FXTrackViewItem *)item;
 - (void)trackView:(FXTrackView *)trackView didEndDisplayingItem:(FXTrackViewItem *)item;
 
-- (void)trackView:(FXTrackView *)trackView didClickItem:(FXTrackViewItem *)item;
+- (void)trackView:(FXTrackView *)trackView didClickItem:(FXTrackViewItem *)item withData:(FXTrackViewData *)data;
 
 @end
 
@@ -25,39 +26,27 @@
 
 @property (nonatomic, weak) id<FXTrackViewDelegate> delegate;
 
-@property (assign, readonly, nonatomic) BOOL isRunning;
+@property (nonatomic, readonly) BOOL isRunning;
+
+@property (nonatomic, strong) FXTrackViewConfiguration *configuration;
 
 /**
- *  the height of one track
+ *  the actual height of one row
  */
-@property (assign, readonly, nonatomic) CGFloat trackHeight;
+@property (assign, readonly, nonatomic) CGFloat rowHeight;
 
-
-/**
- *  Defualt: false. If you set this true, data(AttrText, CustomView) will be presented at unoccupied track randomly. Otherwise, data will be presented orderly(Starting from the first track, iterate every track until getting an unocciped tack). IMO, I would recommend to keep this property false, since that will save the time calculating a ramdom track from all unoccupied tracks. But it's up to you, we can't achieve random track effect and save that consumption at the same time😂
- */
-@property (assign, nonatomic) BOOL randomTrack;
 /**
  *  Default: false. If you set this true, trackView will remove all presenting data(remove all its subviews) when pasued
  */
-@property (assign, nonatomic) BOOL cleanScreenWhenPaused;
+@property (nonatomic, assign) BOOL cleanScreenWhenPaused;
 /**
  *  Default: false. If you set this true, all datas stored in dataArr will be removed. Also, [trackView addData/addDataArr] method won't work during paused
  */
-@property (assign, nonatomic) BOOL emptyDataWhenPaused;
+@property (nonatomic, assign) BOOL emptyDataWhenPaused;
 /**
  *  Default: true. If you set this false, [trackView addData/addDataArr] method won't work during paused
  */
-@property (assign, nonatomic) BOOL acceptDataWhenPaused;
-
-/**
- *  max velocity of data carrier(UILabel for AttrText, CustomView)
- */
-@property (assign, nonatomic) NSUInteger maxVelocity;
-/**
- *  min veliocity of data carrier(UILabel for AttrText, CustomView)
- */
-@property (assign, nonatomic) NSUInteger minVelocity;
+@property (nonatomic, assign) BOOL acceptDataWhenPaused;
 
 
 - (void)registerNib:(UINib *)nib forItemReuseIdentifier:(NSString *)identifier;

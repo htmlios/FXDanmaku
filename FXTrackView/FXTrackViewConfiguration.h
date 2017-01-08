@@ -17,12 +17,17 @@ typedef NS_ENUM(NSUInteger, FXTrackItemInsertOrder) {
 
 @interface FXTrackViewConfiguration : NSObject
 
-@property (nonatomic, assign) FXTrackItemInsertOrder itemInsertOrder;
-@property (nonatomic, assign) CGFloat itemVerticalSpace;
-
-@property (nonatomic, assign) float trackResetOffsetRatio;
-
 @property (nonatomic, assign) NSUInteger dataQueueCapacity;
+@property (nonatomic, assign) FXTrackItemInsertOrder itemInsertOrder;
 
+@property (nonatomic, assign) CGFloat estimatedRowHeight;
+@property (nonatomic, assign) CGFloat rowVerticalSpace;
+@property (nonatomic, assign) float occupiedRowResetOffsetRatio;
+
+@property (nonatomic, assign) NSUInteger itemMinVelocity;
+@property (nonatomic, assign) NSUInteger itemMaxVelocity;
+
+
++ (instancetype)defaultConfiguration;
 
 @end

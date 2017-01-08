@@ -15,6 +15,7 @@
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		2916B8621C97033D003A1AF9 /* FXTrackView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B85E1C97033D003A1AF9 /* FXTrackView.m */; };
 		2916B8631C97033D003A1AF9 /* FXDeallocMonitor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */; };
+		293784B21E227ACE00A7F224 /* FXTrackViewItem+DataBind.m in Sources */ = {isa = PBXBuildFile; fileRef = 293784B11E227ACE00A7F224 /* FXTrackViewItem+DataBind.m */; };
 		2945AE051E1AACF500BED1B6 /* FXTrackViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */; };
 		2945AE081E1AAE1200BED1B6 /* FXTrackViewItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2945AE071E1AAE1200BED1B6 /* FXTrackViewItem.m */; };
 		295CA2131E1EA20000720A8A /* FXSingleRowItemsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 295CA2121E1EA20000720A8A /* FXSingleRowItemsManager.m */; };
@@ -40,6 +41,8 @@
 		2916B85F1C97033D003A1AF9 /* FXTrackViewHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewHeader.h; sourceTree = "<group>"; };
 		2916B8601C97033D003A1AF9 /* FXDeallocMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDeallocMonitor.h; sourceTree = "<group>"; };
 		2916B8611C97033D003A1AF9 /* FXDeallocMonitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXDeallocMonitor.m; sourceTree = "<group>"; };
+		293784B01E227ACE00A7F224 /* FXTrackViewItem+DataBind.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FXTrackViewItem+DataBind.h"; sourceTree = "<group>"; };
+		293784B11E227ACE00A7F224 /* FXTrackViewItem+DataBind.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FXTrackViewItem+DataBind.m"; sourceTree = "<group>"; };
 		2945AE031E1AACF500BED1B6 /* FXTrackViewData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewData.h; sourceTree = "<group>"; };
 		2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXTrackViewData.m; sourceTree = "<group>"; };
 		2945AE061E1AAE1200BED1B6 /* FXTrackViewItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXTrackViewItem.h; sourceTree = "<group>"; };
@@ -121,6 +124,8 @@
 				2945AE041E1AACF500BED1B6 /* FXTrackViewData.m */,
 				2945AE061E1AAE1200BED1B6 /* FXTrackViewItem.h */,
 				2945AE071E1AAE1200BED1B6 /* FXTrackViewItem.m */,
+				293784B01E227ACE00A7F224 /* FXTrackViewItem+DataBind.h */,
+				293784B11E227ACE00A7F224 /* FXTrackViewItem+DataBind.m */,
 				295CA2111E1EA20000720A8A /* FXSingleRowItemsManager.h */,
 				295CA2121E1EA20000720A8A /* FXSingleRowItemsManager.m */,
 				29ECC0AB1E1414BC001A92A5 /* FXReusableObjectQueue.h */,
@@ -226,6 +231,7 @@
 				D02A4FD81CB29EF8004C4F25 /* CornerButton.m in Sources */,
 				298007AC1E1D489400DBA585 /* FXTrackViewConfiguration.m in Sources */,
 				D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */,
+				293784B21E227ACE00A7F224 /* FXTrackViewItem+DataBind.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

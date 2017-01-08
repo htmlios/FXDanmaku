@@ -22,7 +22,7 @@
 @property (weak, nonatomic) IBOutlet FXTrackView *trackView;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *dataTypeSegment;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *prioritySegment;
-@property (assign, nonatomic) UIInterfaceOrientationMask supportOrientation;
+@property (nonatomic, assign) UIInterfaceOrientationMask supportOrientation;
 
 @end
 
@@ -37,7 +37,7 @@
 }
 
 - (void)dealloc {
-    [NotificationCenter removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
