@@ -14,6 +14,7 @@
 #import "FXTrackViewItem.h"
 #import "FXSingleRowItemsManager.h"
 #import "FXTrackViewItem+DataBind.h"
+#import "FXGCDTimer.h"
 
 typedef NS_ENUM(NSUInteger, TrackViewStatus) {
     StatusNotStarted,
@@ -48,6 +49,8 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
 @property (nonatomic, assign) NSUInteger occupiedRowMaskBit;
 
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
+
+@property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
 
 @property (nonatomic, readonly) BOOL shouldAcceptData;
 
@@ -111,6 +114,13 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
         _rowItemsManager = [NSMutableDictionary dictionaryWithCapacity:_numOfRows];
     }
     return _rowItemsManager;
+}
+
+- (NSHashTable<FXGCDTimer *> *)resetOccupiedRowTimers {
+    if (!_resetOccupiedRowTimers) {
+        _resetOccupiedRowTimers = [NSHashTable weakObjectsHashTable];
+    }
+    return _resetOccupiedRowTimers;
 }
 
 #pragma mark Shortcut Accessory
@@ -528,6 +538,9 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
 
 - (void)resetOccupiedTrackRows {
     
+    for (FXGCDTimer *timer in self.resetOccupiedRowTimers) {
+        [timer cancel];
+    }
     pthread_mutex_lock(&_track_mutex);
     self.occupiedRowMaskBit = 0;
     self.hasUnoccupiedRows = self.numOfRows > 0;
@@ -545,13 +558,19 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
     return arc4random()%(maxVel-minVel) + minVel;
 }
 
-- (NSTimeInterval)animateDurationOfVelocity:(NSUInteger)velocity itemWidth:(CGFloat)width {
-    return (self.frame.size.width + width) / velocity;
-}
-
 - (CGPoint)startPointWithRow:(NSUInteger)row {
     CGFloat yAxis = !row ? 0 : row * (self.rowHeight+self.configuration.rowVerticalSpace);
     return CGPointMake(self.frame.size.width, yAxis);
+}
+
+- (NSTimeInterval)animationDurationOfVelocity:(NSUInteger)velocity itemWidth:(CGFloat)width {
+    return (self.frame.size.width + width) / velocity;
+}
+
+- (NSTimeInterval)resetOccupiedRowTimeOfVelocity:(NSUInteger)velocity itemWidth:(CGFloat)width {
+    
+    float ratio = self.configuration.occupiedRowResetOffsetRatio;
+    return (self.bounds.size.width*ratio + width) / velocity;
 }
 
 #pragma mark - Item Presentation
@@ -618,7 +637,8 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
     CGSize itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
     CGPoint point = [self startPointWithRow:row];
     NSUInteger velocity = [self randomVelocity];
-    NSTimeInterval animDuration = [self animateDurationOfVelocity:velocity itemWidth:itemSize.width];
+    NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemSize.width];
+    NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemSize.width];
     
     item.frame = CGRectMake(point.x, point.y , itemSize.width, self.rowHeight);
     CGRect toFrame = item.frame;
@@ -640,11 +660,15 @@ static inline BOOL FXCGSizeNotZero(CGSize size) {
          [item removeFromSuperview];
          item.fx_data = nil;
          [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
-         
-         dispatch_async(self.trackProducerQueue, ^{
-             [self removeOccupiedTrackAtRow:row];
-         });
      }];
+    
+    FXGCDTimer *resetTimer = [FXGCDTimer scheduledTimerWithInterval:resetTime
+                                                              queue:self.trackProducerQueue
+                                                              block:^
+                              {
+                                  [self removeOccupiedTrackAtRow:row];
+                              }];
+    [self.resetOccupiedRowTimers addObject:resetTimer];
 }
 
 #pragma mark - Event Dispatch

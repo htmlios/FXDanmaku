@@ -26,9 +26,9 @@
 
 @property (nonatomic, weak) id<FXTrackViewDelegate> delegate;
 
-@property (nonatomic, readonly) BOOL isRunning;
-
 @property (nonatomic, strong) FXTrackViewConfiguration *configuration;
+
+@property (nonatomic, readonly) BOOL isRunning;
 
 /**
  *  the actual height of one row
