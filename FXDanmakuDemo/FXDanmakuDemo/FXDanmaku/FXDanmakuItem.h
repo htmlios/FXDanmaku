@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
- Prepare for reuse after item did 'leave' trackView. The implementation of this method in baseclass, FXDanmakuItem, does nothing.
+ Prepare for reuse after item did 'leave' trackView. Must call super.
  */
 - (void)prepareForReuse;
 

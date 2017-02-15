@@ -33,29 +33,25 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 @property (nonatomic, assign) DanmakuStatus breakedStatus;
 @property (nonatomic, strong) dispatch_semaphore_t statusSemophore;
 
-@property (nonatomic, assign) BOOL hasUnoccupiedRows;
-@property (nonatomic, assign) BOOL hasData;
-
-@property (nonatomic, assign) BOOL hasCalculatedRows;
-@property (nonatomic, assign) CGSize oldSize;
-
-@property (nonatomic, assign) NSInteger numOfRows;
-@property (nonatomic, assign) CGFloat rowSpace;
-
-@property (nonatomic, assign) BOOL startLater;
-
-@property (nonatomic, strong) NSMutableArray<FXDanmakuItemData *> *dataQueue;
-@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
-
 @property (nonatomic, strong) dispatch_queue_t consumerQueue;
 @property (nonatomic, strong) FXGCDOperationQueue *dataProducerQueue;
 @property (nonatomic, strong) FXGCDOperationQueue *rowProducerQueue;
 
+@property (nonatomic, strong) NSMutableArray<FXDanmakuItemData *> *dataQueue;
+@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
+@property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
+
+@property (nonatomic, assign) BOOL hasData;
+@property (nonatomic, assign) BOOL hasUnoccupiedRows;
+
+@property (nonatomic, assign) BOOL hasCalculatedRows;
+@property (nonatomic, assign) CGSize oldSize;
+@property (nonatomic, assign) NSInteger numOfRows;
+@property (nonatomic, assign) CGFloat rowSpace;
 @property (nonatomic, assign) NSUInteger occupiedRowMaskBit;
 
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
-
-@property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
+@property (nonatomic, assign) BOOL startLater;
 
 @property (nonatomic, readonly) BOOL shouldAcceptData;
 
@@ -423,19 +419,28 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)breakConsumerSuspensionIfNeeded {
     
-    pthread_mutex_lock(&self->_row_mutex);
-    if (!self.hasUnoccupiedRows) {
-        self.hasUnoccupiedRows = YES;
-        pthread_cond_signal(&self->_row_cons);
-    }
-    pthread_mutex_unlock(&self->_row_mutex);
+    @Weakify(self);
+    [self.rowProducerQueue addAsyncOperationBlock:^{
+        @Strongify(self);
+        ReturnVoidIfSelfNil
+        pthread_mutex_lock(&self->_row_mutex);
+        if (!self.hasUnoccupiedRows) {
+            self.hasUnoccupiedRows = YES;
+            pthread_cond_signal(&self->_row_cons);
+        }
+        pthread_mutex_unlock(&self->_row_mutex);
+    }];
     
-    pthread_mutex_lock(&self->_data_mutex);
-    if (!self.hasData) {
-        self.hasData = YES;
-        pthread_cond_signal(&self->_data_cons);
-    }
-    pthread_mutex_unlock(&self->_data_mutex);
+    [self.dataProducerQueue addAsyncOperationBlock:^{
+        @Strongify(self);
+        ReturnVoidIfSelfNil
+        pthread_mutex_lock(&self->_data_mutex);
+        if (!self.hasData) {
+            self.hasData = YES;
+            pthread_cond_signal(&self->_data_cons);
+        }
+        pthread_mutex_unlock(&self->_data_mutex);
+    }];
 }
 
 - (void)cleanScreen {
@@ -501,7 +506,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     }
 }
 
-#pragma mark - row Producer & Consumer
+#pragma mark - Row Producer & Consumer
 - (NSInteger)fetchUnoccupiedRow {
     NSInteger row;
     switch (self.configuration.itemInsertOrder) {
@@ -766,11 +771,9 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
      }
                      completion:^(BOOL finished)
      {
-         [self notifyDelegateDidEndDisplayingItem:item];
          [item removeFromSuperview];
-         [item.layer removeAllAnimations];
-         item.p_data = nil;
          [self.rowItemsManager[@(row)] removeDanmakuItem:item];
+         [self notifyDelegateDidEndDisplayingItem:item];
          [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
      }];
     
@@ -786,24 +789,25 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     [self.resetOccupiedRowTimers addObject:resetTimer];
 }
 
-#pragma mark - Responder Chain
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    return [self shouldHandleTouchAtPoint:point];
+#pragma mark - Touch Event
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = touches.anyObject;
+    if (touch.tapCount == 1) {
+        [self handleTouchAtPoint:[touch locationInView:self]];
+    }
 }
 
-- (BOOL)shouldHandleTouchAtPoint:(CGPoint)touchPoint {
-    
+- (void)handleTouchAtPoint:(CGPoint)touchPoint {
     NSUInteger row = touchPoint.y / (self.configuration.rowHeight + self.rowSpace);
     FXSingleRowItemsManager *manager = self->_rowItemsManager[@(row)];
     FXDanmakuItem *item = [manager itemAtPoint:touchPoint];
     if (item) {
         [self notifyDelegateClickedItem:item];
-        return YES;
     }
-    return NO;
 }
 
-#pragma mark - Notify Delegate
+#pragma mark - Invoke Delegate
 
 - (void)notifyDelegateWillDisplayItem:(FXDanmakuItem *)item {
     id<FXDanmakuDelegate> strongDelegate = self.delegate;

@@ -8,6 +8,9 @@
 
 #import "AppDelegate.h"
 #import "DemoViewController.h"
+#if DEBUG
+#import "JPFPSStatus.h"
+#endif
 
 @interface AppDelegate ()
 
@@ -18,6 +21,11 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+#if DEBUG
+    [[JPFPSStatus sharedInstance] open];
+#endif
+    
     return YES;
 }
 
