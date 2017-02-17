@@ -6,7 +6,7 @@
 //  Copyright © 2016年 ShawnFoo. All rights reserved.
 //
 
-#import "DemoViewController.h"
+#import "MultiRowsVC.h"
 #import "FXDanmaku.h"
 #import "NSObject+FXAlertView.h"
 #import "DemoDanmakuItemAData.h"
@@ -17,13 +17,13 @@
 #define ScreenScale [UIScreen mainScreen].scale
 #define NotificationCetner [NSNotificationCenter defaultCenter]
 
-@interface DemoViewController () <FXDanmakuDelegate>
+@interface MultiRowsVC () <FXDanmakuDelegate>
 
 @property (weak, nonatomic) IBOutlet FXDanmaku *danmaku;
 
 @end
 
-@implementation DemoViewController
+@implementation MultiRowsVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -75,6 +75,16 @@
 }
 
 #pragma mark - Actions
+- (IBAction)segmentValueChanged:(UISegmentedControl *)sender {
+    
+    // this is a copy FXDanmakuConfiguration object below!
+    FXDanmakuConfiguration *config = self.danmaku.configuration;
+    // update/change config's property
+    config.itemInsertOrder = sender.selectedSegmentIndex;
+    // set it back to let danmku refresh
+    self.danmaku.configuration = config;
+}
+
 - (IBAction)addOneData:(id)sender {
     [self addDatasWithCount:1];
 }
@@ -99,6 +109,16 @@
     [self.danmaku stop];
 }
 
+#pragma mark - FXDanmakuDelegate
+- (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemAData *)data {
+    [self presentConfirmViewWithTitle:nil
+                              message:[NSString stringWithFormat:@"You click %@", data.desc]
+                   confirmButtonTitle:nil
+                    cancelButtonTitle:@"Ok"
+                       confirmHandler:nil
+                        cancelHandler:nil];
+}
+
 #pragma mark - DataSource 
 - (void)addDatasWithCount:(NSUInteger)count {
     static NSUInteger index = 0;
@@ -113,17 +133,6 @@
             [self.danmaku start];
         }
      */
-}
-
-#pragma mark - FXDanmakuDelegate
-
-- (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemAData *)data {
-    [self presentConfirmViewWithTitle:nil
-                              message:[NSString stringWithFormat:@"You click %@", data.desc]
-                   confirmButtonTitle:nil
-                    cancelButtonTitle:@"Ok"
-                       confirmHandler:nil
-                        cancelHandler:nil];
 }
 
 @end

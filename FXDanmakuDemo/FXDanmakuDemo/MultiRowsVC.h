@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DemoViewController : UIViewController
+@interface MultiRowsVC : UIViewController
 
 
 @end

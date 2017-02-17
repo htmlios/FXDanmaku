@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "DemoViewController.h"
+#import "MultiRowsVC.h"
 #if DEBUG
 #import "JPFPSStatus.h"
 #endif

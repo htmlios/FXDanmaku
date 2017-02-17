@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		2916B8471C96FFC9003A1AF9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8461C96FFC9003A1AF9 /* main.m */; };
 		2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8491C96FFC9003A1AF9 /* AppDelegate.m */; };
-		2916B84D1C96FFC9003A1AF9 /* DemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B84C1C96FFC9003A1AF9 /* DemoViewController.m */; };
+		2916B84D1C96FFC9003A1AF9 /* MultiRowsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */; };
 		2916B8501C96FFC9003A1AF9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B84E1C96FFC9003A1AF9 /* Main.storyboard */; };
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		292C68351E51F86D0010F799 /* UIImageView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68341E51F86D0010F799 /* UIImageView+CornerRadius.m */; };
@@ -34,8 +34,8 @@
 		2916B8461C96FFC9003A1AF9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2916B8481C96FFC9003A1AF9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2916B8491C96FFC9003A1AF9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		2916B84B1C96FFC9003A1AF9 /* DemoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoViewController.h; sourceTree = "<group>"; };
-		2916B84C1C96FFC9003A1AF9 /* DemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoViewController.m; sourceTree = "<group>"; };
+		2916B84B1C96FFC9003A1AF9 /* MultiRowsVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MultiRowsVC.h; sourceTree = "<group>"; };
+		2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MultiRowsVC.m; sourceTree = "<group>"; };
 		2916B84F1C96FFC9003A1AF9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2916B8541C96FFC9003A1AF9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2916B8561C96FFC9003A1AF9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -103,13 +103,8 @@
 			children = (
 				2916B8481C96FFC9003A1AF9 /* AppDelegate.h */,
 				2916B8491C96FFC9003A1AF9 /* AppDelegate.m */,
-				2916B84B1C96FFC9003A1AF9 /* DemoViewController.h */,
-				2916B84C1C96FFC9003A1AF9 /* DemoViewController.m */,
-				292C683D1E51FF4F0010F799 /* DemoDanmakuItemA.h */,
-				292C683E1E51FF4F0010F799 /* DemoDanmakuItemA.m */,
-				292C68431E52003D0010F799 /* DemoDanmakuItemA.xib */,
-				292C68401E51FF620010F799 /* DemoDanmakuItemAData.h */,
-				292C68411E51FF620010F799 /* DemoDanmakuItemAData.m */,
+				29CDAA801E57302D00F518DE /* MultiRowsVC */,
+				29CDAA811E57475300F518DE /* SingleRowVC */,
 				2932E7C01E5364AA001006EA /* FXDanmaku */,
 				D0E737B31CB1057900BAC448 /* Util */,
 				2916B84E1C96FFC9003A1AF9 /* Main.storyboard */,
@@ -152,6 +147,27 @@
 				2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */,
 			);
 			path = FXDanmaku;
+			sourceTree = "<group>";
+		};
+		29CDAA801E57302D00F518DE /* MultiRowsVC */ = {
+			isa = PBXGroup;
+			children = (
+				2916B84B1C96FFC9003A1AF9 /* MultiRowsVC.h */,
+				2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */,
+				292C683D1E51FF4F0010F799 /* DemoDanmakuItemA.h */,
+				292C683E1E51FF4F0010F799 /* DemoDanmakuItemA.m */,
+				292C68431E52003D0010F799 /* DemoDanmakuItemA.xib */,
+				292C68401E51FF620010F799 /* DemoDanmakuItemAData.h */,
+				292C68411E51FF620010F799 /* DemoDanmakuItemAData.m */,
+			);
+			name = MultiRowsVC;
+			sourceTree = "<group>";
+		};
+		29CDAA811E57475300F518DE /* SingleRowVC */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = SingleRowVC;
 			sourceTree = "<group>";
 		};
 		D0E737B31CB1057900BAC448 /* Util */ = {
@@ -240,7 +256,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2932E7D81E5364AA001006EA /* FXGCDTimer.m in Sources */,
-				2916B84D1C96FFC9003A1AF9 /* DemoViewController.m in Sources */,
+				2916B84D1C96FFC9003A1AF9 /* MultiRowsVC.m in Sources */,
 				2932E7D31E5364AA001006EA /* FXDanmaku.m in Sources */,
 				2932E7D71E5364AA001006EA /* FXGCDOperationQueue.m in Sources */,
 				292C68351E51F86D0010F799 /* UIImageView+CornerRadius.m in Sources */,

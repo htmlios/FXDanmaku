@@ -12,7 +12,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- The relationship between DanmakuItem and TrackView is just same as the one between UITableViewCell and UITableView.
+ The relationship between DanmakuItem and danmaku is just same as the one between UITableViewCell and UITableView.
  */
 @interface FXDanmakuItem : UIView
 
@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
-  Initializes a TrackView item with reuse identifier.
+  Initializes a danmaku item with reuse identifier.
 
  @param identifier reuse identifier for item. If pass nil, reuseIdentifier will be name of the class.
  @return An initialized FXDanmakuItem object
@@ -33,14 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
- Prepare for reuse after item did 'leave' trackView. Must call super.
+ Prepare for reuse after item did 'leave' danmaku view. Must call super.
  */
 - (void)prepareForReuse;
 
 /**
- You can setup item with data in this method before item will start moving on trackView.
+ You can setup item with data in this method before item will start moving on danmaku.
  
- Note: This method is only called by the trackView when there are unoccupied rows for item to move.
+ Note: This method is only called by the danmaku when there are unoccupied rows for item to move.
 
  @param data The data should be displayed, it also was the first object in data queue.
  */

@@ -66,6 +66,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 @synthesize status = _status;
 @synthesize breakedStatus = _breakedStatus;
+@synthesize configuration = _configuration;
 
 #pragma mark - Accessor
 #pragma mark Lazy Loading
@@ -143,6 +144,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     status = _breakedStatus;
     dispatch_semaphore_signal(_statusSemophore);
     return status;
+}
+
+- (FXDanmakuConfiguration *)configuration {
+    return [_configuration copy];
 }
 
 #pragma mark Shortcut Accessory
@@ -687,7 +692,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 #pragma mark - Item Presentation
 - (void)consumeData {
     
-    FXLogD(@"FXDanmaku has started.");
     while (StatusRunning == self.status) {
         FXDanmakuItemData *data = [self fetchData];
         if (data) {
@@ -704,7 +708,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         }
     }
     [self stopConsumingData];
-    FXLogD(@"FXDanmaku has %@.", StatusPaused == self.status ? @"paused" : @"stopped");
 }
 
 - (void)stopConsumingData {

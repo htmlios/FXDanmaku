@@ -49,9 +49,9 @@ typedef NS_ENUM(NSUInteger, FXDanmakuItemMoveDirection) {
 @property (nonatomic, assign) CGFloat estimatedRowSpace;
 
 /**
- The ratio(movement/trackWidth) to reset occupied row that is displaying item.
+ The ratio(movement/danmaku's width) to reset occupied row that is displaying item.
  
- For example, when this value is 0.25 and the width of trackView is 100pt, then after moving 25pt(0.1 * 100pt)
+ For example, when this value is 0.25 and the width of danmaku view is 100pt, then after moving 25pt(0.1 * 100pt)
  from the begining, the danmakuItem is not occupied its row anymore, so any other items can be inserted to this unoccupied row.
  */
 @property (nonatomic, assign) float moveRatioToResetOccupiedRow;
