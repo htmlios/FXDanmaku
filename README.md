@@ -40,6 +40,11 @@ DemoDanmakuItemData *data = [DemoDanmakuItemData data];
 if (!self.danmaku.isRunning) {
 	[self.danmaku start];
 }
+
+// FXDanmakuDelegate
+- (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemData *)data {
+	// handle click event here
+}
 ```
 More examples in `FXDanmakuDemo.xcworkspace`. 
 
