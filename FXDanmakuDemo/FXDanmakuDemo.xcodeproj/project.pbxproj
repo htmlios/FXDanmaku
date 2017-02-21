@@ -7,15 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F5E72A80BB5CFD6F9A1756E /* libPods-FXDanmakuDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 97262F6ACEB42DC465A31B1E /* libPods-FXDanmakuDemo.a */; };
+		1AB75955899C8DB5F0C9A911 /* libPods-FXDanmakuDemo_Reveal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F9CFB3BE5C2B4B07E6B7C9F /* libPods-FXDanmakuDemo_Reveal.a */; };
 		2916B8471C96FFC9003A1AF9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8461C96FFC9003A1AF9 /* main.m */; };
 		2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8491C96FFC9003A1AF9 /* AppDelegate.m */; };
 		2916B84D1C96FFC9003A1AF9 /* MultiRowsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */; };
 		2916B8501C96FFC9003A1AF9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B84E1C96FFC9003A1AF9 /* Main.storyboard */; };
 		2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
+		29256BF41E57E73B00B0E627 /* SingleRowVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF31E57E73B00B0E627 /* SingleRowVC.m */; };
+		29256BF71E57EA0600B0E627 /* NSTimer+FXWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */; };
+		29256BFA1E57EBEA00B0E627 /* DemoBulletinItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF91E57EBEA00B0E627 /* DemoBulletinItem.m */; };
+		29256BFD1E57EC0200B0E627 /* DemoBulletinItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BFC1E57EC0200B0E627 /* DemoBulletinItemData.m */; };
 		292C68351E51F86D0010F799 /* UIImageView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68341E51F86D0010F799 /* UIImageView+CornerRadius.m */; };
-		292C683F1E51FF4F0010F799 /* DemoDanmakuItemA.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C683E1E51FF4F0010F799 /* DemoDanmakuItemA.m */; };
-		292C68421E51FF620010F799 /* DemoDanmakuItemAData.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68411E51FF620010F799 /* DemoDanmakuItemAData.m */; };
-		292C68441E52003D0010F799 /* DemoDanmakuItemA.xib in Resources */ = {isa = PBXBuildFile; fileRef = 292C68431E52003D0010F799 /* DemoDanmakuItemA.xib */; };
+		292C683F1E51FF4F0010F799 /* DemoDanmakuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C683E1E51FF4F0010F799 /* DemoDanmakuItem.m */; };
+		292C68421E51FF620010F799 /* DemoDanmakuItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68411E51FF620010F799 /* DemoDanmakuItemData.m */; };
+		292C68441E52003D0010F799 /* DemoDanmakuItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 292C68431E52003D0010F799 /* DemoDanmakuItem.xib */; };
 		2932E7D31E5364AA001006EA /* FXDanmaku.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C21E5364AA001006EA /* FXDanmaku.m */; };
 		2932E7D41E5364AA001006EA /* FXDanmakuConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C41E5364AA001006EA /* FXDanmakuConfiguration.m */; };
 		2932E7D51E5364AA001006EA /* FXDanmakuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C61E5364AA001006EA /* FXDanmakuItem.m */; };
@@ -24,6 +30,31 @@
 		2932E7D81E5364AA001006EA /* FXGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CE1E5364AA001006EA /* FXGCDTimer.m */; };
 		2932E7D91E5364AA001006EA /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */; };
 		2932E7DA1E5364AA001006EA /* FXSingleRowItemsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */; };
+		29334D201E5B215F0061EAAE /* FXGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CE1E5364AA001006EA /* FXGCDTimer.m */; };
+		29334D211E5B215F0061EAAE /* MultiRowsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */; };
+		29334D221E5B215F0061EAAE /* FXDanmaku.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C21E5364AA001006EA /* FXDanmaku.m */; };
+		29334D231E5B215F0061EAAE /* FXGCDOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CC1E5364AA001006EA /* FXGCDOperationQueue.m */; };
+		29334D241E5B215F0061EAAE /* UIImageView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68341E51F86D0010F799 /* UIImageView+CornerRadius.m */; };
+		29334D251E5B215F0061EAAE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8491C96FFC9003A1AF9 /* AppDelegate.m */; };
+		29334D261E5B215F0061EAAE /* SingleRowVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF31E57E73B00B0E627 /* SingleRowVC.m */; };
+		29334D271E5B215F0061EAAE /* DemoDanmakuItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C68411E51FF620010F799 /* DemoDanmakuItemData.m */; };
+		29334D281E5B215F0061EAAE /* FXDanmakuItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C91E5364AA001006EA /* FXDanmakuItemData.m */; };
+		29334D291E5B215F0061EAAE /* FXSingleRowItemsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */; };
+		29334D2A1E5B215F0061EAAE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B8461C96FFC9003A1AF9 /* main.m */; };
+		29334D2B1E5B215F0061EAAE /* DemoDanmakuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 292C683E1E51FF4F0010F799 /* DemoDanmakuItem.m */; };
+		29334D2C1E5B215F0061EAAE /* DemoBulletinItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF91E57EBEA00B0E627 /* DemoBulletinItem.m */; };
+		29334D2D1E5B215F0061EAAE /* DemoBulletinItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BFC1E57EC0200B0E627 /* DemoBulletinItemData.m */; };
+		29334D2E1E5B215F0061EAAE /* FXDanmakuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C61E5364AA001006EA /* FXDanmakuItem.m */; };
+		29334D2F1E5B215F0061EAAE /* FXDanmakuConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C41E5364AA001006EA /* FXDanmakuConfiguration.m */; };
+		29334D301E5B215F0061EAAE /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
+		29334D311E5B215F0061EAAE /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */; };
+		29334D321E5B215F0061EAAE /* NSTimer+FXWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */; };
+		29334D331E5B215F0061EAAE /* JPFPSStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 29C3F3451E53677E00716EEF /* JPFPSStatus.m */; };
+		29334D351E5B215F0061EAAE /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29334D1C1E5B21090061EAAE /* Reveal.framework */; };
+		29334D371E5B215F0061EAAE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
+		29334D381E5B215F0061EAAE /* DemoDanmakuItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 292C68431E52003D0010F799 /* DemoDanmakuItem.xib */; };
+		29334D391E5B215F0061EAAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 652CC5D81E4B29B0002465C2 /* Assets.xcassets */; };
+		29334D3A1E5B215F0061EAAE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B84E1C96FFC9003A1AF9 /* Main.storyboard */; };
 		29C3F3461E53677E00716EEF /* JPFPSStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 29C3F3451E53677E00716EEF /* JPFPSStatus.m */; };
 		652CC5D91E4B29B0002465C2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 652CC5D81E4B29B0002465C2 /* Assets.xcassets */; };
 		D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
@@ -39,13 +70,21 @@
 		2916B84F1C96FFC9003A1AF9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2916B8541C96FFC9003A1AF9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2916B8561C96FFC9003A1AF9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		29256BF21E57E73B00B0E627 /* SingleRowVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleRowVC.h; sourceTree = "<group>"; };
+		29256BF31E57E73B00B0E627 /* SingleRowVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SingleRowVC.m; sourceTree = "<group>"; };
+		29256BF51E57EA0600B0E627 /* NSTimer+FXWeakTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTimer+FXWeakTimer.h"; sourceTree = "<group>"; };
+		29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+FXWeakTimer.m"; sourceTree = "<group>"; };
+		29256BF81E57EBEA00B0E627 /* DemoBulletinItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoBulletinItem.h; sourceTree = "<group>"; };
+		29256BF91E57EBEA00B0E627 /* DemoBulletinItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoBulletinItem.m; sourceTree = "<group>"; };
+		29256BFB1E57EC0200B0E627 /* DemoBulletinItemData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoBulletinItemData.h; sourceTree = "<group>"; };
+		29256BFC1E57EC0200B0E627 /* DemoBulletinItemData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoBulletinItemData.m; sourceTree = "<group>"; };
 		292C68331E51F86D0010F799 /* UIImageView+CornerRadius.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+CornerRadius.h"; sourceTree = "<group>"; };
 		292C68341E51F86D0010F799 /* UIImageView+CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+CornerRadius.m"; sourceTree = "<group>"; };
-		292C683D1E51FF4F0010F799 /* DemoDanmakuItemA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDanmakuItemA.h; sourceTree = "<group>"; };
-		292C683E1E51FF4F0010F799 /* DemoDanmakuItemA.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoDanmakuItemA.m; sourceTree = "<group>"; };
-		292C68401E51FF620010F799 /* DemoDanmakuItemAData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDanmakuItemAData.h; sourceTree = "<group>"; };
-		292C68411E51FF620010F799 /* DemoDanmakuItemAData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoDanmakuItemAData.m; sourceTree = "<group>"; };
-		292C68431E52003D0010F799 /* DemoDanmakuItemA.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoDanmakuItemA.xib; sourceTree = "<group>"; };
+		292C683D1E51FF4F0010F799 /* DemoDanmakuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDanmakuItem.h; sourceTree = "<group>"; };
+		292C683E1E51FF4F0010F799 /* DemoDanmakuItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoDanmakuItem.m; sourceTree = "<group>"; };
+		292C68401E51FF620010F799 /* DemoDanmakuItemData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoDanmakuItemData.h; sourceTree = "<group>"; };
+		292C68411E51FF620010F799 /* DemoDanmakuItemData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoDanmakuItemData.m; sourceTree = "<group>"; };
+		292C68431E52003D0010F799 /* DemoDanmakuItem.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DemoDanmakuItem.xib; sourceTree = "<group>"; };
 		2932E7C11E5364AA001006EA /* FXDanmaku.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDanmaku.h; sourceTree = "<group>"; };
 		2932E7C21E5364AA001006EA /* FXDanmaku.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXDanmaku.m; sourceTree = "<group>"; };
 		2932E7C31E5364AA001006EA /* FXDanmakuConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXDanmakuConfiguration.h; sourceTree = "<group>"; };
@@ -64,11 +103,19 @@
 		2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReusableObjectQueue.m; sourceTree = "<group>"; };
 		2932E7D11E5364AA001006EA /* FXSingleRowItemsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXSingleRowItemsManager.h; sourceTree = "<group>"; };
 		2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXSingleRowItemsManager.m; sourceTree = "<group>"; };
+		29334D1C1E5B21090061EAAE /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		29334D3E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FXDanmakuDemo_Reveal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29C3F3441E53677E00716EEF /* JPFPSStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JPFPSStatus.h; sourceTree = "<group>"; };
 		29C3F3451E53677E00716EEF /* JPFPSStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JPFPSStatus.m; sourceTree = "<group>"; };
 		652CC5D81E4B29B0002465C2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6F9CFB3BE5C2B4B07E6B7C9F /* libPods-FXDanmakuDemo_Reveal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FXDanmakuDemo_Reveal.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		91519CACE31D0F9036EDD32D /* Pods-FXDanmakuDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FXDanmakuDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-FXDanmakuDemo/Pods-FXDanmakuDemo.release.xcconfig"; sourceTree = "<group>"; };
+		97262F6ACEB42DC465A31B1E /* libPods-FXDanmakuDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FXDanmakuDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B74474E03BF665050D4B086E /* Pods-FXDanmakuDemo_Reveal.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FXDanmakuDemo_Reveal.release.xcconfig"; path = "Pods/Target Support Files/Pods-FXDanmakuDemo_Reveal/Pods-FXDanmakuDemo_Reveal.release.xcconfig"; sourceTree = "<group>"; };
+		B79B60ED8D1FBD2046D5C9DE /* Pods-FXDanmakuDemo_Reveal.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FXDanmakuDemo_Reveal.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FXDanmakuDemo_Reveal/Pods-FXDanmakuDemo_Reveal.debug.xcconfig"; sourceTree = "<group>"; };
 		D0E737B01CB1057400BAC448 /* NSObject+FXAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+FXAlertView.h"; sourceTree = "<group>"; };
 		D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+FXAlertView.m"; sourceTree = "<group>"; };
+		D460625AD8D6929BC1B22D13 /* Pods-FXDanmakuDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FXDanmakuDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FXDanmakuDemo/Pods-FXDanmakuDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +123,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F5E72A80BB5CFD6F9A1756E /* libPods-FXDanmakuDemo.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		29334D341E5B215F0061EAAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29334D351E5B215F0061EAAE /* Reveal.framework in Frameworks */,
+				1AB75955899C8DB5F0C9A911 /* libPods-FXDanmakuDemo_Reveal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +144,8 @@
 			children = (
 				2916B8441C96FFC9003A1AF9 /* FXDanmakuDemo */,
 				2916B8431C96FFC9003A1AF9 /* Products */,
+				CEB2602F1377E9DFCC516E7F /* Pods */,
+				3B0E4AF01237EA15E5EF4B2D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,6 +153,7 @@
 			isa = PBXGroup;
 			children = (
 				2916B8421C96FFC9003A1AF9 /* FXDanmakuDemo.app */,
+				29334D3E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -107,6 +167,7 @@
 				29CDAA811E57475300F518DE /* SingleRowVC */,
 				2932E7C01E5364AA001006EA /* FXDanmaku */,
 				D0E737B31CB1057900BAC448 /* Util */,
+				29334D1B1E5B20F40061EAAE /* Frameworks */,
 				2916B84E1C96FFC9003A1AF9 /* Main.storyboard */,
 				2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */,
 				652CC5D81E4B29B0002465C2 /* Assets.xcassets */,
@@ -149,16 +210,24 @@
 			path = FXDanmaku;
 			sourceTree = "<group>";
 		};
+		29334D1B1E5B20F40061EAAE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29334D1C1E5B21090061EAAE /* Reveal.framework */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
 		29CDAA801E57302D00F518DE /* MultiRowsVC */ = {
 			isa = PBXGroup;
 			children = (
 				2916B84B1C96FFC9003A1AF9 /* MultiRowsVC.h */,
 				2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */,
-				292C683D1E51FF4F0010F799 /* DemoDanmakuItemA.h */,
-				292C683E1E51FF4F0010F799 /* DemoDanmakuItemA.m */,
-				292C68431E52003D0010F799 /* DemoDanmakuItemA.xib */,
-				292C68401E51FF620010F799 /* DemoDanmakuItemAData.h */,
-				292C68411E51FF620010F799 /* DemoDanmakuItemAData.m */,
+				292C683D1E51FF4F0010F799 /* DemoDanmakuItem.h */,
+				292C683E1E51FF4F0010F799 /* DemoDanmakuItem.m */,
+				292C68431E52003D0010F799 /* DemoDanmakuItem.xib */,
+				292C68401E51FF620010F799 /* DemoDanmakuItemData.h */,
+				292C68411E51FF620010F799 /* DemoDanmakuItemData.m */,
 			);
 			name = MultiRowsVC;
 			sourceTree = "<group>";
@@ -166,8 +235,34 @@
 		29CDAA811E57475300F518DE /* SingleRowVC */ = {
 			isa = PBXGroup;
 			children = (
+				29256BF21E57E73B00B0E627 /* SingleRowVC.h */,
+				29256BF31E57E73B00B0E627 /* SingleRowVC.m */,
+				29256BF81E57EBEA00B0E627 /* DemoBulletinItem.h */,
+				29256BF91E57EBEA00B0E627 /* DemoBulletinItem.m */,
+				29256BFB1E57EC0200B0E627 /* DemoBulletinItemData.h */,
+				29256BFC1E57EC0200B0E627 /* DemoBulletinItemData.m */,
 			);
 			name = SingleRowVC;
+			sourceTree = "<group>";
+		};
+		3B0E4AF01237EA15E5EF4B2D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				97262F6ACEB42DC465A31B1E /* libPods-FXDanmakuDemo.a */,
+				6F9CFB3BE5C2B4B07E6B7C9F /* libPods-FXDanmakuDemo_Reveal.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CEB2602F1377E9DFCC516E7F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D460625AD8D6929BC1B22D13 /* Pods-FXDanmakuDemo.debug.xcconfig */,
+				91519CACE31D0F9036EDD32D /* Pods-FXDanmakuDemo.release.xcconfig */,
+				B79B60ED8D1FBD2046D5C9DE /* Pods-FXDanmakuDemo_Reveal.debug.xcconfig */,
+				B74474E03BF665050D4B086E /* Pods-FXDanmakuDemo_Reveal.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		D0E737B31CB1057900BAC448 /* Util */ = {
@@ -179,6 +274,8 @@
 				292C68341E51F86D0010F799 /* UIImageView+CornerRadius.m */,
 				D0E737B01CB1057400BAC448 /* NSObject+FXAlertView.h */,
 				D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */,
+				29256BF51E57EA0600B0E627 /* NSTimer+FXWeakTimer.h */,
+				29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */,
 			);
 			name = Util;
 			sourceTree = "<group>";
@@ -190,9 +287,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2916B8591C96FFC9003A1AF9 /* Build configuration list for PBXNativeTarget "FXDanmakuDemo" */;
 			buildPhases = (
+				AE231C93F2108A842DBE5BE5 /* [CP] Check Pods Manifest.lock */,
 				2916B83E1C96FFC9003A1AF9 /* Sources */,
 				2916B83F1C96FFC9003A1AF9 /* Frameworks */,
 				2916B8401C96FFC9003A1AF9 /* Resources */,
+				43587683DCD9629C31EC83A2 /* [CP] Embed Pods Frameworks */,
+				5030D2F35DA9779BEC4447AE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -201,6 +301,26 @@
 			name = FXDanmakuDemo;
 			productName = FXTrackViewDemo;
 			productReference = 2916B8421C96FFC9003A1AF9 /* FXDanmakuDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		29334D1E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 29334D3B1E5B215F0061EAAE /* Build configuration list for PBXNativeTarget "FXDanmakuDemo_Reveal" */;
+			buildPhases = (
+				D7DB81C5A50A3D86DB6D4F71 /* [CP] Check Pods Manifest.lock */,
+				29334D1F1E5B215F0061EAAE /* Sources */,
+				29334D341E5B215F0061EAAE /* Frameworks */,
+				29334D361E5B215F0061EAAE /* Resources */,
+				6F6B39D278D44A3FD1BE4626 /* [CP] Embed Pods Frameworks */,
+				F616AED17AAC2A0B10F857B3 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FXDanmakuDemo_Reveal;
+			productName = FXTrackViewDemo;
+			productReference = 29334D3E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -214,6 +334,9 @@
 				TargetAttributes = {
 					2916B8411C96FFC9003A1AF9 = {
 						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = WGV2V2YLC8;
+					};
+					29334D1E1E5B215F0061EAAE = {
 						DevelopmentTeam = WGV2V2YLC8;
 					};
 				};
@@ -232,6 +355,7 @@
 			projectRoot = "";
 			targets = (
 				2916B8411C96FFC9003A1AF9 /* FXDanmakuDemo */,
+				29334D1E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal */,
 			);
 		};
 /* End PBXProject section */
@@ -242,13 +366,117 @@
 			buildActionMask = 2147483647;
 			files = (
 				2916B8551C96FFC9003A1AF9 /* LaunchScreen.storyboard in Resources */,
-				292C68441E52003D0010F799 /* DemoDanmakuItemA.xib in Resources */,
+				292C68441E52003D0010F799 /* DemoDanmakuItem.xib in Resources */,
 				652CC5D91E4B29B0002465C2 /* Assets.xcassets in Resources */,
 				2916B8501C96FFC9003A1AF9 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		29334D361E5B215F0061EAAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29334D371E5B215F0061EAAE /* LaunchScreen.storyboard in Resources */,
+				29334D381E5B215F0061EAAE /* DemoDanmakuItem.xib in Resources */,
+				29334D391E5B215F0061EAAE /* Assets.xcassets in Resources */,
+				29334D3A1E5B215F0061EAAE /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		43587683DCD9629C31EC83A2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FXDanmakuDemo/Pods-FXDanmakuDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5030D2F35DA9779BEC4447AE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FXDanmakuDemo/Pods-FXDanmakuDemo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6F6B39D278D44A3FD1BE4626 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FXDanmakuDemo_Reveal/Pods-FXDanmakuDemo_Reveal-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AE231C93F2108A842DBE5BE5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D7DB81C5A50A3D86DB6D4F71 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		F616AED17AAC2A0B10F857B3 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FXDanmakuDemo_Reveal/Pods-FXDanmakuDemo_Reveal-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2916B83E1C96FFC9003A1AF9 /* Sources */ = {
@@ -261,16 +489,47 @@
 				2932E7D71E5364AA001006EA /* FXGCDOperationQueue.m in Sources */,
 				292C68351E51F86D0010F799 /* UIImageView+CornerRadius.m in Sources */,
 				2916B84A1C96FFC9003A1AF9 /* AppDelegate.m in Sources */,
-				292C68421E51FF620010F799 /* DemoDanmakuItemAData.m in Sources */,
+				29256BF41E57E73B00B0E627 /* SingleRowVC.m in Sources */,
+				292C68421E51FF620010F799 /* DemoDanmakuItemData.m in Sources */,
 				2932E7D61E5364AA001006EA /* FXDanmakuItemData.m in Sources */,
 				2932E7DA1E5364AA001006EA /* FXSingleRowItemsManager.m in Sources */,
 				2916B8471C96FFC9003A1AF9 /* main.m in Sources */,
-				292C683F1E51FF4F0010F799 /* DemoDanmakuItemA.m in Sources */,
+				292C683F1E51FF4F0010F799 /* DemoDanmakuItem.m in Sources */,
+				29256BFA1E57EBEA00B0E627 /* DemoBulletinItem.m in Sources */,
+				29256BFD1E57EC0200B0E627 /* DemoBulletinItemData.m in Sources */,
 				2932E7D51E5364AA001006EA /* FXDanmakuItem.m in Sources */,
 				2932E7D41E5364AA001006EA /* FXDanmakuConfiguration.m in Sources */,
 				D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */,
 				2932E7D91E5364AA001006EA /* FXReusableObjectQueue.m in Sources */,
+				29256BF71E57EA0600B0E627 /* NSTimer+FXWeakTimer.m in Sources */,
 				29C3F3461E53677E00716EEF /* JPFPSStatus.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		29334D1F1E5B215F0061EAAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29334D201E5B215F0061EAAE /* FXGCDTimer.m in Sources */,
+				29334D211E5B215F0061EAAE /* MultiRowsVC.m in Sources */,
+				29334D221E5B215F0061EAAE /* FXDanmaku.m in Sources */,
+				29334D231E5B215F0061EAAE /* FXGCDOperationQueue.m in Sources */,
+				29334D241E5B215F0061EAAE /* UIImageView+CornerRadius.m in Sources */,
+				29334D251E5B215F0061EAAE /* AppDelegate.m in Sources */,
+				29334D261E5B215F0061EAAE /* SingleRowVC.m in Sources */,
+				29334D271E5B215F0061EAAE /* DemoDanmakuItemData.m in Sources */,
+				29334D281E5B215F0061EAAE /* FXDanmakuItemData.m in Sources */,
+				29334D291E5B215F0061EAAE /* FXSingleRowItemsManager.m in Sources */,
+				29334D2A1E5B215F0061EAAE /* main.m in Sources */,
+				29334D2B1E5B215F0061EAAE /* DemoDanmakuItem.m in Sources */,
+				29334D2C1E5B215F0061EAAE /* DemoBulletinItem.m in Sources */,
+				29334D2D1E5B215F0061EAAE /* DemoBulletinItemData.m in Sources */,
+				29334D2E1E5B215F0061EAAE /* FXDanmakuItem.m in Sources */,
+				29334D2F1E5B215F0061EAAE /* FXDanmakuConfiguration.m in Sources */,
+				29334D301E5B215F0061EAAE /* NSObject+FXAlertView.m in Sources */,
+				29334D311E5B215F0061EAAE /* FXReusableObjectQueue.m in Sources */,
+				29334D321E5B215F0061EAAE /* NSTimer+FXWeakTimer.m in Sources */,
+				29334D331E5B215F0061EAAE /* JPFPSStatus.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,12 +641,22 @@
 		};
 		2916B85A1C96FFC9003A1AF9 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D460625AD8D6929BC1B22D13 /* Pods-FXDanmakuDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = WGV2V2YLC8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/FXDanmakuDemo/Frameworks",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					MAS_SHORTHAND_GLOBALS,
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/FXDanmakuDemo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -399,15 +668,92 @@
 		};
 		2916B85B1C96FFC9003A1AF9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 91519CACE31D0F9036EDD32D /* Pods-FXDanmakuDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = WGV2V2YLC8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/FXDanmakuDemo/Frameworks",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					MAS_SHORTHAND_GLOBALS,
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/FXDanmakuDemo/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ShawnFoo.FXDanmakuDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Release;
+		};
+		29334D3C1E5B215F0061EAAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B79B60ED8D1FBD2046D5C9DE /* Pods-FXDanmakuDemo_Reveal.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = WGV2V2YLC8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/FXDanmakuDemo/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					MAS_SHORTHAND_GLOBALS,
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/FXDanmakuDemo/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lz",
+					"-framework",
+					Reveal,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ShawnFoo.FXDanmakuDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Debug;
+		};
+		29334D3D1E5B215F0061EAAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B74474E03BF665050D4B086E /* Pods-FXDanmakuDemo_Reveal.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = WGV2V2YLC8;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					MAS_SHORTHAND_GLOBALS,
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/FXDanmakuDemo/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lz",
+					"-framework",
+					Reveal,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ShawnFoo.FXDanmakuDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -431,6 +777,15 @@
 			buildConfigurations = (
 				2916B85A1C96FFC9003A1AF9 /* Debug */,
 				2916B85B1C96FFC9003A1AF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		29334D3B1E5B215F0061EAAE /* Build configuration list for PBXNativeTarget "FXDanmakuDemo_Reveal" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				29334D3C1E5B215F0061EAAE /* Debug */,
+				29334D3D1E5B215F0061EAAE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

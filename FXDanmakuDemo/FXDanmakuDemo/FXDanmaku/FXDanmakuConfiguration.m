@@ -32,12 +32,13 @@
 
 + (instancetype)singleRowConfigurationWithHeight:(CGFloat)height {
     
-    const NSUInteger cSpeed = 95;
+    const NSUInteger cSpeed = 90;
     
     FXDanmakuConfiguration *config = [self defaultConfiguration];
     config.dataQueueCapacity = 120;
     config.rowHeight = height;
     config.estimatedRowSpace = 0;
+    config.moveRatioToResetOccupiedRow = 0.1;
     config.itemMinVelocity = cSpeed;
     config.itemMaxVelocity = cSpeed;
     

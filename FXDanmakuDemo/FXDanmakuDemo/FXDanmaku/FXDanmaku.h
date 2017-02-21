@@ -105,39 +105,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
- Add FXDanmakuItemData object
+ Add FXDanmakuItemData object. Thread-Safe.
  */
 - (void)addData:(FXDanmakuItemData *)data;
 
 /**
- Add an array with FXDanmakuItemData objects.
+ Add an array with FXDanmakuItemData objects. Thread-Safe.
  */
 - (void)addDatas:(NSArray<FXDanmakuItemData *> *)datas;
 
 /**
- Empty data queue.
+ Empty data queue. Thread-Safe.
  */
 - (void)emptyData;
 
 
 /**
- Start or resume displaying data
+ Start or resume displaying data. Thread-Safe.
  */
 - (void)start;
 
 /**
- Pause displaying data. You can resume danmaku by calling 'start' method
+ Pause displaying data. You can resume danmaku by calling 'start' method. Thread-Safe.
  */
 - (void)pause;
 
 /**
- Stop displaying data.
+ Stop displaying data. Thread-Safe.
  */
 - (void)stop;
 
 
 /** 
- Remove all displaying items on danmaku.
+ Remove all displaying items on danmaku. Thread-Safe.
  */
 - (void)cleanScreen;
 

@@ -26,7 +26,7 @@ if (!self) return;\
 #define NSStringFromSelectorName(name) NSStringFromSelector(@selector(name))
 
 #ifdef DEBUG
-#define FXLogD(format, ...) NSLog((@"FXDanmaku: %s [Line %d]\n" format), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define FXLogD(format, ...) NSLog((@"\n"format@"\n\t %s [Line %d]\n"), ##__VA_ARGS__, __PRETTY_FUNCTION__, __LINE__)
 #else
 #define FXLogD(...) do {} while(0)
 #endif

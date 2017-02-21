@@ -22,7 +22,7 @@
  *  @param confirmHandler   点击确定按钮执行的block, 不需要则设置nil
  *  @param cancelHandler    点击取消按钮执行的block, 不需要则设置nil
  */
-- (void)presentConfirmViewWithTitle:(NSString *)title
+- (void)fx_presentConfirmViewWithTitle:(NSString *)title
                             message:(NSString *)message
                  confirmButtonTitle:(NSString *)confirmTitle
                   cancelButtonTitle:(NSString *)cancelTitle
@@ -41,7 +41,7 @@
  *  @param confirmHandler 点击确定按钮执行的block, 不需要则设置nil
  *  @param cancelHandler  点击取消按钮执行的block, 不需要则设置nil
  */
-- (void)presentConfirmViewInController:(id)controller
+- (void)fx_presentConfirmViewInController:(id)controller
                           confirmTitle:(NSString *)title
                                message:( NSString *)message
                     confirmButtonTitle:(NSString *)confirmTitle
@@ -58,7 +58,7 @@
  *  @param firstSelBTHandler  第一个选择按钮触发的Handler Block
  *  @param secondSelBTHandler 第二个选择按钮触发的Handler Block
  */
-- (void)presentSelectSheetWithTitle:(NSString *)title
+- (void)fx_presentSelectSheetWithTitle:(NSString *)title
                   cancelButtonTitle:(NSString *)cancelTitle
           twoOtherButtonTitlesArray:(NSArray *)twoOtherTitleArray
                      firstBTHandler:(void (^)(void))firstBTHandler
@@ -74,7 +74,7 @@
  *  @param firstSelBTHandler  第一个选择按钮触发的Handler Block
  *  @param secondSelBTHandler 第二个选择按钮触发的Handler Block
  */
-- (void)presentSelectSheetByController:(id)controller
+- (void)fx_presentSelectSheetByController:(id)controller
                             sheetTitle:(NSString *)title
                      cancelButtonTitle:(NSString *)cancelTitle
              twoOtherButtonTitlesArray:(NSArray *)twoOtherTitleArray

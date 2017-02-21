@@ -4,7 +4,7 @@
 //
 //  Github: https://github.com/ShawnFoo/FXDanmaku.git
 //  Version: 1.0.0
-//  Last Modified: 2/8/2017
+//  Last Modified: 2/21/2017
 //  Created by ShawnFoo on 12/4/2015.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
 //
@@ -221,7 +221,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)removeFromSuperview {
     if (StatusStoped != self.status) {
-        FXLogD(@"Better call 'stop' method before removing danmaku from its superview!");
         [self stop];
     }
     [super removeFromSuperview];
@@ -234,6 +233,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     pthread_cond_destroy(&_row_cons);
     pthread_cond_destroy(&_data_prod);
     pthread_cond_destroy(&_data_cons);
+    FXLogD(@"FXDanmaku View has been deallocated.");
 }
 
 #pragma mark - Setup
@@ -744,9 +744,12 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     if (!item) {
         FXException(@"Didn't register resue class or nib for %@(itemReuseIdentifier)", data.itemReuseIdentifier);
     }
+    [self addSubview:item];
     [self notifyDelegateWillDisplayItem:item];
     item.p_data = data;
     [item itemWillBeDisplayedWithData:data];
+    [[self itemsManagerAtRow:row] addDanmakuItem:item];
+    
     BOOL moveFromLeftToRight = FXDanmakuItemMoveDirectionLeftToRight == self.configuration.itemMoveDirection;
     CGSize itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
     CGPoint point = [self startPointWithRow:row];
@@ -760,10 +763,8 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     item.frame = CGRectMake(point.x, point.y , itemSize.width, self.configuration.rowHeight);
     CGRect toFrame = item.frame;
     toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemSize.width;
-
+    
     [item layoutIfNeeded];
-    [self addSubview:item];
-    [[self itemsManagerAtRow:row] addDanmakuItem:item];
     [UIView animateWithDuration:animDuration
                           delay:0
                         options:UIViewAnimationOptionCurveLinear
@@ -793,7 +794,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 #pragma mark - Touch Event
-
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = touches.anyObject;
     if (touch.tapCount == 1) {
@@ -811,7 +811,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 #pragma mark - Invoke Delegate
-
 - (void)notifyDelegateWillDisplayItem:(FXDanmakuItem *)item {
     id<FXDanmakuDelegate> strongDelegate = self.delegate;
     if ([strongDelegate respondsToSelector:@selector(danmaku:willDisplayItem:withData:)]) {

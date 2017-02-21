@@ -80,7 +80,7 @@
         <!--Single Row Demo-->
         <scene sceneID="I7m-sL-X0j">
             <objects>
-                <viewController id="AbT-dB-med" sceneMemberID="viewController">
+                <viewController id="AbT-dB-med" customClass="SingleRowVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="V4W-Ea-xum"/>
                         <viewControllerLayoutGuide type="bottom" id="09t-A9-enX"/>
@@ -103,6 +103,7 @@
                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="Pause"/>
                                 <connections>
+                                    <action selector="pause:" destination="AbT-dB-med" eventType="touchUpInside" id="RAA-Qf-gQw"/>
                                     <action selector="pause:" destination="BYZ-38-t0r" eventType="touchUpInside" id="X4P-M5-B1e"/>
                                 </connections>
                             </button>
@@ -117,6 +118,7 @@
                                 <state key="normal" title="Start"/>
                                 <connections>
                                     <action selector="start:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0gt-Z5-j4F"/>
+                                    <action selector="start:" destination="AbT-dB-med" eventType="touchUpInside" id="dG3-Lc-i3H"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Controls" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6fX-6j-Mwc">
@@ -146,6 +148,9 @@
                                     <segment title="Right2Left"/>
                                     <segment title="Left2Right"/>
                                 </segments>
+                                <connections>
+                                    <action selector="segmentValueChanged:" destination="AbT-dB-med" eventType="valueChanged" id="Suh-MV-bXy"/>
+                                </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="co7-ov-Xrd">
                                 <rect key="frame" x="256.5" y="434.5" width="98.5" height="38"/>
@@ -155,6 +160,7 @@
                                 <state key="normal" title="Stop"/>
                                 <connections>
                                     <action selector="stop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="dM6-3T-h3I"/>
+                                    <action selector="stop:" destination="AbT-dB-med" eventType="touchUpInside" id="ihe-bB-8Cb"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -200,6 +206,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Single Row Demo" id="R3w-EX-W49"/>
+                    <connections>
+                        <outlet property="bulletinBoard" destination="JAV-cB-tbk" id="qaR-VI-WLd"/>
+                        <outlet property="bulletinBoardHeightConst" destination="zF9-V7-Sdi" id="38M-39-E7W"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x7q-zN-Sft" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

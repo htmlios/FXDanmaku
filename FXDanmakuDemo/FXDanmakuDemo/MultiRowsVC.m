@@ -9,8 +9,8 @@
 #import "MultiRowsVC.h"
 #import "FXDanmaku.h"
 #import "NSObject+FXAlertView.h"
-#import "DemoDanmakuItemAData.h"
-#import "DemoDanmakuItemA.h"
+#import "DemoDanmakuItemData.h"
+#import "DemoDanmakuItem.h"
 
 #define CurrentDevice [UIDevice currentDevice]
 #define CurrentOrientation [[UIDevice currentDevice] orientation]
@@ -48,10 +48,13 @@
 
 #pragma mark - Views
 - (void)setupDanmaku {
-    self.danmaku.configuration = [FXDanmakuConfiguration defaultConfiguration];
+    FXDanmakuConfiguration *config = [FXDanmakuConfiguration defaultConfiguration];
+    config.rowHeight = [DemoDanmakuItem itemHeight];
+    self.danmaku.configuration = config;
+    self.danmaku.backgroundColor = [UIColor whiteColor];
     self.danmaku.delegate = self;
-    [self.danmaku registerNib:[UINib nibWithNibName:NSStringFromClass([DemoDanmakuItemA class]) bundle:nil]
-       forItemReuseIdentifier:[DemoDanmakuItemA reuseIdentifier]];
+    [self.danmaku registerNib:[UINib nibWithNibName:NSStringFromClass([DemoDanmakuItem class]) bundle:nil]
+       forItemReuseIdentifier:[DemoDanmakuItem reuseIdentifier]];
 }
 
 #pragma mark - Observer
@@ -110,29 +113,28 @@
 }
 
 #pragma mark - FXDanmakuDelegate
-- (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemAData *)data {
-    [self presentConfirmViewWithTitle:nil
-                              message:[NSString stringWithFormat:@"You click %@", data.desc]
-                   confirmButtonTitle:nil
-                    cancelButtonTitle:@"Ok"
-                       confirmHandler:nil
-                        cancelHandler:nil];
+- (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemData *)data {
+    [self fx_presentConfirmViewWithTitle:nil
+                                 message:[NSString stringWithFormat:@"You click %@", data.desc]
+                      confirmButtonTitle:nil
+                       cancelButtonTitle:@"Ok"
+                          confirmHandler:nil
+                           cancelHandler:nil];
 }
 
-#pragma mark - DataSource 
+#pragma mark - DataSource
 - (void)addDatasWithCount:(NSUInteger)count {
     static NSUInteger index = 0;
     for (NSUInteger i = 0; i < count; i++) {
-        DemoDanmakuItemAData *data = [DemoDanmakuItemAData data];
+        DemoDanmakuItemData *data = [DemoDanmakuItemData data];
         data.avatarName = [NSString stringWithFormat:@"avatar%d", arc4random()%6];
         data.desc = [NSString stringWithFormat:@"DanmakuItem-%@", @(index++)];
         [self.danmaku addData:data];
     }
-    /*
-        if (!self.danmaku.isRunning) {
-            [self.danmaku start];
-        }
-     */
+    
+    if (!self.danmaku.isRunning) {
+        [self.danmaku start];
+    }
 }
 
 @end
