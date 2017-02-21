@@ -48,7 +48,7 @@ if (!self.danmaku.isRunning) {
 ```
 More examples in `FXDanmakuDemo.xcworkspace`. 
 
-Demo builded and ran in Xcode8.
+Demo built and ran in Xcode8.
 
 ##Q&A
 1. Relationships among rowHeight、estimatedRowSpace and rowSpace
