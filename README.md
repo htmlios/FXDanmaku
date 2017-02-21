@@ -1,6 +1,6 @@
 # FXDanmaku
 ![build](https://img.shields.io/badge/build-passing-green.svg)
-![pod](https://img.shields.io/badge/Cocoapods-1.0.0-blue.svg)
+![pod](https://img.shields.io/badge/Cocoapods-v1.0.0-blue.svg)
 ![compatible](https://img.shields.io/badge/compatible-Objective--C%2FSwift-yellow.svg)
 
 High-performance danmaku with GCD, reusable items and customize configurations.
@@ -53,6 +53,20 @@ Demo builded and ran in Xcode8.
 
 ##Requirements
 FXDanmaku requires `iOS 7.0+`.
+
+##Installation
+#####Cocoapods(iOS7+)
+
+1. Add these lines below to your Podfile 
+	
+	```
+	platform :ios, 'xxx'
+	pod 'FXDanmaku'
+	```
+2. Install the pod by running `pod install`
+
+#####Manually(iOS7+)
+Drag `FXDanmaku` document to your project
 
 ## License
 FXDanmaku is provided under the MIT license. See LICENSE file for details.
