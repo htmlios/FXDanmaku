@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FXDanmakuDelegate <NSObject>
 
 @optional
-
 /**
  Tells the delegate the which item has been clicked
 

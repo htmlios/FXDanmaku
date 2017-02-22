@@ -260,6 +260,11 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (void)calcRowsIfNeeded {
+    
+    if (CGSizeEqualToSize(self.frame.size, CGSizeZero)) {
+        return;
+    }
+    
     if (!self.hasCalculatedRows || !CGSizeEqualToSize(self.oldSize, self.frame.size)) {
         [self innerBreak];
         self.oldSize = self.frame.size;
@@ -284,11 +289,18 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     pthread_mutex_lock(&self->_row_mutex);
     CGFloat viewHeight = self.frame.size.height;
     CGFloat rowHeight = self.configuration.rowHeight;
-    CGFloat estimatedRowSpace = self.configuration.estimatedRowSpace;
-    // viewHeight = rows*rowHeight + (rows-1)*rowVerticalSpace
-    self.numOfRows = floor((viewHeight + estimatedRowSpace) / (rowHeight + estimatedRowSpace));
-    self.rowSpace = (viewHeight - self.numOfRows*rowHeight) / (self.numOfRows - 1);
     
+    NSAssert(viewHeight >= rowHeight, @"Danmaku view's height can't be smaller than rowHeight!");
+    
+    CGFloat estimatedRowSpace = self.configuration.estimatedRowSpace;
+    // viewHeight = rows*rowHeight + (rows-1)*rowSpace
+    self.numOfRows = floor((viewHeight + estimatedRowSpace) / (rowHeight + estimatedRowSpace));
+    if (self.numOfRows <= 1) {
+        self.rowSpace = 0;
+    }
+    else {
+        self.rowSpace = (viewHeight - self.numOfRows*rowHeight) / (self.numOfRows - 1);
+    }
     self.hasUnoccupiedRows = self.numOfRows > 0;
     pthread_mutex_unlock(&self->_row_mutex);
 }
@@ -751,18 +763,18 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     [[self itemsManagerAtRow:row] addDanmakuItem:item];
     
     BOOL moveFromLeftToRight = FXDanmakuItemMoveDirectionLeftToRight == self.configuration.itemMoveDirection;
-    CGSize itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    CGFloat itemWidth = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].width;
     CGPoint point = [self startPointWithRow:row];
     if (moveFromLeftToRight) {
-        point.x = -itemSize.width;
+        point.x = -itemWidth;
     }
     NSUInteger velocity = [self randomVelocity];
-    NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemSize.width];
-    NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemSize.width];
+    NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemWidth];
+    NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemWidth];
     
-    item.frame = CGRectMake(point.x, point.y , itemSize.width, self.configuration.rowHeight);
+    item.frame = CGRectMake(point.x, point.y , itemWidth, self.configuration.rowHeight);
     CGRect toFrame = item.frame;
-    toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemSize.width;
+    toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemWidth;
     
     [item layoutIfNeeded];
     [UIView animateWithDuration:animDuration

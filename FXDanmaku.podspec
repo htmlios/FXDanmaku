@@ -3,7 +3,7 @@ Pod::Spec.new do |spec|
   spec.version      = "1.0.0"
   spec.summary      = "High-performance danmaku with GCD, reusable items and customize configurations."
 
-  spec.homepage     = "https://github.com/ShawnFoo/"
+  spec.homepage     = "https://github.com/ShawnFoo/FXDanmaku"
   spec.license      = { :type => "MIT", :file => "LICENSE" }
 
   spec.author             = { "Shawn Foo" => "fu4904@gmail.com" }
