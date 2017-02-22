@@ -50,7 +50,6 @@
 		29334D311E5B215F0061EAAE /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */; };
 		29334D321E5B215F0061EAAE /* NSTimer+FXWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */; };
 		29334D331E5B215F0061EAAE /* JPFPSStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 29C3F3451E53677E00716EEF /* JPFPSStatus.m */; };
-		29334D351E5B215F0061EAAE /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29334D1C1E5B21090061EAAE /* Reveal.framework */; };
 		29334D371E5B215F0061EAAE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
 		29334D381E5B215F0061EAAE /* DemoDanmakuItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 292C68431E52003D0010F799 /* DemoDanmakuItem.xib */; };
 		29334D391E5B215F0061EAAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 652CC5D81E4B29B0002465C2 /* Assets.xcassets */; };
@@ -103,8 +102,8 @@
 		2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReusableObjectQueue.m; sourceTree = "<group>"; };
 		2932E7D11E5364AA001006EA /* FXSingleRowItemsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXSingleRowItemsManager.h; sourceTree = "<group>"; };
 		2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXSingleRowItemsManager.m; sourceTree = "<group>"; };
-		29334D1C1E5B21090061EAAE /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		29334D3E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FXDanmakuDemo_Reveal.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		295E09061E5DEE420094C4D0 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = "/Applications/Reveal.app/Contents/SharedSupport/iOS-Libraries/Reveal.framework"; sourceTree = "<absolute>"; };
 		29C3F3441E53677E00716EEF /* JPFPSStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JPFPSStatus.h; sourceTree = "<group>"; };
 		29C3F3451E53677E00716EEF /* JPFPSStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JPFPSStatus.m; sourceTree = "<group>"; };
 		652CC5D81E4B29B0002465C2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -131,7 +130,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				29334D351E5B215F0061EAAE /* Reveal.framework in Frameworks */,
 				1AB75955899C8DB5F0C9A911 /* libPods-FXDanmakuDemo_Reveal.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -167,7 +165,7 @@
 				29CDAA811E57475300F518DE /* SingleRowVC */,
 				2932E7C01E5364AA001006EA /* FXDanmaku */,
 				D0E737B31CB1057900BAC448 /* Util */,
-				29334D1B1E5B20F40061EAAE /* Frameworks */,
+				295E09081E5DEE460094C4D0 /* Framework */,
 				2916B84E1C96FFC9003A1AF9 /* Main.storyboard */,
 				2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */,
 				652CC5D81E4B29B0002465C2 /* Assets.xcassets */,
@@ -210,12 +208,12 @@
 			path = FXDanmaku;
 			sourceTree = "<group>";
 		};
-		29334D1B1E5B20F40061EAAE /* Frameworks */ = {
+		295E09081E5DEE460094C4D0 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				29334D1C1E5B21090061EAAE /* Reveal.framework */,
+				295E09061E5DEE420094C4D0 /* Reveal.framework */,
 			);
-			path = Frameworks;
+			name = Framework;
 			sourceTree = "<group>";
 		};
 		29CDAA801E57302D00F518DE /* MultiRowsVC */ = {
@@ -704,7 +702,7 @@
 				DEVELOPMENT_TEAM = WGV2V2YLC8;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/FXDanmakuDemo/Frameworks",
+					"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -737,7 +735,10 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = WGV2V2YLC8;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SYSTEM_APPS_DIR)/Reveal.app/Contents/SharedSupport/iOS-Libraries",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
