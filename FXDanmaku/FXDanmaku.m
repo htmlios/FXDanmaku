@@ -4,7 +4,7 @@
 //
 //  Github: https://github.com/ShawnFoo/FXDanmaku.git
 //  Version: 1.0.0
-//  Last Modified: 2/8/2017
+//  Last Modified: 2/21/2017
 //  Created by ShawnFoo on 12/4/2015.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
 //
@@ -33,29 +33,25 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 @property (nonatomic, assign) DanmakuStatus breakedStatus;
 @property (nonatomic, strong) dispatch_semaphore_t statusSemophore;
 
-@property (nonatomic, assign) BOOL hasUnoccupiedRows;
-@property (nonatomic, assign) BOOL hasData;
-
-@property (nonatomic, assign) BOOL hasCalculatedRows;
-@property (nonatomic, assign) CGSize oldSize;
-
-@property (nonatomic, assign) NSInteger numOfRows;
-@property (nonatomic, assign) CGFloat rowSpace;
-
-@property (nonatomic, assign) BOOL startLater;
-
-@property (nonatomic, strong) NSMutableArray<FXDanmakuItemData *> *dataQueue;
-@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
-
 @property (nonatomic, strong) dispatch_queue_t consumerQueue;
 @property (nonatomic, strong) FXGCDOperationQueue *dataProducerQueue;
 @property (nonatomic, strong) FXGCDOperationQueue *rowProducerQueue;
 
+@property (nonatomic, strong) NSMutableArray<FXDanmakuItemData *> *dataQueue;
+@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
+@property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
+
+@property (nonatomic, assign) BOOL hasData;
+@property (nonatomic, assign) BOOL hasUnoccupiedRows;
+
+@property (nonatomic, assign) BOOL hasCalculatedRows;
+@property (nonatomic, assign) CGSize oldSize;
+@property (nonatomic, assign) NSInteger numOfRows;
+@property (nonatomic, assign) CGFloat rowSpace;
 @property (nonatomic, assign) NSUInteger occupiedRowMaskBit;
 
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
-
-@property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
+@property (nonatomic, assign) BOOL startLater;
 
 @property (nonatomic, readonly) BOOL shouldAcceptData;
 
@@ -70,6 +66,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 @synthesize status = _status;
 @synthesize breakedStatus = _breakedStatus;
+@synthesize configuration = _configuration;
 
 #pragma mark - Accessor
 #pragma mark Lazy Loading
@@ -149,6 +146,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     return status;
 }
 
+- (FXDanmakuConfiguration *)configuration {
+    return [_configuration copy];
+}
+
 #pragma mark Shortcut Accessory
 - (FXSingleRowItemsManager *)rowItemsManagerAtRow:(NSUInteger)row {
     
@@ -220,7 +221,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)removeFromSuperview {
     if (StatusStoped != self.status) {
-        FXLogD(@"Better call 'stop' method before removing danmaku from its superview!");
         [self stop];
     }
     [super removeFromSuperview];
@@ -233,6 +233,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     pthread_cond_destroy(&_row_cons);
     pthread_cond_destroy(&_data_prod);
     pthread_cond_destroy(&_data_cons);
+    FXLogD(@"FXDanmaku View has been deallocated.");
 }
 
 #pragma mark - Setup
@@ -259,6 +260,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (void)calcRowsIfNeeded {
+    
     if (!self.hasCalculatedRows || !CGSizeEqualToSize(self.oldSize, self.frame.size)) {
         [self innerBreak];
         self.oldSize = self.frame.size;
@@ -283,11 +285,16 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     pthread_mutex_lock(&self->_row_mutex);
     CGFloat viewHeight = self.frame.size.height;
     CGFloat rowHeight = self.configuration.rowHeight;
-    CGFloat estimatedRowSpace = self.configuration.estimatedRowSpace;
-    // viewHeight = rows*rowHeight + (rows-1)*rowVerticalSpace
-    self.numOfRows = floor((viewHeight + estimatedRowSpace) / (rowHeight + estimatedRowSpace));
-    self.rowSpace = (viewHeight - self.numOfRows*rowHeight) / (self.numOfRows - 1);
     
+    CGFloat estimatedRowSpace = self.configuration.estimatedRowSpace;
+    // viewHeight = rows*rowHeight + (rows-1)*rowSpace
+    self.numOfRows = floor((viewHeight + estimatedRowSpace) / (rowHeight + estimatedRowSpace));
+//    if (self.numOfRows <= 1) {
+//        self.rowSpace = 0;
+//    }
+//    else {
+        self.rowSpace = (viewHeight - self.numOfRows*rowHeight) / (self.numOfRows - 1);
+//    }
     self.hasUnoccupiedRows = self.numOfRows > 0;
     pthread_mutex_unlock(&self->_row_mutex);
 }
@@ -423,19 +430,28 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)breakConsumerSuspensionIfNeeded {
     
-    pthread_mutex_lock(&self->_row_mutex);
-    if (!self.hasUnoccupiedRows) {
-        self.hasUnoccupiedRows = YES;
-        pthread_cond_signal(&self->_row_cons);
-    }
-    pthread_mutex_unlock(&self->_row_mutex);
+    @Weakify(self);
+    [self.rowProducerQueue addAsyncOperationBlock:^{
+        @Strongify(self);
+        ReturnVoidIfSelfNil
+        pthread_mutex_lock(&self->_row_mutex);
+        if (!self.hasUnoccupiedRows) {
+            self.hasUnoccupiedRows = YES;
+            pthread_cond_signal(&self->_row_cons);
+        }
+        pthread_mutex_unlock(&self->_row_mutex);
+    }];
     
-    pthread_mutex_lock(&self->_data_mutex);
-    if (!self.hasData) {
-        self.hasData = YES;
-        pthread_cond_signal(&self->_data_cons);
-    }
-    pthread_mutex_unlock(&self->_data_mutex);
+    [self.dataProducerQueue addAsyncOperationBlock:^{
+        @Strongify(self);
+        ReturnVoidIfSelfNil
+        pthread_mutex_lock(&self->_data_mutex);
+        if (!self.hasData) {
+            self.hasData = YES;
+            pthread_cond_signal(&self->_data_cons);
+        }
+        pthread_mutex_unlock(&self->_data_mutex);
+    }];
 }
 
 - (void)cleanScreen {
@@ -501,7 +517,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     }
 }
 
-#pragma mark - row Producer & Consumer
+#pragma mark - Row Producer & Consumer
 - (NSInteger)fetchUnoccupiedRow {
     NSInteger row;
     switch (self.configuration.itemInsertOrder) {
@@ -682,7 +698,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 #pragma mark - Item Presentation
 - (void)consumeData {
     
-    FXLogD(@"FXDanmaku has started.");
     while (StatusRunning == self.status) {
         FXDanmakuItemData *data = [self fetchData];
         if (data) {
@@ -699,7 +714,6 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         }
     }
     [self stopConsumingData];
-    FXLogD(@"FXDanmaku has %@.", StatusPaused == self.status ? @"paused" : @"stopped");
 }
 
 - (void)stopConsumingData {
@@ -736,26 +750,27 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     if (!item) {
         FXException(@"Didn't register resue class or nib for %@(itemReuseIdentifier)", data.itemReuseIdentifier);
     }
+    [self addSubview:item];
     [self notifyDelegateWillDisplayItem:item];
     item.p_data = data;
     [item itemWillBeDisplayedWithData:data];
+    [[self itemsManagerAtRow:row] addDanmakuItem:item];
+    
     BOOL moveFromLeftToRight = FXDanmakuItemMoveDirectionLeftToRight == self.configuration.itemMoveDirection;
-    CGSize itemSize = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    CGFloat itemWidth = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].width;
     CGPoint point = [self startPointWithRow:row];
     if (moveFromLeftToRight) {
-        point.x = -itemSize.width;
+        point.x = -itemWidth;
     }
     NSUInteger velocity = [self randomVelocity];
-    NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemSize.width];
-    NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemSize.width];
+    NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemWidth];
+    NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemWidth];
     
-    item.frame = CGRectMake(point.x, point.y , itemSize.width, self.configuration.rowHeight);
+    item.frame = CGRectMake(point.x, point.y , itemWidth, self.configuration.rowHeight);
     CGRect toFrame = item.frame;
-    toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemSize.width;
-
+    toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemWidth;
+    
     [item layoutIfNeeded];
-    [self addSubview:item];
-    [[self itemsManagerAtRow:row] addDanmakuItem:item];
     [UIView animateWithDuration:animDuration
                           delay:0
                         options:UIViewAnimationOptionCurveLinear
@@ -766,11 +781,9 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
      }
                      completion:^(BOOL finished)
      {
-         [self notifyDelegateDidEndDisplayingItem:item];
          [item removeFromSuperview];
-         [item.layer removeAllAnimations];
-         item.p_data = nil;
          [self.rowItemsManager[@(row)] removeDanmakuItem:item];
+         [self notifyDelegateDidEndDisplayingItem:item];
          [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
      }];
     
@@ -786,25 +799,24 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     [self.resetOccupiedRowTimers addObject:resetTimer];
 }
 
-#pragma mark - Responder Chain
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    return [self shouldHandleTouchAtPoint:point];
+#pragma mark - Touch Event
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = touches.anyObject;
+    if (touch.tapCount == 1) {
+        [self handleTouchAtPoint:[touch locationInView:self]];
+    }
 }
 
-- (BOOL)shouldHandleTouchAtPoint:(CGPoint)touchPoint {
-    
+- (void)handleTouchAtPoint:(CGPoint)touchPoint {
     NSUInteger row = touchPoint.y / (self.configuration.rowHeight + self.rowSpace);
     FXSingleRowItemsManager *manager = self->_rowItemsManager[@(row)];
     FXDanmakuItem *item = [manager itemAtPoint:touchPoint];
     if (item) {
         [self notifyDelegateClickedItem:item];
-        return YES;
     }
-    return NO;
 }
 
-#pragma mark - Notify Delegate
-
+#pragma mark - Invoke Delegate
 - (void)notifyDelegateWillDisplayItem:(FXDanmakuItem *)item {
     id<FXDanmakuDelegate> strongDelegate = self.delegate;
     if ([strongDelegate respondsToSelector:@selector(danmaku:willDisplayItem:withData:)]) {

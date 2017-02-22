@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FXDanmakuDelegate <NSObject>
 
 @optional
-
 /**
  Tells the delegate the which item has been clicked
 
@@ -55,9 +54,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) BOOL isRunning;
 
 /**
- You can only set the configuration of FXDanmaku when it's not running.
+ When you access this property, you can only get a copy configuration. So it won't work if you changing FXDanmakuConfiguration's property directly.
+ 
+ Note: if you set configuration when danmuku is running, it will clean screen first, and then restart running according to new config.
  */
 @property (nonatomic, copy, nullable) FXDanmakuConfiguration *configuration;
+
 
 /**
  Actual vertical space between two row. 
@@ -102,39 +104,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
- Add FXDanmakuItemData object
+ Add FXDanmakuItemData object. Thread-Safe.
  */
 - (void)addData:(FXDanmakuItemData *)data;
 
 /**
- Add an array with FXDanmakuItemData objects.
+ Add an array with FXDanmakuItemData objects. Thread-Safe.
  */
 - (void)addDatas:(NSArray<FXDanmakuItemData *> *)datas;
 
 /**
- Empty data queue.
+ Empty data queue. Thread-Safe.
  */
 - (void)emptyData;
 
 
 /**
- Start or resume displaying data
+ Start or resume displaying data. Thread-Safe.
  */
 - (void)start;
 
 /**
- Pause displaying data. You can resume danmaku by calling 'start' method
+ Pause displaying data. You can resume danmaku by calling 'start' method. Thread-Safe.
  */
 - (void)pause;
 
 /**
- Stop displaying data.
+ Stop displaying data. Thread-Safe.
  */
 - (void)stop;
 
 
 /** 
- Remove all displaying items on danmaku.
+ Remove all displaying items on danmaku. Thread-Safe.
  */
 - (void)cleanScreen;
 

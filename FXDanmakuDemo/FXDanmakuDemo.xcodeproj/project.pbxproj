@@ -205,7 +205,8 @@
 				2932E7D11E5364AA001006EA /* FXSingleRowItemsManager.h */,
 				2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */,
 			);
-			path = FXDanmaku;
+			name = FXDanmaku;
+			path = ../../FXDanmaku;
 			sourceTree = "<group>";
 		};
 		295E09081E5DEE460094C4D0 /* Framework */ = {

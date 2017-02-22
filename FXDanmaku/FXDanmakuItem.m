@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithReuseIdentifier:(nullable NSString *)identifier {
     if (self = [super initWithFrame:CGRectZero]) {
         _reuseIdentifier = [identifier copy];
+        [self commonSetup];
     }
     return self;
 }
@@ -58,7 +59,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Reuse
 - (void)prepareForReuse {
-    // do nothing
+    [self.layer removeAllAnimations];
+    self.p_data = nil;
 }
 
 #pragma mark - Item Display
