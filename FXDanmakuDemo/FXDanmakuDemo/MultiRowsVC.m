@@ -138,7 +138,7 @@
 }
 
 #pragma mark - Orientation
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
+#pragma mark For iOS8 And Later
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     // if danmaku view's height will change in different device orientation, you'd better pause danmaku and clean screen before orientation will change.
     [self.danmaku pause];
@@ -151,7 +151,7 @@
                                      [self.danmaku start];
                                  }];
 }
-#else
+#pragma mark For Version below iOS8
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     [self.danmaku pause];
     [self.danmaku cleanScreen];
@@ -160,7 +160,5 @@
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     [self.danmaku start];
 }
-#endif
-
 
 @end

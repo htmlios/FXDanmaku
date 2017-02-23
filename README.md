@@ -17,7 +17,7 @@ High-performance danmaku with GCD, reusable items and customize configurations.
 
 ##Preview
 
-![](http://wx3.sinaimg.cn/large/9161297cgy1fcylkah5mwg209n0h8npd.gif) 
+![](http://wx4.sinaimg.cn/large/9161297cgy1fd0v5dm59gg209o0h77wj.gif) 
 ![](http://wx2.sinaimg.cn/large/9161297cgy1fcylkvn3arg20hy0a1x6p.gif)
 
 ##Example
@@ -54,6 +54,34 @@ Demo built and ran in Xcode8.
 1. Relationships among rowHeight、estimatedRowSpace and rowSpace
 	
 	![](http://wx3.sinaimg.cn/mw690/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
+	
+2. Adaptation to the change of device orientaion.
+
+	**Only when your danmaku view's height will change in different device orientaion, should you do a little work to adapt. Otherwise, you won't need to add any codes.**
+	
+	For example, your danmaku view's height is 100pt in portrait, but is 200pt in lanscape.
+	
+		#pragma mark For iOS8 And Later
+		- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    		[self.danmaku pause];
+    		[self.danmaku cleanScreen];
+    
+    		[coordinator animateAlongsideTransition:nil
+					                     completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                                     // resume danmaku after orientation did change
+                                     [self.danmaku start];
+                                 }];
+		}
+		
+		#pragma mark For Version below iOS8
+		- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    		[self.danmaku pause];
+    		[self.danmaku cleanScreen];
+		}
+		
+		- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    		[self.danmaku start];
+		}
 	
 
 ##Requirements
