@@ -16,14 +16,21 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FXDanmakuItem () <FXReusableObject>
 
 @property (nonatomic, copy) NSString *reuseIdentifier;
+@property (nonatomic) IBInspectable NSString *Identifier;
 
 @end
 
 @implementation FXDanmakuItem
 
+@synthesize Identifier = _Identifier;
+
 #pragma mark - Accessor
 - (NSString *)reuseIdentifier {
     return _reuseIdentifier.length ? _reuseIdentifier : NSStringFromClass([self class]);
+}
+
+- (void)setIdentifier:(NSString *)Identifier {
+    self.reuseIdentifier = Identifier;
 }
 
 #pragma mark - Initializer
@@ -55,6 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Common Setup
 - (void)commonSetup {
     self.userInteractionEnabled = NO;
+    self.backgroundColor = [UIColor clearColor];
 }
 
 #pragma mark - Reuse

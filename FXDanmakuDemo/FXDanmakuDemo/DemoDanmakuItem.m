@@ -24,7 +24,7 @@
 @implementation DemoDanmakuItem
 
 + (NSString *)reuseIdentifier {
-    return NSStringFromClass(self);
+    return @"DemoItemIdentifier";
 }
 
 + (CGFloat)itemHeight {

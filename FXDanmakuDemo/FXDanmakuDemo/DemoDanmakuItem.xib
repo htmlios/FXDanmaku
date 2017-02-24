@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -48,13 +48,16 @@
             <nil key="simulatedTopBarMetrics"/>
             <nil key="simulatedBottomBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="string" keyPath="Identifier" value="DemoItemIdentifier"/>
+            </userDefinedRuntimeAttributes>
             <connections>
                 <outlet property="avatarHeightConst" destination="6oY-hI-yVU" id="GX7-bQ-GX6"/>
                 <outlet property="avatarImageView" destination="xd9-J5-GIG" id="YG0-Oy-wS2"/>
                 <outlet property="avatarWidthConst" destination="thn-i0-eoD" id="IVx-uR-2TA"/>
                 <outlet property="descLabel" destination="b1O-fo-B43" id="3QR-3y-U5M"/>
             </connections>
-            <point key="canvasLocation" x="-163" y="-70"/>
+            <point key="canvasLocation" x="74" y="-85"/>
         </view>
     </objects>
     <resources>

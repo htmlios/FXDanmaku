@@ -230,7 +230,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)dealloc {
     
-    [_innerResumeTimer cancel];
+    [_innerResumeTimer invalidate];
     
     pthread_mutex_destroy(&_row_mutex);
     pthread_mutex_destroy(&_data_mutex);
@@ -433,7 +433,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)cancelResumeSchedule {
     if (self.innerResumeTimer) {
-        [self.innerResumeTimer cancel];
+        [self.innerResumeTimer invalidate];
     }
 }
 
@@ -673,7 +673,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 - (void)resetOccupiedRows {
     
     for (FXGCDTimer *timer in self.resetOccupiedRowTimers) {
-        [timer cancel];
+        [timer invalidate];
     }
     
     @Weakify(self);
