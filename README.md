@@ -3,7 +3,7 @@
 ![pod](https://img.shields.io/badge/Cocoapods-v1.0.1-blue.svg)
 ![compatible](https://img.shields.io/badge/compatible-Objective--C%2FSwift-yellow.svg)
 
-High-performance danmaku with GCD, reusable items and customize configurations.
+High-performance danmaku with click event, reusable items and customize configurations.
 
 ##Features
 
@@ -58,24 +58,23 @@ More examples in `FXDanmakuDemo.xcworkspace`.
 Demo built and ran in Xcode8.
 
 ##Q&A
-1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
+####1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
+![](http://wx3.sinaimg.cn/mw690/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
+
+####2. How to create your danmakuItem by nib.
+![](http://wx1.sinaimg.cn/large/9161297cgy1fd35qtq40mj20d104zmxq.jpg)
+
+![](http://wx3.sinaimg.cn/large/9161297cgy1fd35qu2f5hj20bl08lt9l.jpg)
+
+Last thing, drag IBOutlet property to setup your custom danmakuItem.
+
+####3. Adaptation to the change of device orientaion.
+
+Only when your danmaku view's height will change in different device orientaion, should you do a little work to adapt. Otherwise, you won't need to add any codes.	
+Let's say, your danmaku view's height is 100pt in portrait, but is 200pt in lanscape. Then add codes below in your controller.
 	
-	![](http://wx3.sinaimg.cn/mw690/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
-2. How to create your danmakuItem	 by nib.
+*For iOS8 And Later*
 
-	![](http://wx1.sinaimg.cn/large/9161297cgy1fd35qtq40mj20d104zmxq.jpg)
-	![](http://wx3.sinaimg.cn/large/9161297cgy1fd35qu2f5hj20bl08lt9l.jpg)
-	Thanks to IBInspectable
-
-	Last thing, drag IBOutlet property to setup your custom danmakuItem.
-
-3. Adaptation to the change of device orientaion.
-
-	**Only when your danmaku view's height will change in different device orientaion, should you do a little work to adapt. Otherwise, you won't need to add any codes.**
-	
-	For example, your danmaku view's height is 100pt in portrait, but is 200pt in lanscape.
-	
-		#pragma mark For iOS8 And Later
 		- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     		[self.danmaku pause];
     		[self.danmaku cleanScreen];
@@ -87,7 +86,8 @@ Demo built and ran in Xcode8.
                                  }];
 		}
 		
-		#pragma mark For Version below iOS8
+*For version lower than iOS8*
+
 		- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     		[self.danmaku pause];
     		[self.danmaku cleanScreen];
@@ -102,7 +102,7 @@ Demo built and ran in Xcode8.
 FXDanmaku requires `iOS 7.0+`.
 
 ##Installation
-#####Cocoapods(iOS7+)
+####Cocoapods(iOS7+)
 
 1. Add these lines below to your Podfile 
 	
@@ -114,7 +114,7 @@ FXDanmaku requires `iOS 7.0+`.
 	```
 2. Install the pod by running `pod install`
 
-#####Manually(iOS7+)
+####Manually(iOS7+)
 Drag `FXDanmaku` document to your project
 
 ## License
