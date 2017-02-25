@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "FXDanmaku"
-  spec.version      = "1.0.0"
+  spec.version      = "1.0.1"
   spec.summary      = "High-performance danmaku with GCD, reusable items and customize configurations."
 
   spec.homepage     = "https://github.com/ShawnFoo/FXDanmaku"
