@@ -12,6 +12,7 @@
 @implementation DemoBulletinItemData
 
 + (instancetype)dataWithDesc:(NSString *)desc avatarName:(NSString *)avatarName {
+    // Data is kind of viewModel for DanmakuItem, danmaku will create item for data by it's itemReuseIdentifier property
     DemoBulletinItemData *data = [DemoBulletinItemData dataWithItemReuseIdentifier:[DemoBulletinItem reuseIdentifier]];
     data.desc = desc;
     data.avatarName = avatarName;

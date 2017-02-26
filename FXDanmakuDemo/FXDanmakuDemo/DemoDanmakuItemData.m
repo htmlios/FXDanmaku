@@ -12,10 +12,12 @@
 @implementation DemoDanmakuItemData
 
 + (instancetype)data {
+    // Data is kind of viewModel for DanmakuItem, danmaku will create item for data by it's itemReuseIdentifier property
     return [super dataWithItemReuseIdentifier:[DemoDanmakuItem reuseIdentifier]];
 }
 
 + (instancetype)highPriorityData {
+    // High Priority data will be displayed first since it will be inserted to queue before normal priority data;
     return [super highPriorityDataWithItemReuseIdentifier:[DemoDanmakuItem reuseIdentifier]];
 }
 

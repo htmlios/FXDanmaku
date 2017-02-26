@@ -1,7 +1,12 @@
 # FXDanmaku
-![build](https://img.shields.io/badge/build-passing-green.svg)
+
+[![中文](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-Readme-lightgrey.svg)](http://www.jianshu.com/p/42a665b1731d)
+![iOS 7.0+](https://img.shields.io/badge/iOS-7.0%2B-orange.svg)
 ![pod](https://img.shields.io/badge/Cocoapods-v1.0.1-blue.svg)
-![compatible](https://img.shields.io/badge/compatible-Objective--C%2FSwift-yellow.svg)
+![compatible](https://img.shields.io/badge/Compatible-Objective--C%2FSwift-yellow.svg)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/ShawnFoo/FXDanmaku/blob/master/LICENSE)
+
+
 
 High-performance danmaku with click event, reusable items and customize configurations.
 
@@ -25,10 +30,18 @@ High-performance danmaku with click event, reusable items and customize configur
 Setup danmaku view
 
 ```
+// Configuration
 FXDanmakuConfiguration *config = [FXDanmakuConfiguration defaultConfiguration];
 config.rowHeight = [DemoDanmakuItem itemHeight];
+config.dataQueueCapacity = 500;
+config.itemMinVelocity = 80;  // set random velocity between 80 and 120 pt/s
+config.itemMaxVelocity = 120;
 self.danmaku.configuration = config;
+
+// Delegate
 self.danmaku.delegate = self;
+
+// Reuse
 [self.danmaku registerNib:[UINib nibWithNibName:NSStringFromClass([DemoDanmakuItem class]) bundle:nil]
    forItemReuseIdentifier:[DemoDanmakuItem reuseIdentifier]];
 [self.danmaku registerClass:[DemoBulletinItem class] 
@@ -59,7 +72,7 @@ Demo built and ran in Xcode8.
 
 ##Q&A
 ####1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
-![](http://wx3.sinaimg.cn/mw690/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
+![](http://wx3.sinaimg.cn/large/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
 
 ####2. How to create your danmakuItem by nib.
 ![](http://wx1.sinaimg.cn/large/9161297cgy1fd35qtq40mj20d104zmxq.jpg)
@@ -75,27 +88,27 @@ Let's say, your danmaku view's height is 100pt in portrait, but is 200pt in lans
 	
 *For iOS8 And Later*
 
-		- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    		[self.danmaku pause];
-    		[self.danmaku cleanScreen];
+	- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    	[self.danmaku pause];
+    	[self.danmaku cleanScreen];
     
-    		[coordinator animateAlongsideTransition:nil
-					                     completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
-                                     // resume danmaku after orientation did change
-                                     [self.danmaku start];
-                                 }];
-		}
+    	[coordinator animateAlongsideTransition:nil
+									 completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+                                     	// resume danmaku after orientation did change
+                                     	[self.danmaku start];
+                                 	 }];
+	}
 		
 *For version lower than iOS8*
 
-		- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+	- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     		[self.danmaku pause];
     		[self.danmaku cleanScreen];
-		}
+	}
 		
-		- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
     		[self.danmaku start];
-		}
+	}
 	
 
 ##Requirements
