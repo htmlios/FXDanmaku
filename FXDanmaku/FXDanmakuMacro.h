@@ -12,18 +12,18 @@
 #ifdef __OBJC__
 
 #if DEBUG
-#define ext_keywordify autoreleasepool {}
+#define fx_ext_keywordify autoreleasepool {}
 #else
-#define ext_keywordify try {} @catch (...) {}
+#define fx_ext_keywordify try {} @catch (...) {}
 #endif
 
-#define Weakify(o) ext_keywordify __weak typeof(o) o##Weak = o
-#define Strongify(o) ext_keywordify __strong typeof(o) o = o##Weak
-#define ReturnVoidIfSelfNil {\
+#define FXWeakify(o) fx_ext_keywordify __weak typeof(o) o##Weak = o
+#define FXStrongify(o) fx_ext_keywordify __strong typeof(o) o = o##Weak
+#define FXReturnIfSelfNil {\
 if (!self) return;\
 }
 
-#define NSStringFromSelectorName(name) NSStringFromSelector(@selector(name))
+#define FXNSStringFromSelectorName(name) NSStringFromSelector(@selector(name))
 
 #ifdef DEBUG
 #define FXLogD(format, ...) NSLog((@"\n"format@"\n\t %s [Line %d]\n"), ##__VA_ARGS__, __PRETTY_FUNCTION__, __LINE__)
@@ -41,15 +41,15 @@ userInfo:nil];
 #define FXException(...) do {} while(0)
 #endif
 
-#define RunBlockSafe(block, ...) {\
+#define FXRunBlockSafe(block, ...) {\
 if (block) {\
 block(__VA_ARGS__);\
 }\
 }
 
-#define RunBlockSafe_MainThread(block) {\
+#define FXRunBlockSafe_MainThread(block) {\
 if ([NSThread isMainThread]) {\
-RunBlockSafe(block)\
+FXRunBlockSafe(block)\
 }\
 else {\
 if (block) {\

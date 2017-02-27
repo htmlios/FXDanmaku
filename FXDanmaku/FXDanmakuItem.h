@@ -12,12 +12,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- The relationship between DanmakuItem and danmaku is just same as the one between UITableViewCell and UITableView.
+ The relationship between DanmakuItem and danmaku is same as the one between UITableViewCell and UITableView.
  */
 @interface FXDanmakuItem : UIView
 
 /**
- A string used to identify a cell that is reusable.
+ A string used to identify a item that is reusable.
  */
 @property (nonatomic, readonly, copy) NSString *reuseIdentifier;
 
@@ -38,13 +38,23 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)prepareForReuse;
 
 /**
- You can setup item with data in this method before item will start moving on danmaku.
+ You can setup item with data in this method before item start moving on danmaku.
  
- Note: This method is only called by the danmaku when there are unoccupied rows for item to move.
+ Note: This method is called by the danmaku when there are unoccupied rows for item to move.
 
- @param data The data should be displayed, it also was the first object in data queue.
+ @param data The data should be displayed
  */
 - (void)itemWillBeDisplayedWithData:(FXDanmakuItemData *)data;
+
+/**
+ Return the width of item with this data. Default return -1.
+ 
+ Note: Unless 'systemLayoutSizeFittingSize:' method with UILayoutFittingCompressedSize param won't meet your requirement, you don't need to calculate the item's width on your own.
+
+ @param data The data should be displayed
+ @return If return value is negative, then FXDanmaku will calculate the item's width by 'systemLayoutSizeFittingSize:' method with UILayoutFittingCompressedSize param. Otherwise, taking this value as the width of item.
+ */
+- (CGFloat)itemWidthWithData:(FXDanmakuItemData *)data;
 
 @end
 

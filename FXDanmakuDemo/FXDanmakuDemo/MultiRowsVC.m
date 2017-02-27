@@ -142,8 +142,8 @@
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     // if danmaku view's height will change in different device orientation, you'd better pause danmaku and clean screen before orientation will change.
     [self.danmaku pause];
-    // if you could set danmaku.cleanScreenWhenPaused = true to save call cleanScreen method below.
-    [self.danmaku cleanScreen];
+    // if you could set danmaku.cleanScreenWhenPaused = false, then you need to call 'cleanScreen' method after pause.
+//    [self.danmaku cleanScreen];
     
     [coordinator animateAlongsideTransition:nil
                                  completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
@@ -154,7 +154,8 @@
 #pragma mark For Version below iOS8
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     [self.danmaku pause];
-    [self.danmaku cleanScreen];
+    // if you could set danmaku.cleanScreenWhenPaused = false, then you need to call 'cleanScreen' method after pause.
+//    [self.danmaku cleanScreen];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {

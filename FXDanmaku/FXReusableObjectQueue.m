@@ -23,7 +23,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 @implementation FXReusableObjectQueue
 
 #pragma mark - LazyLoading
-
 - (FXDictionaryOfReuseObjectSet)unusedObjectsSetDictionary {
     if (!_unusedObjectsSetDictionary) {
         _unusedObjectsSetDictionary = [NSMutableDictionary dictionary];
@@ -39,7 +38,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 }
 
 #pragma mark - Accessor
-
 - (FXSetOfReuseObject)unusedObjectsSetWithIdentifier:(NSString *)identifier {
     FXSetOfReuseObject set = self.unusedObjectsSetDictionary[identifier];
     if (!set) {
@@ -65,7 +63,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 }
 
 #pragma mark - LifeCycle
-
 + (instancetype)queue {
     return [self queueWithMaxCountOfUnusedObjects:0];
 }
@@ -90,7 +87,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 }
 
 #pragma mark - Observer
-
 - (void)setupObserver {
     __weak typeof(self) weakSelf = self;
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification
@@ -104,7 +100,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 }
 
 #pragma mark - Resubale Object Register
-
 - (void)registerClass:(Class)cls forObjectReuseIdentifier:(NSString *)identifier {
     if (!identifier.length) {
         return;
@@ -136,7 +131,6 @@ typedef NSMutableDictionary<NSString*, id> *FXDictionaryOfNibsOfClassNames;
 }
 
 #pragma mark - Queue Operation
-
 - (void)enqueueReusableObject:(id<FXReusableObject>)object {
     NSString *identifier = nil;
     if ([object respondsToSelector:@selector(reuseIdentifier)]

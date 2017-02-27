@@ -56,9 +56,9 @@
         FXLogD(@"The itemMaxVelocity can't be smaller than minVelocity");
     }
     else {
-        [self willChangeValueForKey:NSStringFromSelectorName(itemMaxVelocity)];
+        [self willChangeValueForKey:FXNSStringFromSelectorName(itemMaxVelocity)];
         _itemMaxVelocity = itemMaxVelocity;
-        [self didChangeValueForKey:NSStringFromSelectorName(itemMaxVelocity)];
+        [self didChangeValueForKey:FXNSStringFromSelectorName(itemMaxVelocity)];
     }
 }
 

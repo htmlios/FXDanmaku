@@ -152,8 +152,4 @@ alpha:1])
     self.backgroundImageView = backgroundIV;
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    
-}
-
 @end

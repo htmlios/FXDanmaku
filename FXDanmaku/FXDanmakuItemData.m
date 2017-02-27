@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FXDanmakuItemData
 
 #pragma mark - Factory
-
 + (nullable instancetype)dataWithItemReuseIdentifier:(NSString *)identifier {
     return [[self alloc] initWithItemReuseIdentifier:identifier priority:FXDataPriorityNormal];
 }

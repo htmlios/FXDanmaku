@@ -67,7 +67,7 @@
                                                                0,
                                                                timer.blockQueue);
         
-        UInt64 repeatInterval = interval * NSEC_PER_SEC;
+        uint64_t repeatInterval = interval * NSEC_PER_SEC;
         dispatch_source_set_timer(sourceTimer,
                                   dispatch_walltime(DISPATCH_TIME_NOW, repeatInterval),
                                   repeat ? repeatInterval : DISPATCH_TIME_FOREVER,

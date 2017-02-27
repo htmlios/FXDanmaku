@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) CGFloat rowSpace;
 
 /**
- Default: false. Should danmaku remove all displaying danmakuItems when pasued.
+ Default: true. Should danmaku remove all displaying danmakuItems when pasued.
  */
 @property (nonatomic, assign) BOOL cleanScreenWhenPaused;
 

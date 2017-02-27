@@ -10,6 +10,5 @@
 
 @interface MultiRowsVC : UIViewController
 
-
 @end
 

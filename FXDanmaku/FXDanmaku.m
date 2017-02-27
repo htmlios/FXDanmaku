@@ -3,8 +3,8 @@
 //  FXDanmakuDemo
 //
 //  Github: https://github.com/ShawnFoo/FXDanmaku.git
-//  Version: 1.0.0
-//  Last Modified: 2/21/2017
+//  Version: 1.0.2
+//  Last Modified: 2/27/2017
 //  Created by ShawnFoo on 12/4/2015.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
 //
@@ -169,18 +169,24 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 - (BOOL)shouldAcceptData {
     
     DanmakuStatus status = self.status;
-    BOOL notStoped = StatusStoped != status;
-    return notStoped || (StatusPaused == status && _acceptDataWhenPaused);
+    BOOL stoped = StatusStoped == status;
+    if (stoped || (StatusPaused == status && !_acceptDataWhenPaused)) {
+        return false;
+    }
+    return true;
 }
 
 #pragma mark Setter
 - (void)setConfiguration:(FXDanmakuConfiguration *)configuration {
     _configuration = [configuration copy];
-    if (_hasCalculatedRows) {
-        _hasCalculatedRows = NO;
-        [self setNeedsLayout];
-        [self layoutIfNeeded];
+    if (!_configuration) {
+        [self innerBreak];
+        return;
     }
+    
+    _hasCalculatedRows = false;
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
 }
 
 - (void)setStatus:(DanmakuStatus)status {
@@ -245,13 +251,13 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 - (void)commonSetup {
     
     _status = StatusNotStarted;
-    _cleanScreenWhenPaused = NO;
-    _emptyDataWhenPaused = NO;
-    _acceptDataWhenPaused = YES;
-    _hasCalculatedRows = NO;
+    _cleanScreenWhenPaused = true;
+    _emptyDataWhenPaused = false;
+    _acceptDataWhenPaused = true;
+    _hasCalculatedRows = false;
     
     self.backgroundColor = [UIColor clearColor];
-    self.layer.masksToBounds = YES;
+    self.layer.masksToBounds = true;
     
     pthread_mutex_init(&_row_mutex, NULL);
     pthread_cond_init(&_row_prod, NULL);
@@ -267,8 +273,12 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)calcRowsIfNeeded {
     
+    if (!self->_configuration) {
+        return;
+    }
+    
     if (!self.hasCalculatedRows || !CGSizeEqualToSize(self.oldSize, self.frame.size)) {
-        self.hasCalculatedRows = YES;
+        self.hasCalculatedRows = true;
         self.oldSize = self.frame.size;
         
         [self cancelResumeSchedule];
@@ -283,11 +293,14 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     
     pthread_mutex_lock(&self->_row_mutex);
     CGFloat viewHeight = self.frame.size.height;
-    CGFloat rowHeight = self.configuration.rowHeight;
+    CGFloat rowHeight = self->_configuration.rowHeight;
     
-    CGFloat estimatedRowSpace = self.configuration.estimatedRowSpace;
+    CGFloat estimatedRowSpace = self->_configuration.estimatedRowSpace;
     self.numOfRows = floor((viewHeight + estimatedRowSpace) / (rowHeight + estimatedRowSpace));
     self.rowSpace = (viewHeight - self.numOfRows*rowHeight) / (self.numOfRows - 1);
+    if (isnan(self.rowSpace)) {
+        self.rowSpace = 0;
+    }
     self.hasUnoccupiedRows = self.numOfRows > 0;
     pthread_mutex_unlock(&self->_row_mutex);
 }
@@ -300,8 +313,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (void)registerClass:(nullable Class)itemClass forItemReuseIdentifier:(NSString *)identifier {
-    if (identifier.length && ([itemClass isSubclassOfClass:[FXDanmakuItem class]]))
-    {
+    if (identifier.length && ([itemClass isSubclassOfClass:[FXDanmakuItem class]])) {
         [self.reuseItemQueue registerClass:itemClass forObjectReuseIdentifier:identifier];
     }
 }
@@ -310,14 +322,14 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 - (void)addData:(FXDanmakuItemData *)data {
     
     if (!self.shouldAcceptData) return;
-    @Weakify(self);
+    @FXWeakify(self);
     [self.dataProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_data_mutex);
         [self insertData:data];
         if (!self.hasData) {
-            self.hasData = YES;
+            self.hasData = true;
             if (StatusRunning == self.status) {
                 pthread_cond_signal(&self->_data_cons);
             }
@@ -330,18 +342,18 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     
     if (!self.shouldAcceptData) return;
     if (!datas.count) return;
-    @Weakify(self);
+    @FXWeakify(self);
     [self.dataProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_data_mutex);
-        BOOL addedData = NO;
+        BOOL addedData = false;
         for (FXDanmakuItemData *data in datas) {
             [self insertData:data];
-            addedData = YES;
+            addedData = true;
         }
         if (!self.hasData && addedData) {
-            self.hasData = YES;
+            self.hasData = true;
             if (StatusRunning == self.status) {
                 pthread_cond_signal(&self->_data_cons);
             }
@@ -353,25 +365,25 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 - (void)emptyData {
     
     [self.dataProducerQueue cancelAllOperation];
-    @Weakify(self);
+    @FXWeakify(self);
     [self.dataProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_data_mutex);
         [self->_dataQueue removeAllObjects];
-        self.hasData = NO;
+        self.hasData = false;
         pthread_mutex_unlock(&self->_data_mutex);
     }];
 }
 
 #pragma mark - Actions
 - (void)start {
-    @Weakify(self);
-    RunBlockSafe_MainThread(^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
-        if (!self.configuration) {
-            FXException(@"Please set danmaku's confiuration first!");
+    @FXWeakify(self);
+    FXRunBlockSafe_MainThread(^{
+        @FXStrongify(self);
+        FXReturnIfSelfNil
+        if (!self->_configuration) {
+            FXException(@"Please set danmaku's confiuration, it can't be nil!");
             return;
         }
         
@@ -419,13 +431,13 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     const NSTimeInterval cInterval = 0.01;
     
     [self cancelResumeSchedule];
-    @Weakify(self);
+    @FXWeakify(self);
     self.innerResumeTimer = [FXGCDTimer scheduledTimerWithInterval:cInterval
                                                              queue:nil
                                                              block:^
                              {
-                                 @Strongify(self);
-                                 ReturnVoidIfSelfNil
+                                 @FXStrongify(self);
+                                 FXReturnIfSelfNil
                                  [self innerResume];
                              }];
     
@@ -439,31 +451,33 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 #pragma mark - Consumer
 - (void)startConsuming {
+    @FXWeakify(self);
     dispatch_async(self.consumerQueue, ^{
+        @FXStrongify(self);
         [self consumeData];
     });
 }
 
 - (void)breakConsumerSuspensionIfNeeded {
     
-    @Weakify(self);
+    @FXWeakify(self);
     [self.rowProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_row_mutex);
         if (!self.hasUnoccupiedRows) {
-            self.hasUnoccupiedRows = YES;
+            self.hasUnoccupiedRows = true;
             pthread_cond_signal(&self->_row_cons);
         }
         pthread_mutex_unlock(&self->_row_mutex);
     }];
     
     [self.dataProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_data_mutex);
         if (!self.hasData) {
-            self.hasData = YES;
+            self.hasData = true;
             pthread_cond_signal(&self->_data_cons);
         }
         pthread_mutex_unlock(&self->_data_mutex);
@@ -472,10 +486,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 #pragma mark - Clean Screen
 - (void)cleanScreen {
-    @Weakify(self);
-    RunBlockSafe_MainThread(^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+    @FXWeakify(self);
+    FXRunBlockSafe_MainThread(^{
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         [self innerBreak];
         [self cleanScreenUnsafe];
         [self innerResume];
@@ -483,10 +497,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (void)cleanScreenUnsafe {
-    BOOL hasItems = NO;
+    BOOL hasItems = false;
     for (UIView *subView in self.subviews) {
         if ([subView isKindOfClass:[FXDanmakuItem class]]) {
-            hasItems = YES;
+            hasItems = true;
             [subView removeFromSuperview];
             [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)subView];
         }
@@ -537,7 +551,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 #pragma mark - Row Producer & Consumer
 - (NSInteger)fetchUnoccupiedRow {
     NSInteger row;
-    switch (self.configuration.itemInsertOrder) {
+    switch (self->_configuration.itemInsertOrder) {
         case FXDanmakuItemInsertOrderRandom:
             row = [self fetchRandomUnoccupiedRow];
             break;
@@ -574,11 +588,11 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         if (array) {
             row = array[arc4random()%n];
             [self addOccupiedRow:row];
-            self.hasUnoccupiedRows = n > 1 ? YES : NO;
+            self.hasUnoccupiedRows = n > 1 ? true : false;
             free(array);
         }
         else {
-            self.hasUnoccupiedRows = NO;
+            self.hasUnoccupiedRows = false;
         }
     }
     
@@ -594,7 +608,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     }
     NSInteger row = -1;
     if (StatusRunning == self.status) {
-        BOOL hasRows = NO;
+        BOOL hasRows = false;
         for (NSInteger i = self.numOfRows-1; i > -1; i--) {
             if (1<<i & self.occupiedRowMaskBit) {
                 continue;
@@ -603,7 +617,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
                 row = i;
             }
             else {
-                hasRows = YES;
+                hasRows = true;
                 break;
             }
         }
@@ -626,7 +640,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     
     NSInteger row = -1;
     if (StatusRunning == self.status) {
-        BOOL hasRows = NO;
+        BOOL hasRows = false;
         for (int i = 0; i < self.numOfRows; i++) {
             if (1<<i & self.occupiedRowMaskBit) {
                 continue;
@@ -635,7 +649,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
                 row = i;
             }
             else {
-                hasRows = YES;
+                hasRows = true;
                 break;
             }
         }
@@ -663,7 +677,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     {
         self.occupiedRowMaskBit -= 1<<row;
         if (!self.hasUnoccupiedRows) {
-            self.hasUnoccupiedRows = YES;
+            self.hasUnoccupiedRows = true;
             pthread_cond_signal(&self->_row_cons);
         }
     }
@@ -676,10 +690,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         [timer invalidate];
     }
     
-    @Weakify(self);
+    @FXWeakify(self);
     [self.rowProducerQueue addAsyncOperationBlock:^{
-        @Strongify(self);
-        ReturnVoidIfSelfNil
+        @FXStrongify(self);
+        FXReturnIfSelfNil
         pthread_mutex_lock(&self->_row_mutex);
         self.occupiedRowMaskBit = 0;
         self.hasUnoccupiedRows = self.numOfRows > 0;
@@ -689,8 +703,8 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 #pragma mark - Animation Computation
 - (NSUInteger)randomVelocity {
-    NSUInteger minVel = self.configuration.itemMinVelocity;
-    NSUInteger maxVel = self.configuration.itemMaxVelocity;
+    NSUInteger minVel = self->_configuration.itemMinVelocity;
+    NSUInteger maxVel = self->_configuration.itemMaxVelocity;
     if (minVel == maxVel) {
         return minVel;
     }
@@ -698,7 +712,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (CGPoint)startPointWithRow:(NSUInteger)row {
-    CGFloat yAxis = !row ? 0 : row * (self.configuration.rowHeight+self.rowSpace);
+    CGFloat yAxis = !row ? 0 : row * (self->_configuration.rowHeight+self.rowSpace);
     return CGPointMake(self.frame.size.width, yAxis);
 }
 
@@ -708,7 +722,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (NSTimeInterval)resetOccupiedRowTimeOfVelocity:(NSUInteger)velocity itemWidth:(CGFloat)width {
     
-    float ratio = self.configuration.moveRatioToResetOccupiedRow;
+    float ratio = self->_configuration.moveRatioToResetOccupiedRow;
     return (self.bounds.size.width*ratio + width) / velocity;
 }
 
@@ -720,7 +734,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         if (data) {
             NSInteger unoccupiedRow = [self fetchUnoccupiedRow];
             if (unoccupiedRow > -1) {
-                dispatch_sync(dispatch_get_main_queue(), ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
                     [self presentData:data atRow:unoccupiedRow];
                 });
             }
@@ -735,13 +749,13 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 
 - (void)stopConsumingData {
     
-    BOOL emptyData = NO;
-    BOOL cleanScreen = NO;
+    BOOL emptyData = false;
+    BOOL cleanScreen = false;
     
     DanmakuStatus status = self.status;
     if (StatusStoped == status) {
-        emptyData = YES;
-        cleanScreen = YES;
+        emptyData = true;
+        cleanScreen = true;
     }
     else if (StatusPaused == status) {
         emptyData = self.emptyDataWhenPaused;
@@ -752,10 +766,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         [self emptyData];
     }
     if (cleanScreen) {
-        @Weakify(self);
         dispatch_sync(dispatch_get_main_queue(), ^{
-            @Strongify(self);
-            ReturnVoidIfSelfNil
             [self cleanScreenUnsafe];
         });
     }
@@ -767,14 +778,18 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     if (!item) {
         FXException(@"Didn't register resue class or nib for %@(itemReuseIdentifier)", data.itemReuseIdentifier);
     }
-    [self addSubview:item];
-    [self notifyDelegateWillDisplayItem:item];
     item.p_data = data;
-    [item itemWillBeDisplayedWithData:data];
-    [[self itemsManagerAtRow:row] addDanmakuItem:item];
     
-    BOOL moveFromLeftToRight = FXDanmakuItemMoveDirectionLeftToRight == self.configuration.itemMoveDirection;
-    CGFloat itemWidth = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].width;
+    [self addSubview:item];
+    [[self itemsManagerAtRow:row] addDanmakuItem:item];
+    [self notifyDelegateWillDisplayItem:item];
+    [item itemWillBeDisplayedWithData:data];
+    
+    BOOL moveFromLeftToRight = FXDanmakuItemMoveDirectionLeftToRight == self->_configuration.itemMoveDirection;
+    CGFloat itemWidth = [item itemWidthWithData:data];
+    if (itemWidth < 0) {
+        itemWidth = [item systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].width;
+    }
     CGPoint point = [self startPointWithRow:row];
     if (moveFromLeftToRight) {
         point.x = -itemWidth;
@@ -783,7 +798,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     NSTimeInterval animDuration = [self animationDurationOfVelocity:velocity itemWidth:itemWidth];
     NSTimeInterval resetTime = [self resetOccupiedRowTimeOfVelocity:velocity itemWidth:itemWidth];
     
-    item.frame = CGRectMake(point.x, point.y , itemWidth, self.configuration.rowHeight);
+    item.frame = CGRectMake(point.x, point.y , itemWidth, self->_configuration.rowHeight);
     CGRect toFrame = item.frame;
     toFrame.origin.x = moveFromLeftToRight ? self.frame.size.width : -itemWidth;
     
@@ -804,19 +819,40 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
          [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
      }];
     
-    @Weakify(self);
+    @FXWeakify(self);
     FXGCDTimer *resetTimer = [FXGCDTimer scheduledTimerWithInterval:resetTime
                                                               queue:self.rowProducerQueue.queue
                                                               block:^
                               {
-                                  @Strongify(self);
-                                  ReturnVoidIfSelfNil
+                                  @FXStrongify(self);
+                                  FXReturnIfSelfNil
                                   [self removeOccupiedRow:row];
                               }];
     [self.resetOccupiedRowTimers addObject:resetTimer];
 }
 
-#pragma mark - Touch Event
+#pragma mark - Responder Chain
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    if (!self.userInteractionEnabled || self.isHidden || self.alpha <= 0.0) {
+        return nil;
+    }
+    UIView *hitView = nil;
+    if ([self pointInside:point withEvent:event]) {
+        for (UIView *subView in self.subviews) {
+            if (![subView isKindOfClass:[FXDanmakuItem class]]) {
+                CGPoint convertedPoint = [self convertPoint:point toView:subView];
+                if ((hitView = [subView hitTest:convertedPoint withEvent:event])) {
+                    return hitView;
+                }
+            }
+        }
+        if (self.delegate && [self itemAtTouchPoint:point] != nil) {
+            hitView = self;
+        }
+    }
+    return hitView;
+}
+
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     UITouch *touch = touches.anyObject;
     if (touch.tapCount == 1) {
@@ -824,10 +860,14 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     }
 }
 
-- (void)handleTouchAtPoint:(CGPoint)touchPoint {
-    NSUInteger row = touchPoint.y / (self.configuration.rowHeight + self.rowSpace);
+- (FXDanmakuItem *)itemAtTouchPoint:(CGPoint)point {
+    NSUInteger row = point.y / (self->_configuration.rowHeight + self.rowSpace);
     FXSingleRowItemsManager *manager = self->_rowItemsManager[@(row)];
-    FXDanmakuItem *item = [manager itemAtPoint:touchPoint];
+    return [manager itemAtPoint:point];
+}
+
+- (void)handleTouchAtPoint:(CGPoint)point {
+    FXDanmakuItem *item = [self itemAtTouchPoint:point];
     if (item) {
         [self notifyDelegateClickedItem:item];
     }

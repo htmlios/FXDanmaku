@@ -77,6 +77,10 @@ NS_ASSUME_NONNULL_BEGIN
                 sel_getName(_cmd));
 }
 
+- (CGFloat)itemWidthWithData:(FXDanmakuItemData *)data {
+    return -1;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

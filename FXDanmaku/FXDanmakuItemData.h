@@ -15,7 +15,7 @@ typedef NS_ENUM(NSUInteger, FXDataPriority) {
 
 NS_ASSUME_NONNULL_BEGIN
 /**
- FXDanmakuItemData is for supplying DanmakuItem with data to display. One kind of FXDanmakuItemData can only be used by a specified FXDanmakuItem via setting itemReuseIdentifier property;
+ FXDanmakuItemData plays an important role to FXDanmakuItem as the view model. FXDanmakuItemData should supply FXDanmakuItem with any datas item requires. One kind of FXDanmakuItemData should only be used by a specified FXDanmakuItem via itemReuseIdentifier property.
  */
 @interface FXDanmakuItemData : NSObject
 
