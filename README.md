@@ -10,7 +10,7 @@
 
 High-performance danmaku with click event, reusable items and customize configurations.
 
-##Features
+## Features
 
 1. Except UI operations in main-thread, other operations are different dispatch queues.
 2. Followed producer-cosumer pattern with pthread lib.
@@ -20,12 +20,12 @@ High-performance danmaku with click event, reusable items and customize configur
 6. Easy to use. Just three control: start(resume), pause, stop. Except that, most methods are thread-safe.
 7. Adaptation to the change of device orientaion.
 
-##Preview
+## Preview
 
 ![](http://wx4.sinaimg.cn/large/9161297cgy1fd0v5dm59gg209o0h77wj.gif) 
 ![](http://wx2.sinaimg.cn/large/9161297cgy1fcylkvn3arg20hy0a1x6p.gif)
 
-##Example
+## Example
 
 Setup danmaku view
 
@@ -70,18 +70,18 @@ More examples in `FXDanmakuDemo.xcworkspace`.
 
 Demo built and ran in Xcode8.
 
-##Q&A
+## Q&A
 ####1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
 ![](http://wx3.sinaimg.cn/large/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
 
-####2. How to create your danmakuItem by nib.
+#### 2. How to create your danmakuItem by nib.
 ![](http://wx1.sinaimg.cn/large/9161297cgy1fd35qtq40mj20d104zmxq.jpg)
 
 ![](http://wx3.sinaimg.cn/large/9161297cgy1fd35qu2f5hj20bl08lt9l.jpg)
 
 Last thing, drag IBOutlet property to setup your custom danmakuItem.
 
-####3. Adaptation to the change of device orientaion.
+#### 3. Adaptation to the change of device orientaion.
 
 Only when your danmaku view's height will change in different device orientaion, should you do a little work to adapt. Otherwise, you won't need to add any codes.	
 Let's say, your danmaku view's height is 100pt in portrait, but is 200pt in lanscape. Then add codes below in your controller.
@@ -111,11 +111,11 @@ Let's say, your danmaku view's height is 100pt in portrait, but is 200pt in lans
 	}
 	
 
-##Requirements
+## Requirements
 FXDanmaku requires `iOS 7.0+`.
 
-##Installation
-####Cocoapods(iOS7+)
+## Installation
+#### Cocoapods(iOS7+)
 
 1. Add these lines below to your Podfile 
 	
@@ -127,7 +127,7 @@ FXDanmaku requires `iOS 7.0+`.
 	```
 2. Install the pod by running `pod install`
 
-####Manually(iOS7+)
+#### Manually(iOS7+)
 Drag `FXDanmaku` document to your project
 
 ## License
