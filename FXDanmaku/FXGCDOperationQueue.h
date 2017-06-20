@@ -12,7 +12,7 @@
 
 @property (nonatomic, readonly) dispatch_queue_t queue;
 
-+ (instancetype)queueWithDispatchQueueType:(dispatch_queue_t)dispatchQueueT;
++ (instancetype)queueWithDispatchQueue:(dispatch_queue_t)queue;
 
 - (void)addSyncOperationBlock:(dispatch_block_t)block;
 - (void)addAsyncOperationBlock:(dispatch_block_t)block;

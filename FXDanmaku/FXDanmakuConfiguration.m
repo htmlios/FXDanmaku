@@ -31,7 +31,6 @@
 }
 
 + (instancetype)singleRowConfigurationWithHeight:(CGFloat)height {
-    
     const NSUInteger cSpeed = 90;
     
     FXDanmakuConfiguration *config = [self defaultConfiguration];
@@ -63,7 +62,6 @@
 }
 
 #pragma mark - NSCopying
-
 - (id)copyWithZone:(NSZone *)zone {
     FXDanmakuConfiguration *configuration = [[[self class] alloc] init];
     

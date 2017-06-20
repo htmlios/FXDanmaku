@@ -2,7 +2,7 @@
 
 [![中文](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-Readme-lightgrey.svg)](http://www.jianshu.com/p/42a665b1731d)
 ![iOS 7.0+](https://img.shields.io/badge/iOS-7.0%2B-orange.svg)
-![pod](https://img.shields.io/badge/Cocoapods-v1.0.2-blue.svg)
+![pod](https://img.shields.io/badge/Cocoapods-v1.0.3-blue.svg)
 ![compatible](https://img.shields.io/badge/Compatible-Objective--C%2FSwift-yellow.svg)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/ShawnFoo/FXDanmaku/blob/master/LICENSE)
 
@@ -27,7 +27,7 @@ High-performance danmaku with click event, reusable items and customize configur
 
 ## Example
 
-Setup danmaku view
+Setup danmaku view:
 
 ```
 // Configuration
@@ -47,7 +47,7 @@ self.danmaku.delegate = self;
 [self.danmaku registerClass:[DemoBulletinItem class] 
      forItemReuseIdentifier:[DemoBulletinItem reuseIdentifier]];
 ```
-Add data
+Add data:
 
 ```
 // add data for danmaku view to present
@@ -59,7 +59,7 @@ if (!self.danmaku.isRunning) {
 	[self.danmaku start];
 }
 ```
-Handle click in delegate method
+Handle click in delegate method:
 
 ```
 - (void)danmaku:(FXDanmaku *)danmaku didClickItem:(FXDanmakuItem *)item withData:(DemoDanmakuItemData *)data {
@@ -68,10 +68,10 @@ Handle click in delegate method
 ```
 More examples in `FXDanmakuDemo.xcworkspace`. 
 
-Demo built and ran in Xcode8.
+Demo build succeed in Xcode8.
 
 ## Q&A
-####1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
+#### 1. Relationships among rowHeight、estimatedRowSpace and rowSpace.
 ![](http://wx3.sinaimg.cn/large/9161297cgy1fcyktlu5gnj20k80b475g.jpg)
 
 #### 2. How to create your danmakuItem by nib.
@@ -122,7 +122,7 @@ FXDanmaku requires `iOS 7.0+`.
 	```
 	platform :ios, 'xxx'
 	target 'xxx' do
-	  pod 'FXDanmaku', '~> 1.0.2'
+	  pod 'FXDanmaku', '~> 1.0.3'
 	end
 	```
 2. Install the pod by running `pod install`

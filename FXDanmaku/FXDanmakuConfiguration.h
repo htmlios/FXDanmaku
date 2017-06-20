@@ -44,7 +44,7 @@ typedef NS_ENUM(NSUInteger, FXDanmakuItemMoveDirection) {
 @property (nonatomic, assign) CGFloat rowHeight;
 
 /**
- Estimated vertical space between two row.
+ Estimated vertical space between two row. Can't be negative! >=0
  */
 @property (nonatomic, assign) CGFloat estimatedRowSpace;
 
