@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy) NSString *itemReuseIdentifier;
 
 /**
- High Priority data will be displayed first since it will be inserted to queue before normal priority data;
+ High priority data will be displayed first since it will be inserted to queue before normal priority data;
  */
 @property (nonatomic, assign) FXDataPriority priority;
 

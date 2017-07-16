@@ -49,6 +49,14 @@
     return NO;
 }
 
+#pragma mark - Designated Initializer 
+- (instancetype)init {
+    if (self = [super init]) {
+        _dataQueueCapacity = NSUIntegerMax;
+    }
+    return self;
+}
+
 #pragma mark - Accessor
 - (void)setItemMaxVelocity:(NSUInteger)itemMaxVelocity {
     if (itemMaxVelocity < _itemMinVelocity) {

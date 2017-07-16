@@ -20,7 +20,6 @@ typedef NS_ENUM(NSUInteger, FXDanmakuItemMoveDirection) {
     FXDanmakuItemMoveDirectionLeftToRight
 };
 
-
 @interface FXDanmakuConfiguration : NSObject <NSCopying>
 
 /**

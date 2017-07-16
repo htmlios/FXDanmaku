@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FXDanmakuItem () <FXReusableObject>
 
 @property (nonatomic, copy) NSString *reuseIdentifier;
-@property (nonatomic) IBInspectable NSString *Identifier;
+@property (nonatomic, copy) IBInspectable NSString *Identifier;
 
 @end
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setIdentifier:(NSString *)Identifier {
-    self.reuseIdentifier = Identifier;
+    self.reuseIdentifier = [Identifier copy];
 }
 
 #pragma mark - Initializer

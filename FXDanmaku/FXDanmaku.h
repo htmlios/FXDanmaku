@@ -1,8 +1,11 @@
 //
-//  FXDanmaku.h
+//  FXDanmaku.m
 //  FXDanmakuDemo
 //
-//  Created by ShawnFoo on 12/4/15.
+//  Github: https://github.com/ShawnFoo/FXDanmaku.git
+//  Version: 1.0.4
+//  Last Modified: 7/16/2017
+//  Created by ShawnFoo on 12/4/2015.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
 //
 
@@ -43,6 +46,16 @@ NS_ASSUME_NONNULL_BEGIN
  @param data The data of item.
  */
 - (void)danmaku:(FXDanmaku *)danmaku didEndDisplayingItem:(FXDanmakuItem *)item withData:(FXDanmakuItemData *)data;
+
+/**
+ Tells the delegate if this data should be added into queue when data queue is full.
+ 
+ Note: This method will be called asynchronously!
+
+ @param data The FXDanmakuItemData object that should be added into queue although data queue is full or should be discarded. You should only access but not modify any properties of the data in this method.
+ @return True if this data should be added into queue; otherwise, this data will be discarded.
+ */
+- (BOOL)shouldAddDanmakuItemDataWhenQueueIsFull:(FXDanmakuItemData *)data;
 
 @end
 

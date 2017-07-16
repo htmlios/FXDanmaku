@@ -109,4 +109,9 @@
                            cancelHandler:nil];
 }
 
+- (BOOL)shouldAddDanmakuItemDataWhenQueueIsFull:(FXDanmakuItemData *)data {
+    // only discard normal priority data when data queue is beyond limit.
+    return FXDataPriorityHigh == data.priority;
+}
+
 @end

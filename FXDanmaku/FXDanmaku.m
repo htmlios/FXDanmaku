@@ -3,8 +3,8 @@
 //  FXDanmakuDemo
 //
 //  Github: https://github.com/ShawnFoo/FXDanmaku.git
-//  Version: 1.0.3
-//  Last Modified: 6/20/2017
+//  Version: 1.0.4
+//  Last Modified: 7/16/2017
 //  Created by ShawnFoo on 12/4/2015.
 //  Copyright © 2015 ShawnFoo. All rights reserved.
 //
@@ -323,11 +323,12 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         FXReturnIfSelfNil
         pthread_mutex_lock(&self->_data_mutex);
         {
-            [self insertData:data];
-            if (!self.hasData) {
-                self.hasData = true;
-                if (StatusRunning == self.status) {
-                    pthread_cond_signal(&self->_data_cons);
+            if ([self insertData:data]) {
+                if (!self.hasData) {
+                    self.hasData = true;
+                    if (StatusRunning == self.status) {
+                        pthread_cond_signal(&self->_data_cons);
+                    }
                 }
             }
         }
@@ -346,8 +347,9 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         {
             BOOL addedData = false;
             for (FXDanmakuItemData *data in datas) {
-                [self insertData:data];
-                addedData = true;
+                if ([self insertData:data]) {
+                    addedData = true;
+                }
             }
             if (!self.hasData && addedData) {
                 self.hasData = true;
@@ -532,7 +534,10 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     return data;
 }
 
-- (void)insertData:(FXDanmakuItemData *)data {
+- (BOOL)insertData:(FXDanmakuItemData *)data {
+    if (![self shouldInsertData:data]) {
+        return false;
+    }
     if (FXDataPriorityHigh == data.priority) {
         NSUInteger insertIndex = 0;
         for (NSUInteger i = 0; i < self.dataQueue.count; i++) {
@@ -547,6 +552,18 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     else {
         [self.dataQueue addObject:data];
     }
+    return true;
+}
+
+- (BOOL)shouldInsertData:(FXDanmakuItemData *)data {
+    BOOL shouldInsert = self.dataQueue.count < self->_configuration.dataQueueCapacity;
+    
+    id<FXDanmakuDelegate> strongDelegate = self.delegate;
+    if (!shouldInsert
+        && [strongDelegate respondsToSelector:@selector(shouldAddDanmakuItemDataWhenQueueIsFull:)]) {
+        shouldInsert = [strongDelegate shouldAddDanmakuItemDataWhenQueueIsFull:data];
+    }
+    return shouldInsert;
 }
 
 #pragma mark - Row Producer & Consumer

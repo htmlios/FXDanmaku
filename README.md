@@ -110,6 +110,23 @@ Let's say, your danmaku view's height is 100pt in portrait, but is 200pt in lans
     		[self.danmaku start];
 	}
 	
+#### 4. How to limit the capacity of the data queue to the FXDanmaku view?
+
+```
+// By setting the FXDanmakuConfiguration
+FXDanmakuConfiguration *config = [FXDanmakuConfiguration defaultConfiguration];
+// The number of FXDanmakuItemData that FXDanmaku view can hold at maximum count. 
+config.dataQueueCapacity = 500;
+// Beyond this value, the data will be discarded.
+```
+In addition, you still have chance to decide which data can be added into the queue when data quque is full through delegate method.
+
+```
+- (BOOL)shouldAddDanmakuItemDataWhenQueueIsFull:(FXDanmakuItemData *)data {
+	// Keep adding data with high priority, even the number of the data in queue reaches maximum count
+	return FXDataPriorityHigh == data.priority;
+}
+```
 
 ## Requirements
 FXDanmaku requires `iOS 7.0+`.
@@ -122,7 +139,7 @@ FXDanmaku requires `iOS 7.0+`.
 	```
 	platform :ios, 'xxx'
 	target 'xxx' do
-	  pod 'FXDanmaku', '~> 1.0.3'
+	  pod 'FXDanmaku', '~> 1.0.0'
 	end
 	```
 2. Install the pod by running `pod install`

@@ -186,6 +186,7 @@
 		2932E7C01E5364AA001006EA /* FXDanmaku */ = {
 			isa = PBXGroup;
 			children = (
+				2932E7CA1E5364AA001006EA /* FXDanmakuMacro.h */,
 				2932E7C11E5364AA001006EA /* FXDanmaku.h */,
 				2932E7C21E5364AA001006EA /* FXDanmaku.m */,
 				2932E7C31E5364AA001006EA /* FXDanmakuConfiguration.h */,
@@ -195,7 +196,6 @@
 				2932E7C71E5364AA001006EA /* FXDanmakuItem_Private.h */,
 				2932E7C81E5364AA001006EA /* FXDanmakuItemData.h */,
 				2932E7C91E5364AA001006EA /* FXDanmakuItemData.m */,
-				2932E7CA1E5364AA001006EA /* FXDanmakuMacro.h */,
 				2932E7CB1E5364AA001006EA /* FXGCDOperationQueue.h */,
 				2932E7CC1E5364AA001006EA /* FXGCDOperationQueue.m */,
 				2932E7CD1E5364AA001006EA /* FXGCDTimer.h */,

@@ -79,7 +79,6 @@
 
 #pragma mark - Actions
 - (IBAction)segmentValueChanged:(UISegmentedControl *)sender {
-    
     // this is a copy FXDanmakuConfiguration object below!
     FXDanmakuConfiguration *config = self.danmaku.configuration;
     // update/change config's property
@@ -122,6 +121,11 @@
                            cancelHandler:nil];
 }
 
+- (BOOL)shouldAddDanmakuItemDataWhenQueueIsFull:(FXDanmakuItemData *)data {
+    // only discard normal priority data when data queue is beyond limit.
+    return FXDataPriorityHigh == data.priority;
+}
+
 #pragma mark - DataSource
 - (void)addDatasWithCount:(NSUInteger)count {
     static NSUInteger index = 0;
@@ -143,7 +147,7 @@
     // if danmaku view's height will change in different device orientation, you'd better pause danmaku and clean screen before orientation will change.
     [self.danmaku pause];
     // if you could set danmaku.cleanScreenWhenPaused = false, then you need to call 'cleanScreen' method after pause.
-//    [self.danmaku cleanScreen];
+    //    [self.danmaku cleanScreen];
     
     [coordinator animateAlongsideTransition:nil
                                  completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
@@ -155,7 +159,7 @@
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
     [self.danmaku pause];
     // if you could set danmaku.cleanScreenWhenPaused = false, then you need to call 'cleanScreen' method after pause.
-//    [self.danmaku cleanScreen];
+    //    [self.danmaku cleanScreen];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
