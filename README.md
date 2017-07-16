@@ -2,7 +2,7 @@
 
 [![中文](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-Readme-lightgrey.svg)](http://www.jianshu.com/p/42a665b1731d)
 ![iOS 7.0+](https://img.shields.io/badge/iOS-7.0%2B-orange.svg)
-![pod](https://img.shields.io/badge/Cocoapods-v1.0.3-blue.svg)
+![pod](https://img.shields.io/badge/Cocoapods-v1.0.4-blue.svg)
 ![compatible](https://img.shields.io/badge/Compatible-Objective--C%2FSwift-yellow.svg)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/ShawnFoo/FXDanmaku/blob/master/LICENSE)
 
