@@ -12,7 +12,7 @@
 #import "FXDanmaku.h"
 #import <pthread.h>
 #import "FXDanmakuMacro.h"
-#import "FXReusableObjectQueue.h"
+#import "FXReuseObjectQueue.h"
 #import "FXDanmakuItem.h"
 #import "FXSingleRowItemsManager.h"
 #import "FXDanmakuItem_Private.h"
@@ -38,7 +38,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 @property (nonatomic, strong) FXGCDOperationQueue *rowProducerQueue;
 
 @property (nonatomic, strong) NSMutableArray<FXDanmakuItemData *> *dataQueue;
-@property (nonatomic, strong) FXReusableObjectQueue *reuseItemQueue;
+@property (nonatomic, strong) FXReuseObjectQueue *reuseItemQueue;
 @property (nonatomic, strong) NSMutableDictionary<NSNumber *, FXSingleRowItemsManager *> *rowItemsManager;
 @property (nonatomic, strong) NSHashTable<FXGCDTimer *> *resetOccupiedRowTimers;
 
@@ -100,9 +100,9 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
     return _dataQueue;
 }
 
-- (FXReusableObjectQueue *)reuseItemQueue {
+- (FXReuseObjectQueue *)reuseItemQueue {
     if (!_reuseItemQueue) {
-        _reuseItemQueue = [FXReusableObjectQueue queue];
+        _reuseItemQueue = [FXReuseObjectQueue queue];
     }
     return _reuseItemQueue;
 }
@@ -505,7 +505,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         if ([subView isKindOfClass:[FXDanmakuItem class]]) {
             hasItems = true;
             [subView removeFromSuperview];
-            [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)subView];
+            [self.reuseItemQueue enqueueReuseObject:(FXReuseObject)subView];
         }
     }
     if (hasItems) {
@@ -530,6 +530,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
             self.hasData = self->_dataQueue.count > 0;
         }
     }
+    
     pthread_mutex_unlock(&self->_data_mutex);
     return data;
 }
@@ -788,7 +789,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
 }
 
 - (void)presentData:(FXDanmakuItemData *)data atRow:(NSUInteger)row {
-    FXDanmakuItem *item = (FXDanmakuItem *)[self.reuseItemQueue dequeueReusableObjectWithIdentifier:data.itemReuseIdentifier];
+    FXDanmakuItem *item = (FXDanmakuItem *)[self.reuseItemQueue dequeueReuseObjectWithIdentifier:data.itemReuseIdentifier];
     if (!item) {
         FXException(@"Didn't register resue class or nib for %@(itemReuseIdentifier)", data.itemReuseIdentifier);
     }
@@ -830,7 +831,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
          [item removeFromSuperview];
          [self.rowItemsManager[@(row)] removeDanmakuItem:item];
          [self notifyDelegateDidEndDisplayingItem:item];
-         [self.reuseItemQueue enqueueReusableObject:(id<FXReusableObject>)item];
+         [self.reuseItemQueue enqueueReuseObject:(FXReuseObject)item];
      }];
     
     @FXWeakify(self);
