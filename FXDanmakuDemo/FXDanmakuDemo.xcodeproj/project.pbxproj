@@ -28,7 +28,7 @@
 		2932E7D61E5364AA001006EA /* FXDanmakuItemData.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C91E5364AA001006EA /* FXDanmakuItemData.m */; };
 		2932E7D71E5364AA001006EA /* FXGCDOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CC1E5364AA001006EA /* FXGCDOperationQueue.m */; };
 		2932E7D81E5364AA001006EA /* FXGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CE1E5364AA001006EA /* FXGCDTimer.m */; };
-		2932E7D91E5364AA001006EA /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */; };
+		2932E7D91E5364AA001006EA /* FXReuseObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReuseObjectQueue.m */; };
 		2932E7DA1E5364AA001006EA /* FXSingleRowItemsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */; };
 		29334D201E5B215F0061EAAE /* FXGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7CE1E5364AA001006EA /* FXGCDTimer.m */; };
 		29334D211E5B215F0061EAAE /* MultiRowsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 2916B84C1C96FFC9003A1AF9 /* MultiRowsVC.m */; };
@@ -47,7 +47,7 @@
 		29334D2E1E5B215F0061EAAE /* FXDanmakuItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C61E5364AA001006EA /* FXDanmakuItem.m */; };
 		29334D2F1E5B215F0061EAAE /* FXDanmakuConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7C41E5364AA001006EA /* FXDanmakuConfiguration.m */; };
 		29334D301E5B215F0061EAAE /* NSObject+FXAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0E737B11CB1057400BAC448 /* NSObject+FXAlertView.m */; };
-		29334D311E5B215F0061EAAE /* FXReusableObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */; };
+		29334D311E5B215F0061EAAE /* FXReuseObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2932E7D01E5364AA001006EA /* FXReuseObjectQueue.m */; };
 		29334D321E5B215F0061EAAE /* NSTimer+FXWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 29256BF61E57EA0600B0E627 /* NSTimer+FXWeakTimer.m */; };
 		29334D331E5B215F0061EAAE /* JPFPSStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 29C3F3451E53677E00716EEF /* JPFPSStatus.m */; };
 		29334D371E5B215F0061EAAE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2916B8531C96FFC9003A1AF9 /* LaunchScreen.storyboard */; };
@@ -98,8 +98,8 @@
 		2932E7CC1E5364AA001006EA /* FXGCDOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXGCDOperationQueue.m; sourceTree = "<group>"; };
 		2932E7CD1E5364AA001006EA /* FXGCDTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXGCDTimer.h; sourceTree = "<group>"; };
 		2932E7CE1E5364AA001006EA /* FXGCDTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXGCDTimer.m; sourceTree = "<group>"; };
-		2932E7CF1E5364AA001006EA /* FXReusableObjectQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXReusableObjectQueue.h; sourceTree = "<group>"; };
-		2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReusableObjectQueue.m; sourceTree = "<group>"; };
+		2932E7CF1E5364AA001006EA /* FXReuseObjectQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXReuseObjectQueue.h; sourceTree = "<group>"; };
+		2932E7D01E5364AA001006EA /* FXReuseObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXReuseObjectQueue.m; sourceTree = "<group>"; };
 		2932E7D11E5364AA001006EA /* FXSingleRowItemsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FXSingleRowItemsManager.h; sourceTree = "<group>"; };
 		2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FXSingleRowItemsManager.m; sourceTree = "<group>"; };
 		29334D3E1E5B215F0061EAAE /* FXDanmakuDemo_Reveal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FXDanmakuDemo_Reveal.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -200,8 +200,8 @@
 				2932E7CC1E5364AA001006EA /* FXGCDOperationQueue.m */,
 				2932E7CD1E5364AA001006EA /* FXGCDTimer.h */,
 				2932E7CE1E5364AA001006EA /* FXGCDTimer.m */,
-				2932E7CF1E5364AA001006EA /* FXReusableObjectQueue.h */,
-				2932E7D01E5364AA001006EA /* FXReusableObjectQueue.m */,
+				2932E7CF1E5364AA001006EA /* FXReuseObjectQueue.h */,
+				2932E7D01E5364AA001006EA /* FXReuseObjectQueue.m */,
 				2932E7D11E5364AA001006EA /* FXSingleRowItemsManager.h */,
 				2932E7D21E5364AA001006EA /* FXSingleRowItemsManager.m */,
 			);
@@ -499,7 +499,7 @@
 				2932E7D51E5364AA001006EA /* FXDanmakuItem.m in Sources */,
 				2932E7D41E5364AA001006EA /* FXDanmakuConfiguration.m in Sources */,
 				D0E737B21CB1057400BAC448 /* NSObject+FXAlertView.m in Sources */,
-				2932E7D91E5364AA001006EA /* FXReusableObjectQueue.m in Sources */,
+				2932E7D91E5364AA001006EA /* FXReuseObjectQueue.m in Sources */,
 				29256BF71E57EA0600B0E627 /* NSTimer+FXWeakTimer.m in Sources */,
 				29C3F3461E53677E00716EEF /* JPFPSStatus.m in Sources */,
 			);
@@ -526,7 +526,7 @@
 				29334D2E1E5B215F0061EAAE /* FXDanmakuItem.m in Sources */,
 				29334D2F1E5B215F0061EAAE /* FXDanmakuConfiguration.m in Sources */,
 				29334D301E5B215F0061EAAE /* NSObject+FXAlertView.m in Sources */,
-				29334D311E5B215F0061EAAE /* FXReusableObjectQueue.m in Sources */,
+				29334D311E5B215F0061EAAE /* FXReuseObjectQueue.m in Sources */,
 				29334D321E5B215F0061EAAE /* NSTimer+FXWeakTimer.m in Sources */,
 				29334D331E5B215F0061EAAE /* JPFPSStatus.m in Sources */,
 			);

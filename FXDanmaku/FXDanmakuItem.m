@@ -9,11 +9,11 @@
 #import "FXDanmakuItem.h"
 #import "FXDanmakuItem_Private.h"
 #import "FXDanmakuMacro.h"
-#import "FXReusableObjectQueue.h"
+#import "FXReuseObjectQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FXDanmakuItem () <FXReusableObject>
+@interface FXDanmakuItem () <FXObjectReusable>
 
 @property (nonatomic, copy) NSString *reuseIdentifier;
 @property (nonatomic, copy) IBInspectable NSString *Identifier;
