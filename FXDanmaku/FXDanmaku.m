@@ -826,7 +826,7 @@ typedef NS_ENUM(NSUInteger, DanmakuStatus) {
         [weakItem removeFromSuperview];
         [weakSelf.rowItemsManager[@(row)] removeDanmakuItem:weakItem];
         [weakSelf notifyDelegateDidEndDisplayingItem:weakItem];
-        [weakSelf.reuseItemQueue enqueueReusableObject:(FXReuseObject)weakItem];
+        [weakSelf.reuseItemQueue enqueueReuseObject:(FXReuseObject)weakItem];
     };
     if (data.animate == FXDataAnimateDefault) {
         animator.makeX(toFrame.origin.x).animate(animDuration);
